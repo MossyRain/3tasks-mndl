@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v1</title>
+<title>3TASKS MNDL Safari v1.1</title>
 <style>
 :root{--bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;--a1:#A30084;--a2:#B69100;--a3:#00466D;--accentText:#F4F4F1;--off:#D6D7D6;--done:#D0D1D0;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -59,8 +59,8 @@ const builtins=[DEFAULT,BAU];
 const initialNodes={life:{id:"life",name:"人生",parent:null,children:["health","learn","create","family","money","play"]},health:{id:"health",name:"健康",parent:"life",children:["sleep","food","exercise","rest"]},learn:{id:"learn",name:"学び",parent:"life",children:["reading"]},create:{id:"create",name:"創作",parent:"life",children:["sketch"]},family:{id:"family",name:"家族と過ごす",parent:"life",children:[]},money:{id:"money",name:"家計を確認する",parent:"life",children:[]},play:{id:"play",name:"新しいことを試す",parent:"life",children:[]},sleep:{id:"sleep",name:"睡眠",parent:"health",children:["bed"]},food:{id:"food",name:"食事を整える",parent:"health",children:[]},exercise:{id:"exercise",name:"運動",parent:"health",children:["bike","squat"]},rest:{id:"rest",name:"休息",parent:"health",children:["break10"]},reading:{id:"reading",name:"読書",parent:"learn",children:["book10"]},sketch:{id:"sketch",name:"造形",parent:"create",children:["sketch1"]},bed:{id:"bed",name:"23時までに寝る",parent:"sleep",children:[]},bike:{id:"bike",name:"20分自転車に乗る",parent:"exercise",children:[]},squat:{id:"squat",name:"スクワット10回",parent:"exercise",children:[]},break10:{id:"break10",name:"10分休む",parent:"rest",children:[]},book10:{id:"book10",name:"本を10ページ読む",parent:"reading",children:[]},sketch1:{id:"sketch1",name:"スケッチを1つ描く",parent:"sketch",children:[]}};
 let state={page:0,current:"life",nodes:JSON.parse(JSON.stringify(initialNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],activePaletteId:"main-default"};
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s)),root=document.documentElement,track=$("#track"),viewport=$("#viewport");let editingPalette=null,editingNodeId=null,gesture=null,longTriggered=false;
-function load(){try{const x=JSON.parse(localStorage.getItem("mndlSafariV1")||"null");if(x&&x.nodes)state={...state,...x}}catch(e){}}
-function save(){try{localStorage.setItem("mndlSafariV1",JSON.stringify(state))}catch(e){}}
+function load(){try{const x=JSON.parse(localStorage.getItem("mndlSafariV1_1")||"null");if(x&&x.nodes)state={...state,...x}}catch(e){}}
+function save(){try{localStorage.setItem("mndlSafariV1_1",JSON.stringify(state))}catch(e){}}
 function palettes(){return builtins.concat(state.customPalettes||[])}function activePalette(){return palettes().find(p=>p.id===state.activePaletteId)||DEFAULT}
 function applyPalette(p){state.activePaletteId=p.id;Object.entries(p.c).forEach(([k,v])=>root.style.setProperty("--"+k,v));document.querySelector('meta[name="theme-color"]').setAttribute("content",p.c.bg);save();renderPaletteList()}
 function node(id){return state.nodes[id]}function pathIds(id){const a=[];let n=node(id);while(n){a.unshift(n.id);n=n.parent?node(n.parent):null}return a}
@@ -70,7 +70,46 @@ function renderToday(){const box=$("#todayCards");box.innerHTML="";state.today.f
 function renderBreadcrumb(){const box=$("#breadcrumb");box.innerHTML="";const ids=pathIds(state.current);ids.forEach((id,i)=>{const b=document.createElement("button");b.type="button";b.textContent=node(id).name;b.onclick=()=>{state.current=id;renderMandala();save()};box.appendChild(b);if(i<ids.length-1){const s=document.createElement("span");s.textContent="←";box.appendChild(s)}})}
 function bindLong(el,id,center){let timer,sx=0,sy=0,moved=false;function start(e){const p=e.touches?e.touches[0]:e;sx=p.clientX;sy=p.clientY;moved=false;longTriggered=false;el.classList.add(center?"hold-out":"hold-in");timer=setTimeout(()=>{if(moved)return;longTriggered=true;if(center){const pId=node(state.current).parent;if(pId)state.current=pId}else state.current=id;renderMandala();save();setTimeout(()=>longTriggered=false,100)},430)}function move(e){const p=e.touches?e.touches[0]:e;if(Math.hypot(p.clientX-sx,p.clientY-sy)>12){moved=true;clearTimeout(timer);el.classList.remove("hold-in","hold-out")}}function end(){clearTimeout(timer);if(!longTriggered)el.classList.remove("hold-in","hold-out")}el.addEventListener("touchstart",start,{passive:true});el.addEventListener("touchmove",move,{passive:true});el.addEventListener("touchend",end,{passive:true});}
 function openEditor(id){editingNodeId=id;$("#nodeName").value=node(id).name;$("#sheetTrail").textContent=pathIds(id).map(x=>node(x).name).join(" ← ");$("#editSheet").classList.add("show")}
-function renderMandala(){renderBreadcrumb();const box=$("#mandala");box.innerHTML="";const cur=node(state.current),slots=[0,1,2,3,"c",4,5,6,7];slots.forEach(s=>{const b=document.createElement("button");b.type="button";if(s==="c"){b.className="cell center";b.textContent=cur.name;bindLong(b,cur.id,true);b.onclick=()=>{if(!longTriggered)openEditor(cur.id)}}else{const id=cur.children[s];if(id){const ch=node(id);b.className="cell";b.innerHTML=`<span>${ch.name}</span>${ch.children.length?'<span class="deep">›</span>':""}`;bindLong(b,id,false);b.onclick=()=>{if(!longTriggered)openEditor(id)}}else{b.className="cell empty";b.textContent="＋";b.onclick=()=>{const name=prompt("新しい項目名");if(!name||!name.trim()||cur.children.length>=8)return;const id="n"+Date.now();state.nodes[id]={id,name:name.trim(),parent:cur.id,children:[]};cur.children.push(id);renderMandala();renderActions();save()}}box.appendChild(b)})}
+function renderMandala(){
+  renderBreadcrumb();
+  const box=$("#mandala");
+  box.innerHTML="";
+  const cur=node(state.current);
+  const slots=[0,1,2,3,"c",4,5,6,7];
+  slots.forEach(s=>{
+    const b=document.createElement("button");
+    b.type="button";
+    if(s==="c"){
+      b.className="cell center";
+      b.textContent=cur.name;
+      bindLong(b,cur.id,true);
+      b.onclick=()=>{if(!longTriggered)openEditor(cur.id)};
+    }else{
+      const id=cur.children[s];
+      if(id){
+        const ch=node(id);
+        b.className="cell";
+        b.innerHTML=`<span>${ch.name}</span>${ch.children.length?'<span class="deep">›</span>':""}`;
+        bindLong(b,id,false);
+        b.onclick=()=>{if(!longTriggered)openEditor(id)};
+      }else{
+        b.className="cell empty";
+        b.textContent="＋";
+        b.onclick=()=>{
+          const name=prompt("新しい項目名");
+          if(!name||!name.trim()||cur.children.length>=8)return;
+          const id="n"+Date.now();
+          state.nodes[id]={id,name:name.trim(),parent:cur.id,children:[]};
+          cur.children.push(id);
+          renderMandala();
+          renderActions();
+          save();
+        };
+      }
+    }
+    box.appendChild(b);
+  });
+}
 function renderActions(){const box=$("#actions");box.innerHTML="";leaves().forEach(n=>{const d=document.createElement("div");d.className="action";const on=state.enabled[n.id]!==false;d.innerHTML=`<div class="action-copy"><div class="action-name">${n.name}</div><div class="action-trail">${trail(n.id)}</div></div><button type="button" class="toggle ${on?"":"off"}">${on?"ON":"OFF"}</button>`;d.querySelector(".toggle").onclick=()=>{state.enabled[n.id]=!(state.enabled[n.id]!==false);renderActions();save()};box.appendChild(d)})}
 const labels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",a1:"Accent 1",a2:"Accent 2",a3:"Accent 3",accentText:"Accent Text",off:"OFF",done:"Completed"};
 function dots(p){return `<span class="dots"><i style="background:${p.c.a1}"></i><i style="background:${p.c.a2}"></i><i style="background:${p.c.a3}"></i></span>`}
