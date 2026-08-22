@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v1.7</title>
+<title>3TASKS MNDL Safari v1.8</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -62,7 +62,7 @@ button,input{font:inherit;color:inherit}
 .moveSelect{width:100%;border:0;border-radius:9px;background:var(--bg);padding:11px;font-size:14px;margin-top:8px}
 .movePanel{display:none;margin-top:10px}.movePanel.show{display:block}
 .motionLayer{position:absolute;inset:0;pointer-events:none;z-index:19;overflow:visible}
-.zoomClone{position:absolute;border-radius:3px;background:var(--panel);display:grid;place-items:center;text-align:center;font-size:13px;font-weight:690;padding:7px;overflow:hidden;isolation:isolate;transition:transform .46s cubic-bezier(.18,.82,.2,1),opacity .28s ease}
+.zoomClone{position:absolute;border-radius:3px;background:var(--panel);display:grid;place-items:center;text-align:center;font-size:13px;font-weight:690;padding:7px;overflow:hidden;isolation:isolate;transition:left .46s cubic-bezier(.18,.82,.2,1),top .46s cubic-bezier(.18,.82,.2,1),width .46s cubic-bezier(.18,.82,.2,1),height .46s cubic-bezier(.18,.82,.2,1),transform .46s cubic-bezier(.18,.82,.2,1),opacity .28s ease}
 .zoomClone.centerLike{color:var(--accentText)}
 .zoomClone.centerLike:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 18% 18%,var(--a1),transparent 56%),radial-gradient(circle at 84% 22%,var(--a2),transparent 58%),radial-gradient(circle at 52% 88%,var(--a3),transparent 60%),linear-gradient(145deg,var(--a1),var(--a2) 52%,var(--a3))}
 .parentIncoming{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;opacity:0;transform:scale(1.32);transition:transform .46s cubic-bezier(.18,.82,.2,1),opacity .32s ease}
@@ -98,7 +98,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v1.7</div>
+<div class="appmeta">3TASKS MNDL · v1.8</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -123,14 +123,15 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v17";
+var STORAGE="mndl-v18";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
 var builtins=[
  {id:"signal",name:"SIGNAL",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#A30084",a2:"#B69100",a3:"#00466D",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
- {id:"bau",name:"BAU",builtIn:true,c:{bg:"#E9E9E9",panel:"#F3F3F3",text:"#171717",sub:"#737373",a1:"#C94A3F",a2:"#315A9F",a3:"#9A7226",accentText:"#F2F2EF",off:"#D3D3D3",done:"#CFCFCF"}},
- {id:"mist",name:"MIST",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#94CDC2",a2:"#C9C3AE",a3:"#8F7C9A",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}}
+ {id:"form",name:"FORM",builtIn:true,c:{bg:"#E9E9E9",panel:"#F3F3F3",text:"#171717",sub:"#737373",a1:"#C94A3F",a2:"#315A9F",a3:"#9A7226",accentText:"#F2F2EF",off:"#D3D3D3",done:"#CFCFCF"}},
+ {id:"mist",name:"MIST",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#94CDC2",a2:"#C9C3AE",a3:"#8F7C9A",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
+ {id:"neon",name:"NEON",builtIn:true,c:{bg:"#050505",panel:"#474747",text:"#EBEBEB",sub:"#5C5C5C",a1:"#0001F1",a2:"#B2D000",a3:"#F5008B",accentText:"#F2F2EF",off:"#999999",done:"#999999"}}
 ];
 
 var defaultNodes={
@@ -244,9 +245,11 @@ function animateDeeper(source,id){
      var cX=o.rect.left+o.rect.width/2,cY=o.rect.top+o.rect.height/2;
      var dx=cX-centerX,dy=cY-centerY;
      if(o.isTarget){
-       var sx=wrap.clientWidth/o.rect.width,sy=wrap.clientHeight/o.rect.height;
-       o.el.style.transform="translate("+(-o.rect.left)+"px,"+(-o.rect.top)+"px) scale("+sx+","+sy+")";
-       o.el.style.transformOrigin="top left";
+       o.el.style.left="0px";
+       o.el.style.top="0px";
+       o.el.style.width=wrap.clientWidth+"px";
+       o.el.style.height=wrap.clientHeight+"px";
+       o.el.style.transform="none";
      }else{
        o.el.style.transform="translate("+(dx*2.5)+"px,"+(dy*2.5)+"px) scale(1.55)";
        o.el.style.opacity="0";
@@ -276,45 +279,50 @@ function animateBack(){
  if(busy)return;
  var child=currentNode,parentId=node(child).parent;if(!parentId)return;
  busy=true;
+
  var grid=document.getElementById("mandala");
- var parent=node(parentId),childIndex=parent.children.indexOf(child),map=[0,1,2,3,5,6,7,8];
-
- // outgoing current 9 cells
- var outgoing=document.createElement("div");outgoing.className="childOutgoing";
- Array.from(grid.children).forEach(function(c){
-   var d=c.cloneNode(true);d.removeAttribute("id");outgoing.appendChild(d);
- });
+ var outgoing=document.createElement("div");
+ outgoing.className="childOutgoing";
+ Array.from(grid.children).forEach(function(c){outgoing.appendChild(c.cloneNode(true))});
  motionLayer.appendChild(outgoing);
- grid.style.opacity="0";
 
- // incoming parent grid, start oversized/offscreen
- var incoming=document.createElement("div");incoming.className="parentIncoming";
- renderGridSnapshot(parentId,incoming);
+ // Render the actual parent grid first. Its real cell geometry is then
+ // the single source of truth for the collapse destination.
+ currentNode=parentId;
+ renderMandala();
+ var parentGrid=document.getElementById("mandala");
+ var parent=node(parentId),childIndex=parent.children.indexOf(child),map=[0,1,2,3,5,6,7,8];
+ var target=parentGrid.children[map[childIndex]];
+ var dest=rectInWrap(target);
+
+ // Parent cells enter from an enlarged field centred on the destination.
+ var incoming=document.createElement("div");
+ incoming.className="parentIncoming";
+ Array.from(parentGrid.children).forEach(function(c){incoming.appendChild(c.cloneNode(true))});
  motionLayer.appendChild(incoming);
+ parentGrid.style.opacity="0";
 
- // destination geometry within parent grid
- var slotEl=incoming.children[map[childIndex]];
- var stageRect=wrap.getBoundingClientRect();
- var slotRect=slotEl.getBoundingClientRect();
- var dest={left:slotRect.left-stageRect.left,top:slotRect.top-stageRect.top,width:slotRect.width,height:slotRect.height};
+ var cx=dest.left+dest.width/2,cy=dest.top+dest.height/2;
+ var wcx=wrap.clientWidth/2,wcy=wrap.clientHeight/2;
+ incoming.style.transformOrigin=cx+"px "+cy+"px";
+ incoming.style.transform="scale(2.2)";
+ incoming.style.opacity="0";
 
  requestAnimationFrame(function(){requestAnimationFrame(function(){
-   // entire child grid collapses into destination cell
    var sx=dest.width/wrap.clientWidth,sy=dest.height/wrap.clientHeight;
-   outgoing.style.transformOrigin="top left";
+   // transform origin 0,0 means translation coordinates are exact wrap coordinates.
+   outgoing.style.transformOrigin="0 0";
    outgoing.style.transform="translate("+dest.left+"px,"+dest.top+"px) scale("+sx+","+sy+")";
-   outgoing.style.opacity=".72";
-   incoming.classList.add("show");
+   outgoing.style.opacity=".62";
+   incoming.style.transform="scale(1)";
+   incoming.style.opacity="1";
  })});
 
  setTimeout(function(){
-   currentNode=parentId;
-   renderMandala();
-   document.getElementById("mandala").style.opacity="1";
+   parentGrid.style.opacity="1";
    outgoing.remove();incoming.remove();busy=false;
  },470);
 }
-
 function buildMoveOptions(){
  var sel=document.getElementById("moveSelect");sel.innerHTML="";
  function walk(id,depth){
