@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v1.2</title>
+<title>3TASKS MNDL Safari v1.3</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -83,8 +83,9 @@ button,input{font:inherit;color:inherit}
 
 <section class="page"><div class="scroll">
 <div class="section"><h2>COLOR PALETTE</h2>
-<button class="paletteRow" data-palette="main"><span><span class="paletteName">MAIN</span><span class="tag">DEFAULT</span></span><span class="dots"><i style="background:#A30084"></i><i style="background:#B69100"></i><i style="background:#00466D"></i></span></button>
+<button class="paletteRow" data-palette="main"><span><span class="paletteName">SIGNAL</span><span class="tag">DEFAULT</span></span><span class="dots"><i style="background:#A30084"></i><i style="background:#B69100"></i><i style="background:#00466D"></i></span></button>
 <button class="paletteRow" data-palette="bau"><span><span class="paletteName">BAU</span><span class="tag">DEFAULT</span></span><span class="dots"><i style="background:#C94A3F"></i><i style="background:#315A9F"></i><i style="background:#9A7226"></i></span></button>
+<button class="paletteRow" data-palette="mist"><span><span class="paletteName">MIST</span><span class="tag">DEFAULT</span></span><span class="dots"><i style="background:#94CDC2"></i><i style="background:#C9C3AE"></i><i style="background:#8F7C9A"></i></span></button>
 <button class="btn" id="newPalette">＋ NEW PALETTE</button>
 </div>
 <div class="section editor" id="editor"><h2>EDIT PALETTE</h2><div class="preview" id="preview"></div><div id="editRows"></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="btn primary" id="savePalette">新しいパレットとして保存</button></div></div>
@@ -103,7 +104,8 @@ var page=0;
 var titles=["TODAY","MANDALA","ACTIONS","SETTINGS"];
 var palettes={
  main:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#A30084",a2:"#B69100",a3:"#00466D",accentText:"#F4F4F1"},
- bau:{bg:"#E9E9E9",panel:"#F3F3F3",text:"#171717",sub:"#737373",a1:"#C94A3F",a2:"#315A9F",a3:"#9A7226",accentText:"#F2F2EF"}
+ bau:{bg:"#E9E9E9",panel:"#F3F3F3",text:"#171717",sub:"#737373",a1:"#C94A3F",a2:"#315A9F",a3:"#9A7226",accentText:"#F2F2EF"},
+ mist:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#94CDC2",a2:"#C9C3AE",a3:"#8F7C9A",accentText:"#F4F4F1"}
 };
 var currentPalette="main";
 var gesture=null;
@@ -121,7 +123,7 @@ for(var i=0;i<nav.length;i++){(function(index){nav[index].addEventListener("clic
 
 viewport.addEventListener("touchstart",function(e){
  if(e.touches.length!==1)return;
- if(e.target.tagName==="INPUT")return;
+ if(e.target.closest("input,button,.editor"))return;
  var t=e.touches[0];gesture={x:t.clientX,y:t.clientY,dx:0,dy:0,axis:"",start:page};
  track.style.transition="none";
 },{passive:true});
@@ -150,7 +152,11 @@ function applyPalette(p){
  var keys=Object.keys(p);for(var i=0;i<keys.length;i++)document.documentElement.style.setProperty("--"+keys[i],p[keys[i]]);
 }
 var paletteButtons=document.querySelectorAll("[data-palette]");
-for(var k=0;k<paletteButtons.length;k++){paletteButtons[k].addEventListener("click",function(){currentPalette=this.getAttribute("data-palette");applyPalette(palettes[currentPalette]);openEditor(palettes[currentPalette])})}
+for(var k=0;k<paletteButtons.length;k++){(function(btn){
+ function choose(e){if(e)e.preventDefault();currentPalette=btn.getAttribute("data-palette");applyPalette(palettes[currentPalette]);openEditor(JSON.parse(JSON.stringify(palettes[currentPalette])));}
+ btn.addEventListener("click",choose);
+ btn.addEventListener("touchend",choose,{passive:false});
+})(paletteButtons[k])}
 
 function openEditor(p){
  document.getElementById("editor").classList.add("show");
@@ -172,10 +178,37 @@ document.getElementById("newPalette").addEventListener("click",function(){openEd
 document.getElementById("savePalette").addEventListener("click",function(){alert("カスタムパレット保存は次段階で追加します。")});
 
 function bindHold(el,center){
- var timer=null,sx=0,sy=0,moved=false;
- el.addEventListener("touchstart",function(e){if(e.touches.length!==1)return;var t=e.touches[0];sx=t.clientX;sy=t.clientY;moved=false;el.classList.add(center?"holdOut":"holdIn");timer=setTimeout(function(){if(!moved){el.classList.remove("holdIn","holdOut")}},430)},{passive:true});
- el.addEventListener("touchmove",function(e){var t=e.touches[0];if(Math.hypot(t.clientX-sx,t.clientY-sy)>12){moved=true;clearTimeout(timer);el.classList.remove("holdIn","holdOut")}},{passive:true});
- el.addEventListener("touchend",function(){clearTimeout(timer);el.classList.remove("holdIn","holdOut")},{passive:true});
+ var timer=null,sx=0,sy=0,moved=false,committed=false;
+ function clearVisual(){el.classList.remove("holdIn","holdOut")}
+ el.addEventListener("touchstart",function(e){
+   if(e.touches.length!==1)return;
+   var t=e.touches[0];sx=t.clientX;sy=t.clientY;moved=false;committed=false;
+   el.classList.add(center?"holdOut":"holdIn");
+   clearTimeout(timer);
+   timer=setTimeout(function(){
+     if(moved)return;
+     committed=true;
+     if(center){
+       clearVisual();
+     }else{
+       el.classList.add("holdIn");
+       setTimeout(clearVisual,180);
+     }
+   },430);
+ },{passive:true});
+ el.addEventListener("touchmove",function(e){
+   if(!e.touches.length)return;
+   var t=e.touches[0];
+   if(Math.hypot(t.clientX-sx,t.clientY-sy)>12){
+     moved=true;clearTimeout(timer);clearVisual();
+   }
+ },{passive:true});
+ el.addEventListener("touchend",function(){
+   clearTimeout(timer);
+   if(!committed)clearVisual();
+   setTimeout(function(){committed=false;clearVisual()},220);
+ },{passive:true});
+ el.addEventListener("touchcancel",function(){clearTimeout(timer);clearVisual()},{passive:true});
 }
 var deep=document.querySelectorAll("[data-deep]");for(var q=0;q<deep.length;q++)bindHold(deep[q],false);bindHold(document.getElementById("centerCell"),true);
 
