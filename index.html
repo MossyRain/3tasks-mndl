@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v1.8</title>
+<title>3TASKS MNDL Safari v1.9</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -65,9 +65,12 @@ button,input{font:inherit;color:inherit}
 .zoomClone{position:absolute;border-radius:3px;background:var(--panel);display:grid;place-items:center;text-align:center;font-size:13px;font-weight:690;padding:7px;overflow:hidden;isolation:isolate;transition:left .46s cubic-bezier(.18,.82,.2,1),top .46s cubic-bezier(.18,.82,.2,1),width .46s cubic-bezier(.18,.82,.2,1),height .46s cubic-bezier(.18,.82,.2,1),transform .46s cubic-bezier(.18,.82,.2,1),opacity .28s ease}
 .zoomClone.centerLike{color:var(--accentText)}
 .zoomClone.centerLike:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 18% 18%,var(--a1),transparent 56%),radial-gradient(circle at 84% 22%,var(--a2),transparent 58%),radial-gradient(circle at 52% 88%,var(--a3),transparent 60%),linear-gradient(145deg,var(--a1),var(--a2) 52%,var(--a3))}
-.parentIncoming{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;opacity:0;transform:scale(1.32);transition:transform .46s cubic-bezier(.18,.82,.2,1),opacity .32s ease}
+.parentIncoming{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;opacity:0;transform:scale(1.32);transition:transform .46s cubic-bezier(.18,.82,.2,1),opacity .20s ease}
 .parentIncoming.show{opacity:1;transform:scale(1)}
-.childOutgoing{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;transition:transform .46s cubic-bezier(.18,.82,.2,1),opacity .28s ease}
+.childOutgoing{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;transition:transform .46s cubic-bezier(.18,.82,.2,1),opacity .20s ease}
+.mandala.fadeInFinal{animation:fadeInFinal .20s ease both}
+@keyframes fadeInFinal{from{opacity:0}to{opacity:1}}
+.zoomClone.fadeOutFinal,.childOutgoing.fadeOutFinal,.parentIncoming.fadeOutFinal{opacity:0!important}
 
 </style>
 </head>
@@ -98,7 +101,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v1.8</div>
+<div class="appmeta">3TASKS MNDL · v1.9</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -123,7 +126,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v18";
+var STORAGE="mndl-v19";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -231,12 +234,14 @@ function animateDeeper(source,id){
  var centerX=srcRect.left+srcRect.width/2,centerY=srcRect.top+srcRect.height/2;
  var cells=Array.from(grid.children);
  var clones=[];
+
  cells.forEach(function(c){
    var r=rectInWrap(c),cl=document.createElement("div");
    cl.className="zoomClone"+(c.classList.contains("center")?" centerLike":"");
    cl.textContent=c.textContent.replace("›","");
    cl.style.left=r.left+"px";cl.style.top=r.top+"px";cl.style.width=r.width+"px";cl.style.height=r.height+"px";
-   motionLayer.appendChild(cl);clones.push({el:cl,rect:r,isTarget:c===source});
+   motionLayer.appendChild(cl);
+   clones.push({el:cl,rect:r,isTarget:c===source});
  });
  grid.style.opacity="0";
 
@@ -257,14 +262,27 @@ function animateDeeper(source,id){
    });
  })});
 
+ // At the end of the zoom, render the destination grid underneath and crossfade.
  setTimeout(function(){
    currentNode=id;
    renderMandala();
-   document.getElementById("mandala").style.opacity="1";
-   clones.forEach(function(o){o.el.remove()});busy=false;
- },470);
-}
+   var newGrid=document.getElementById("mandala");
+   newGrid.style.opacity="0";
+   newGrid.classList.add("fadeInFinal");
 
+   var targetClone=clones.find(function(o){return o.isTarget});
+   requestAnimationFrame(function(){requestAnimationFrame(function(){
+     newGrid.style.opacity="1";
+     if(targetClone)targetClone.el.classList.add("fadeOutFinal");
+   })});
+
+   setTimeout(function(){
+     clones.forEach(function(o){o.el.remove()});
+     newGrid.classList.remove("fadeInFinal");
+     busy=false;
+   },230);
+ },400);
+}
 function renderGridSnapshot(nodeId,container){
  var n=node(nodeId),slots=[0,1,2,3,"c",4,5,6,7];
  slots.forEach(function(s){
@@ -286,8 +304,6 @@ function animateBack(){
  Array.from(grid.children).forEach(function(c){outgoing.appendChild(c.cloneNode(true))});
  motionLayer.appendChild(outgoing);
 
- // Render the actual parent grid first. Its real cell geometry is then
- // the single source of truth for the collapse destination.
  currentNode=parentId;
  renderMandala();
  var parentGrid=document.getElementById("mandala");
@@ -295,33 +311,38 @@ function animateBack(){
  var target=parentGrid.children[map[childIndex]];
  var dest=rectInWrap(target);
 
- // Parent cells enter from an enlarged field centred on the destination.
  var incoming=document.createElement("div");
  incoming.className="parentIncoming";
  Array.from(parentGrid.children).forEach(function(c){incoming.appendChild(c.cloneNode(true))});
  motionLayer.appendChild(incoming);
- parentGrid.style.opacity="0";
 
- var cx=dest.left+dest.width/2,cy=dest.top+dest.height/2;
- var wcx=wrap.clientWidth/2,wcy=wrap.clientHeight/2;
- incoming.style.transformOrigin=cx+"px "+cy+"px";
+ parentGrid.style.opacity="0";
+ incoming.style.transformOrigin=(dest.left+dest.width/2)+"px "+(dest.top+dest.height/2)+"px";
  incoming.style.transform="scale(2.2)";
  incoming.style.opacity="0";
 
  requestAnimationFrame(function(){requestAnimationFrame(function(){
    var sx=dest.width/wrap.clientWidth,sy=dest.height/wrap.clientHeight;
-   // transform origin 0,0 means translation coordinates are exact wrap coordinates.
    outgoing.style.transformOrigin="0 0";
    outgoing.style.transform="translate("+dest.left+"px,"+dest.top+"px) scale("+sx+","+sy+")";
-   outgoing.style.opacity=".62";
    incoming.style.transform="scale(1)";
    incoming.style.opacity="1";
  })});
 
+ // Crossfade transformed layers into the actual parent grid.
  setTimeout(function(){
+   parentGrid.classList.add("fadeInFinal");
    parentGrid.style.opacity="1";
-   outgoing.remove();incoming.remove();busy=false;
- },470);
+   outgoing.classList.add("fadeOutFinal");
+   incoming.classList.add("fadeOutFinal");
+
+   setTimeout(function(){
+     outgoing.remove();
+     incoming.remove();
+     parentGrid.classList.remove("fadeInFinal");
+     busy=false;
+   },230);
+ },400);
 }
 function buildMoveOptions(){
  var sel=document.getElementById("moveSelect");sel.innerHTML="";
