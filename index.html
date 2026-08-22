@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v1.9</title>
+<title>3TASKS MNDL Safari v2.0</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -101,7 +101,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v1.9</div>
+<div class="appmeta">3TASKS MNDL · v2.0</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -126,7 +126,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v19";
+var STORAGE="mndl-v20";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -216,9 +216,19 @@ function renderActions(){
 }
 function renderBreadcrumb(){
  var box=document.getElementById("breadcrumb");box.innerHTML="";var ids=pathIds(currentNode);
- ids.forEach(function(id,i){var b=document.createElement("button");b.textContent=node(id).name;b.onclick=function(){currentNode=id;renderMandala()};box.appendChild(b);if(i<ids.length-1){var s=document.createElement("span");s.textContent="←";box.appendChild(s)}});
+ ids.forEach(function(id,i){
+   var b=document.createElement("button");
+   b.textContent=node(id).name;
+   b.onclick=function(){
+     if(id===currentNode||busy)return;
+     animateBackTo(id);
+   };
+   box.appendChild(b);
+   if(i<ids.length-1){
+     var s=document.createElement("span");s.textContent="←";box.appendChild(s);
+   }
+ });
 }
-
 function rectInWrap(el){var a=el.getBoundingClientRect(),w=wrap.getBoundingClientRect();return{left:a.left-w.left,top:a.top-w.top,width:a.width,height:a.height}}
 function makeCloneFromCell(el,text,center){
  var r=rectInWrap(el),g=document.createElement("div");g.className="zoomClone"+(center?" centerLike":"");g.textContent=text;
@@ -293,7 +303,7 @@ function renderGridSnapshot(nodeId,container){
  });
 }
 
-function animateBack(){
+function animateBack(afterStep){
  if(busy)return;
  var child=currentNode,parentId=node(child).parent;if(!parentId)return;
  busy=true;
@@ -329,7 +339,6 @@ function animateBack(){
    incoming.style.opacity="1";
  })});
 
- // Crossfade transformed layers into the actual parent grid.
  setTimeout(function(){
    parentGrid.classList.add("fadeInFinal");
    parentGrid.style.opacity="1";
@@ -341,8 +350,26 @@ function animateBack(){
      incoming.remove();
      parentGrid.classList.remove("fadeInFinal");
      busy=false;
+     if(typeof afterStep==="function")afterStep();
    },230);
  },400);
+}
+
+function animateBackTo(targetId){
+ if(busy||targetId===currentNode)return;
+
+ var lineage=pathIds(currentNode);
+ var targetIndex=lineage.indexOf(targetId);
+ if(targetIndex<0)return; // breadcrumb should only point to ancestors
+
+ function next(){
+   if(currentNode===targetId)return;
+   animateBack(function(){
+     // Small visual pause keeps separate levels legible without feeling slow.
+     if(currentNode!==targetId)setTimeout(next,55);
+   });
+ }
+ next();
 }
 function buildMoveOptions(){
  var sel=document.getElementById("moveSelect");sel.innerHTML="";
