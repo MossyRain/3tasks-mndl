@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v2.0</title>
+<title>3TASKS MNDL Safari v2.1</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -94,6 +94,14 @@ button,input{font:inherit;color:inherit}
 
 <section class="page"><div class="scroll">
 <div class="section"><h2>COLOR PALETTE</h2><div id="paletteList"></div><button class="btn" id="newPalette">＋ NEW PALETTE</button></div>
+<div class="section"><h2>BACKGROUND</h2>
+<div class="dataActions">
+<button class="btn" data-bgmode="white">WHITE</button>
+<button class="btn" data-bgmode="black">BLACK</button>
+<button class="btn" data-bgmode="custom" id="customBgBtn">CUSTOM</button>
+</div>
+<div id="customBgEditor" style="display:none;margin-top:10px"></div>
+</div>
 <div class="section editor" id="editor"><h2 id="editorTitle">EDIT PALETTE</h2><div class="preview" id="preview"></div><div id="editRows"></div><div class="editActions"><button class="btn primary" id="saveAsPalette">新しいパレットとして保存</button><button class="btn" id="overwritePalette">上書き保存</button><button class="btn danger" id="deletePalette">削除</button></div></div>
 <div class="section"><h2>DATA</h2><div class="dataActions"><button class="btn" id="exportBtn">JSONを書き出す</button><button class="btn" id="importBtn">JSONを読み込む</button><input class="fileInput" id="importFile" type="file" accept="application/json,.json"></div><div class="dataNote">Safari内へ自動保存し、JSONでもバックアップできます。</div></div>
 </div></section>
@@ -101,7 +109,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v2.0</div>
+<div class="appmeta">3TASKS MNDL · v2.1</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -126,15 +134,15 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v20";
+var STORAGE="mndl-v21";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
 var builtins=[
- {id:"signal",name:"SIGNAL",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#A30084",a2:"#B69100",a3:"#00466D",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
+ {id:"field",name:"FIELD",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#A30084",a2:"#B69100",a3:"#00466D",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
  {id:"form",name:"FORM",builtIn:true,c:{bg:"#E9E9E9",panel:"#F3F3F3",text:"#171717",sub:"#737373",a1:"#C94A3F",a2:"#315A9F",a3:"#9A7226",accentText:"#F2F2EF",off:"#D3D3D3",done:"#CFCFCF"}},
  {id:"mist",name:"MIST",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#94CDC2",a2:"#C9C3AE",a3:"#8F7C9A",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
- {id:"neon",name:"NEON",builtIn:true,c:{bg:"#050505",panel:"#474747",text:"#EBEBEB",sub:"#5C5C5C",a1:"#0001F1",a2:"#B2D000",a3:"#F5008B",accentText:"#F2F2EF",off:"#999999",done:"#999999"}}
+ {id:"neon",name:"NEON",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#0001F1",a2:"#B2D000",a3:"#F5008B",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}}
 ];
 
 var defaultNodes={
@@ -159,7 +167,7 @@ var defaultNodes={
  sketch1:{id:"sketch1",name:"スケッチを1つ描く",parent:"sketch",children:[]}
 };
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],activePaletteId:"signal"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"}};
 
 function save(){try{localStorage.setItem(STORAGE,JSON.stringify(state))}catch(e){}}
 function load(){try{var s=JSON.parse(localStorage.getItem(STORAGE)||"null");if(s&&s.nodes)state=Object.assign(state,s)}catch(e){}}
@@ -240,31 +248,23 @@ function fullRect(){return{left:0,top:0,width:wrap.clientWidth,height:wrap.clien
 function animateDeeper(source,id){
  if(busy)return;busy=true;
  var grid=document.getElementById("mandala");
- var srcRect=rectInWrap(source);
- var centerX=srcRect.left+srcRect.width/2,centerY=srcRect.top+srcRect.height/2;
- var cells=Array.from(grid.children);
- var clones=[];
+ var srcRect=rectInWrap(source),centerX=srcRect.left+srcRect.width/2,centerY=srcRect.top+srcRect.height/2;
+ var cells=Array.from(grid.children),clones=[];
 
  cells.forEach(function(c){
    var r=rectInWrap(c),cl=document.createElement("div");
    cl.className="zoomClone"+(c.classList.contains("center")?" centerLike":"");
    cl.textContent=c.textContent.replace("›","");
    cl.style.left=r.left+"px";cl.style.top=r.top+"px";cl.style.width=r.width+"px";cl.style.height=r.height+"px";
-   motionLayer.appendChild(cl);
-   clones.push({el:cl,rect:r,isTarget:c===source});
+   motionLayer.appendChild(cl);clones.push({el:cl,rect:r,isTarget:c===source});
  });
  grid.style.opacity="0";
 
  requestAnimationFrame(function(){requestAnimationFrame(function(){
    clones.forEach(function(o){
-     var cX=o.rect.left+o.rect.width/2,cY=o.rect.top+o.rect.height/2;
-     var dx=cX-centerX,dy=cY-centerY;
+     var cX=o.rect.left+o.rect.width/2,cY=o.rect.top+o.rect.height/2,dx=cX-centerX,dy=cY-centerY;
      if(o.isTarget){
-       o.el.style.left="0px";
-       o.el.style.top="0px";
-       o.el.style.width=wrap.clientWidth+"px";
-       o.el.style.height=wrap.clientHeight+"px";
-       o.el.style.transform="none";
+       o.el.style.left="0px";o.el.style.top="0px";o.el.style.width=wrap.clientWidth+"px";o.el.style.height=wrap.clientHeight+"px";
      }else{
        o.el.style.transform="translate("+(dx*2.5)+"px,"+(dy*2.5)+"px) scale(1.55)";
        o.el.style.opacity="0";
@@ -272,26 +272,24 @@ function animateDeeper(source,id){
    });
  })});
 
- // At the end of the zoom, render the destination grid underneath and crossfade.
+ // Blend destination hierarchy in before the zoom has finished.
  setTimeout(function(){
-   currentNode=id;
-   renderMandala();
+   currentNode=id;renderMandala();
    var newGrid=document.getElementById("mandala");
    newGrid.style.opacity="0";
-   newGrid.classList.add("fadeInFinal");
-
-   var targetClone=clones.find(function(o){return o.isTarget});
+   newGrid.style.transition="opacity .22s ease";
    requestAnimationFrame(function(){requestAnimationFrame(function(){
      newGrid.style.opacity="1";
-     if(targetClone)targetClone.el.classList.add("fadeOutFinal");
+     var targetClone=clones.find(function(o){return o.isTarget});
+     if(targetClone)targetClone.el.style.opacity="0";
    })});
+ },255);
 
-   setTimeout(function(){
-     clones.forEach(function(o){o.el.remove()});
-     newGrid.classList.remove("fadeInFinal");
-     busy=false;
-   },230);
- },400);
+ setTimeout(function(){
+   clones.forEach(function(o){o.el.remove()});
+   var g=document.getElementById("mandala");g.style.transition="";g.style.opacity="1";
+   busy=false;
+ },480);
 }
 function renderGridSnapshot(nodeId,container){
  var n=node(nodeId),slots=[0,1,2,3,"c",4,5,6,7];
@@ -309,27 +307,21 @@ function animateBack(afterStep){
  busy=true;
 
  var grid=document.getElementById("mandala");
- var outgoing=document.createElement("div");
- outgoing.className="childOutgoing";
+ var outgoing=document.createElement("div");outgoing.className="childOutgoing";
  Array.from(grid.children).forEach(function(c){outgoing.appendChild(c.cloneNode(true))});
  motionLayer.appendChild(outgoing);
 
- currentNode=parentId;
- renderMandala();
+ currentNode=parentId;renderMandala();
  var parentGrid=document.getElementById("mandala");
  var parent=node(parentId),childIndex=parent.children.indexOf(child),map=[0,1,2,3,5,6,7,8];
- var target=parentGrid.children[map[childIndex]];
- var dest=rectInWrap(target);
+ var target=parentGrid.children[map[childIndex]],dest=rectInWrap(target);
 
- var incoming=document.createElement("div");
- incoming.className="parentIncoming";
+ var incoming=document.createElement("div");incoming.className="parentIncoming";
  Array.from(parentGrid.children).forEach(function(c){incoming.appendChild(c.cloneNode(true))});
  motionLayer.appendChild(incoming);
-
  parentGrid.style.opacity="0";
  incoming.style.transformOrigin=(dest.left+dest.width/2)+"px "+(dest.top+dest.height/2)+"px";
- incoming.style.transform="scale(2.2)";
- incoming.style.opacity="0";
+ incoming.style.transform="scale(2.2)";incoming.style.opacity="0";
 
  requestAnimationFrame(function(){requestAnimationFrame(function(){
    var sx=dest.width/wrap.clientWidth,sy=dest.height/wrap.clientHeight;
@@ -339,22 +331,21 @@ function animateBack(afterStep){
    incoming.style.opacity="1";
  })});
 
+ // Start blending into the actual parent while shrink is still in motion.
  setTimeout(function(){
-   parentGrid.classList.add("fadeInFinal");
+   parentGrid.style.transition="opacity .22s ease";
    parentGrid.style.opacity="1";
-   outgoing.classList.add("fadeOutFinal");
-   incoming.classList.add("fadeOutFinal");
+   outgoing.style.opacity="0";
+   incoming.style.opacity=".38";
+ },255);
 
-   setTimeout(function(){
-     outgoing.remove();
-     incoming.remove();
-     parentGrid.classList.remove("fadeInFinal");
-     busy=false;
-     if(typeof afterStep==="function")afterStep();
-   },230);
- },400);
+ setTimeout(function(){
+   outgoing.remove();incoming.remove();
+   parentGrid.style.transition="";parentGrid.style.opacity="1";
+   busy=false;
+   if(typeof afterStep==="function")afterStep();
+ },480);
 }
-
 function animateBackTo(targetId){
  if(busy||targetId===currentNode)return;
 
@@ -366,7 +357,7 @@ function animateBackTo(targetId){
    if(currentNode===targetId)return;
    animateBack(function(){
      // Small visual pause keeps separate levels legible without feeling slow.
-     if(currentNode!==targetId)setTimeout(next,55);
+     if(currentNode!==targetId)setTimeout(next,20);
    });
  }
  next();
@@ -476,10 +467,58 @@ function renderMandala(){
 
 function palettes(){return builtins.concat(state.customPalettes||[])}
 function activePalette(){return palettes().find(function(p){return p.id===state.activePaletteId})||builtins[0]}
-function applyPalette(p){state.activePaletteId=p.id;Object.keys(p.c).forEach(function(k){document.documentElement.style.setProperty("--"+k,p.c[k])});save()}
+var whiteBg={bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"};
+var blackBg={bg:"#181918",panel:"#2C2D2C",text:"#F0F0ED",sub:"#9A9C9A",off:"#4A4B4A",done:"#4F504F"};
+
+function backgroundValues(){
+ if(state.backgroundMode==="black")return blackBg;
+ if(state.backgroundMode==="custom")return state.customBackground||whiteBg;
+ return whiteBg;
+}
+function applyPalette(p){
+ state.activePaletteId=p.id;
+ ["a1","a2","a3","accentText"].forEach(function(k){document.documentElement.style.setProperty("--"+k,p.c[k])});
+ var bg=backgroundValues();
+ Object.keys(bg).forEach(function(k){document.documentElement.style.setProperty("--"+k,bg[k])});
+ save();renderBackgroundControls();
+}
+
+function renderBackgroundControls(){
+ var buttons=document.querySelectorAll("[data-bgmode]");
+ buttons.forEach(function(b){
+   b.classList.toggle("primary",b.getAttribute("data-bgmode")===state.backgroundMode);
+ });
+ var ed=document.getElementById("customBgEditor");
+ ed.style.display=state.backgroundMode==="custom"?"block":"none";
+ if(state.backgroundMode==="custom")renderCustomBackgroundEditor();
+}
+function renderCustomBackgroundEditor(){
+ var ed=document.getElementById("customBgEditor");ed.innerHTML="";
+ var labels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",off:"OFF",done:"Completed"};
+ Object.keys(labels).forEach(function(k){
+   var r=document.createElement("div");r.className="editRow";
+   r.innerHTML="<label>"+labels[k]+"</label><input type='color' value='"+state.customBackground[k]+"'><input type='text' value='"+state.customBackground[k]+"'>";
+   var pick=r.children[1],hex=r.children[2];
+   pick.oninput=function(){state.customBackground[k]=pick.value.toUpperCase();hex.value=state.customBackground[k];applyPalette(activePalette())};
+   hex.onchange=function(){var v=hex.value.trim();if(v.charAt(0)!=="#")v="#"+v;if(/^#[0-9A-Fa-f]{6}$/.test(v)){state.customBackground[k]=v.toUpperCase();pick.value=v;applyPalette(activePalette())}else hex.value=state.customBackground[k]};
+   ed.appendChild(r);
+ });
+}
+document.querySelectorAll("[data-bgmode]").forEach(function(b){
+ b.onclick=function(){
+   var mode=b.getAttribute("data-bgmode");
+   // Built-in palettes expose WHITE/BLACK. Custom palettes also expose CUSTOM.
+   var p=activePalette();
+   if(mode==="custom" && p.builtIn)return;
+   state.backgroundMode=mode;
+   applyPalette(p);
+ };
+});
+
 function renderPaletteList(){
  var box=document.getElementById("paletteList");box.innerHTML="";
- palettes().forEach(function(p){var b=document.createElement("button");b.className="paletteRow";b.innerHTML="<span><span class='paletteName'>"+p.name+"</span><span class='tag'>"+(p.builtIn?"DEFAULT":"CUSTOM")+"</span></span><span class='dots'><i style='background:"+p.c.a1+"'></i><i style='background:"+p.c.a2+"'></i><i style='background:"+p.c.a3+"'></i></span>";b.onclick=function(){applyPalette(p);openPaletteEditor(p)};box.appendChild(b)});
+ var cb=document.getElementById("customBgBtn");if(cb)cb.disabled=activePalette().builtIn;
+ palettes().forEach(function(p){var b=document.createElement("button");b.className="paletteRow";b.innerHTML="<span><span class='paletteName'>"+p.name+"</span><span class='tag'>"+(p.builtIn?"DEFAULT":"CUSTOM")+"</span></span><span class='dots'><i style='background:"+p.c.a1+"'></i><i style='background:"+p.c.a2+"'></i><i style='background:"+p.c.a3+"'></i></span>";b.onclick=function(){if(p.builtIn&&state.backgroundMode==="custom")state.backgroundMode="white";applyPalette(p);openPaletteEditor(p);renderPaletteList()};box.appendChild(b)});
 }
 var paletteLabels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",a1:"Accent 1",a2:"Accent 2",a3:"Accent 3",accentText:"Accent Text",off:"OFF",done:"Completed"};
 function openPaletteEditor(p){editingPalette={id:p.id,name:p.name,builtIn:p.builtIn,c:Object.assign({},p.c)};document.getElementById("editor").classList.add("show");document.getElementById("editorTitle").textContent="EDIT · "+p.name;renderPaletteEditor()}
@@ -499,7 +538,12 @@ document.getElementById("importBtn").onclick=function(){document.getElementById(
 document.getElementById("importFile").onchange=function(e){var file=e.target.files&&e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(){try{var x=JSON.parse(r.result);if(!x.nodes||!x.today)throw new Error();state=x;state.customPalettes=state.customPalettes||[];currentNode="life";save();applyPalette(activePalette());renderAll();alert("復元しました")}catch(err){alert("読み込めないJSONです")}};r.readAsText(file)};
 
 function renderAll(){renderToday();renderActions();renderMandala();renderPaletteList()}
-load();state.customPalettes=state.customPalettes||[];applyPalette(activePalette());renderAll();setPage(0,false);
+load();
+state.customPalettes=state.customPalettes||[];
+if(state.activePaletteId==="signal")state.activePaletteId="field";
+state.backgroundMode=state.backgroundMode||"white";
+state.customBackground=state.customBackground||{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"};
+applyPalette(activePalette());renderAll();renderBackgroundControls();setPage(0,false);
 })();
 
 </script>
