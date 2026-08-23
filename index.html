@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v3.8</title>
+<title>3TASKS MNDL Safari v3.9</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -32,7 +32,7 @@ button,input{font:inherit;color:inherit}
 .card{min-height:104px;border:0;border-radius:12px;padding:15px 12px 15px 14px;display:grid;grid-template-columns:44px 1fr 78px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative}
 .card.c1{background:var(--a1)}.card.c2{background:var(--a2)}.card.c3{background:var(--a3)}.card.done{background:var(--done);color:var(--text)}
 .cardRight{height:64px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;position:relative}
-.refreshPlain{position:absolute;right:-8px;top:-8px;width:20px;height:20px;border:0;background:transparent;color:inherit;font-size:15px;line-height:1;padding:0;display:grid;place-items:center;opacity:.58}
+.refreshPlain{position:absolute;right:-8px;top:-20px;width:20px;height:20px;border:0;background:transparent;color:inherit;font-size:15px;line-height:1;padding:0;display:grid;place-items:center;opacity:.58}
 .refreshPlain.used{opacity:.24;pointer-events:none}
 .doneAction{border:0;background:transparent;color:inherit;padding:0;display:grid;grid-template-columns:auto 28px;gap:7px;align-items:center;font-size:10px;font-weight:800;letter-spacing:.06em}
 .doneCircle{width:28px;height:28px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
@@ -157,7 +157,7 @@ button,input{font:inherit;color:inherit}
 .choiceSwatches i{display:block;border-radius:4px}
 .choiceMeta{min-width:0}.choiceName{font-size:12px;font-weight:780}.choiceSub{font-size:9px;color:var(--sub);margin-top:3px}
 .choiceCheck{font-size:14px;font-weight:800;opacity:0}.choiceCard.selected .choiceCheck{opacity:1}
-.colorSubhead{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub);margin:2px 0 7px}
+.colorSubhead{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub);margin:2px 0 7px}.colorSubnote{font-weight:600;letter-spacing:.02em;opacity:.72}
 .newPaletteInline{margin-top:12px;border-top:1px solid rgba(32,33,32,.10);padding-top:12px;display:none}
 .newPaletteInline.show{display:block}
 .newPaletteHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
@@ -185,10 +185,10 @@ button,input{font:inherit;color:inherit}
 
 <section class="page"><div class="scroll">
 <div class="section" id="colorSection"><h2>COLOR</h2>
-  <div class="colorSubhead">ACCENT</div>
+  <div class="colorSubhead">ACCENT COLOR <span class="colorSubnote">（ACCENT 1・2・3）</span></div>
   <div class="choiceList" id="accentChoiceList"></div>
 
-  <div class="colorSubhead" style="margin-top:14px">BASE</div>
+  <div class="colorSubhead" style="margin-top:14px">BASE COLOR <span class="colorSubnote">（BG・PANEL・TEXT・SUB）</span></div>
   <div class="choiceList" id="baseChoiceList"></div>
 
   <button class="btn" id="newPalette" style="margin-top:14px">＋ NEW PALETTE</button>
@@ -230,7 +230,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v3.8</div>
+<div class="appmeta">3TASKS MNDL · v3.9</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -255,7 +255,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v38";
+var STORAGE="mndl-v39";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
