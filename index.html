@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v3.0</title>
+<title>3TASKS MNDL Safari v3.1</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -137,6 +137,16 @@ button,input{font:inherit;color:inherit}
 .zoomFixedLabel{position:absolute;z-index:30;pointer-events:none;display:grid;place-items:center;text-align:center;font-size:13px;font-weight:690;color:var(--text)}
 .zoomFixedLabel.onAccent{color:var(--accentText)}
 
+
+.mandala.gradientHidden .cell.center:before{opacity:0!important}
+.mandala.gradientReveal .cell.center:before{
+  animation:gradientReveal .42s ease-out both;
+}
+@keyframes gradientReveal{
+  from{opacity:0}
+  to{opacity:1}
+}
+
 </style>
 </head>
 <body>
@@ -196,7 +206,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v3.0</div>
+<div class="appmeta">3TASKS MNDL · v3.1</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -221,7 +231,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v30";
+var STORAGE="mndl-v31";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -475,16 +485,36 @@ function animateDeeper(source,id){
    renderMandala();
    var dest=document.getElementById("mandala");
    dest.style.opacity="0";
-   dest.animate([{opacity:0},{opacity:.35,offset:.35},{opacity:1}],{duration:280,easing:"ease-out",fill:"forwards"});
-   field.animate([{opacity:1},{opacity:.72,offset:.35},{opacity:0}],{duration:280,easing:"ease-out",fill:"forwards"});
-   label.animate([{opacity:1},{opacity:.72,offset:.35},{opacity:0}],{duration:280,easing:"ease-out",fill:"forwards"});
+   dest.classList.add("gradientHidden");
+
+   dest.animate(
+     [{opacity:0},{opacity:.35,offset:.35},{opacity:1}],
+     {duration:280,easing:"ease-out",fill:"forwards"}
+   );
+   field.animate(
+     [{opacity:1},{opacity:.72,offset:.35},{opacity:0}],
+     {duration:280,easing:"ease-out",fill:"forwards"}
+   );
+   label.animate(
+     [{opacity:1},{opacity:.72,offset:.35},{opacity:0}],
+     {duration:280,easing:"ease-out",fill:"forwards"}
+   );
+
+   // Let the cell/grid appear first, then let the centre gradient bloom in.
+   setTimeout(function(){
+     dest.classList.remove("gradientHidden");
+     dest.classList.add("gradientReveal");
+   },70);
  },430);
 
  fieldAnim.onfinish=function(){
    setTimeout(function(){
      field.remove();label.remove();
      var dest=document.getElementById("mandala");
-     if(dest)dest.style.opacity="1";
+     if(dest){
+       dest.style.opacity="1";
+       dest.classList.remove("gradientHidden","gradientReveal");
+     }
      busy=false;
    },285);
  };
