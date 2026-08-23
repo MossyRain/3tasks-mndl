@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v3.4</title>
+<title>3TASKS MNDL Safari v3.5</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -32,7 +32,7 @@ button,input{font:inherit;color:inherit}
 .card{min-height:104px;border:0;border-radius:12px;padding:15px 12px 15px 14px;display:grid;grid-template-columns:44px 1fr 78px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative}
 .card.c1{background:var(--a1)}.card.c2{background:var(--a2)}.card.c3{background:var(--a3)}.card.done{background:var(--done);color:var(--text)}
 .cardRight{height:64px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;position:relative}
-.refreshPlain{position:absolute;right:0;top:0;width:28px;height:28px;border:0;background:transparent;color:inherit;font-size:22px;line-height:1;padding:0;display:grid;place-items:center}
+.refreshPlain{position:absolute;right:0;top:-10px;width:28px;height:28px;border:0;background:transparent;color:inherit;font-size:22px;line-height:1;padding:0;display:grid;place-items:center}
 .refreshPlain.used{opacity:.24;pointer-events:none}
 .doneAction{border:0;background:transparent;color:inherit;padding:0;display:grid;grid-template-columns:auto 28px;gap:7px;align-items:center;font-size:10px;font-weight:800;letter-spacing:.06em}
 .doneCircle{width:28px;height:28px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
@@ -151,7 +151,7 @@ button,input{font:inherit;color:inherit}
 </head>
 <body>
 <div class="app">
-<header class="header"><div class="date">SAT 22 AUG</div><div class="title" id="title">TODAY</div></header>
+<header class="header"><div class="date" id="todayDate"></div><div class="title" id="title">TODAY</div></header>
 <div class="viewport" id="viewport"><div class="track" id="track">
 
 <section class="page"><div class="scroll">
@@ -206,7 +206,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v3.4</div>
+<div class="appmeta">3TASKS MNDL · v3.5</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -231,7 +231,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v34";
+var STORAGE="mndl-v35";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -263,6 +263,17 @@ var defaultNodes={
  book10:{id:"book10",name:"本を10ページ読む",parent:"reading",children:[]},
  sketch1:{id:"sketch1",name:"スケッチを1つ描く",parent:"sketch",children:[]}
 };
+
+function renderJapanDate(){
+ var parts=new Intl.DateTimeFormat("en-US",{
+   timeZone:"Asia/Tokyo",
+   weekday:"short",day:"2-digit",month:"short"
+ }).formatToParts(new Date());
+ var get=function(type){var p=parts.find(function(x){return x.type===type});return p?p.value:""};
+ var el=document.getElementById("todayDate");
+ if(el)el.textContent=(get("weekday")+" "+get("day")+" "+get("month")).toUpperCase();
+}
+renderJapanDate();
 
 var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false};
 
