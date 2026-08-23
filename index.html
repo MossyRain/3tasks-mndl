@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v3.7</title>
+<title>3TASKS MNDL Safari v3.8</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -32,7 +32,7 @@ button,input{font:inherit;color:inherit}
 .card{min-height:104px;border:0;border-radius:12px;padding:15px 12px 15px 14px;display:grid;grid-template-columns:44px 1fr 78px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative}
 .card.c1{background:var(--a1)}.card.c2{background:var(--a2)}.card.c3{background:var(--a3)}.card.done{background:var(--done);color:var(--text)}
 .cardRight{height:64px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;position:relative}
-.refreshPlain{position:absolute;right:-7px;top:-7px;width:22px;height:22px;border:0;background:transparent;color:inherit;font-size:17px;line-height:1;padding:0;display:grid;place-items:center;opacity:.62}
+.refreshPlain{position:absolute;right:-8px;top:-8px;width:20px;height:20px;border:0;background:transparent;color:inherit;font-size:15px;line-height:1;padding:0;display:grid;place-items:center;opacity:.58}
 .refreshPlain.used{opacity:.24;pointer-events:none}
 .doneAction{border:0;background:transparent;color:inherit;padding:0;display:grid;grid-template-columns:auto 28px;gap:7px;align-items:center;font-size:10px;font-weight:800;letter-spacing:.06em}
 .doneCircle{width:28px;height:28px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
@@ -147,6 +147,22 @@ button,input{font:inherit;color:inherit}
   to{opacity:1}
 }
 
+
+.choiceList{display:grid;gap:7px}
+.choiceCard{width:100%;border:1px solid rgba(32,33,32,.10);background:transparent;border-radius:10px;padding:8px 9px;display:grid;grid-template-columns:112px 1fr 22px;gap:10px;align-items:center;text-align:left}
+.choiceCard.selected{border:2px solid var(--text);padding:7px 8px}
+.choiceSwatches{display:grid;gap:2px;height:34px}
+.choiceSwatches.accents{grid-template-columns:repeat(3,1fr)}
+.choiceSwatches.base{grid-template-columns:repeat(4,1fr)}
+.choiceSwatches i{display:block;border-radius:4px}
+.choiceMeta{min-width:0}.choiceName{font-size:12px;font-weight:780}.choiceSub{font-size:9px;color:var(--sub);margin-top:3px}
+.choiceCheck{font-size:14px;font-weight:800;opacity:0}.choiceCard.selected .choiceCheck{opacity:1}
+.colorSubhead{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub);margin:2px 0 7px}
+.newPaletteInline{margin-top:12px;border-top:1px solid rgba(32,33,32,.10);padding-top:12px;display:none}
+.newPaletteInline.show{display:block}
+.newPaletteHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.newPaletteHeader span{font-size:11px;font-weight:800;letter-spacing:.08em}
+.newPaletteClose{border:0;background:transparent;color:var(--sub);font-size:18px;padding:2px 5px}
 </style>
 </head>
 <body>
@@ -168,42 +184,37 @@ button,input{font:inherit;color:inherit}
 <section class="page"><div class="scroll"><div class="actions" id="actions"></div></div></section>
 
 <section class="page"><div class="scroll">
-<div class="section"><h2>COLOR</h2>
-  <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub);margin-bottom:7px">ACCENT</div>
-  <div id="paletteList"></div>
+<div class="section" id="colorSection"><h2>COLOR</h2>
+  <div class="colorSubhead">ACCENT</div>
+  <div class="choiceList" id="accentChoiceList"></div>
 
-  <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub);margin:14px 0 7px">BASE</div>
-  <div class="dataActions">
-    <button class="btn" data-bgmode="white">WHITE</button>
-    <button class="btn" data-bgmode="black">BLACK</button>
-    <button class="btn" data-bgmode="custom" id="customBgBtn">CUSTOM</button>
-  </div>
-  <div id="customBgEditor" style="display:none;margin-top:10px"></div>
+  <div class="colorSubhead" style="margin-top:14px">BASE</div>
+  <div class="choiceList" id="baseChoiceList"></div>
 
   <button class="btn" id="newPalette" style="margin-top:14px">＋ NEW PALETTE</button>
-</div>
 
-<div class="section editor" id="editor">
-<h2 id="editorTitle">EDIT PALETTE</h2>
-<div class="paletteGroupTitle">ACCENT COLORS</div>
-<div class="swatchPreview" id="accentPreview"></div>
-<div class="paletteGroupTitle" style="margin-top:14px">BASE COLORS</div>
-<div class="swatchPreview basePreview" id="basePreview"></div>
-<div class="colorWorkbench" id="colorWorkbench">
-  <div class="colorModeTabs">
-    <button type="button" class="colorMode active" data-color-mode="grid">GRID</button>
-    <button type="button" class="colorMode" data-color-mode="spectrum">SPECTRUM</button>
-    <button type="button" class="colorMode" data-color-mode="sliders">SLIDERS</button>
+  <div class="newPaletteInline" id="newPaletteInline">
+    <div class="newPaletteHeader"><span>NEW PALETTE</span><button type="button" class="newPaletteClose" id="newPaletteClose">×</button></div>
+    <div class="paletteGroupTitle">ACCENT COLORS</div>
+    <div class="swatchPreview" id="accentPreview"></div>
+    <div class="paletteGroupTitle" style="margin-top:14px">BASE COLORS</div>
+    <div class="swatchPreview basePreview" id="basePreview"></div>
+    <div class="colorWorkbench" id="colorWorkbench">
+      <div class="colorModeTabs">
+        <button type="button" class="colorMode active" data-color-mode="grid">GRID</button>
+        <button type="button" class="colorMode" data-color-mode="spectrum">SPECTRUM</button>
+        <button type="button" class="colorMode" data-color-mode="sliders">SLIDERS</button>
+      </div>
+      <div id="gridEditor" class="colorModePanel"></div>
+      <div id="spectrumEditor" class="colorModePanel" style="display:none"></div>
+      <div id="slidersEditor" class="colorModePanel" style="display:none"></div>
+    </div>
+    <div class="editActions">
+      <button class="btn primary" id="saveAsPalette">保存</button>
+      <button class="btn" id="overwritePalette">上書き保存</button>
+      <button class="btn danger" id="deletePalette">削除</button>
+    </div>
   </div>
-  <div id="gridEditor" class="colorModePanel"></div>
-  <div id="spectrumEditor" class="colorModePanel" style="display:none"></div>
-  <div id="slidersEditor" class="colorModePanel" style="display:none"></div>
-</div>
-<div class="editActions">
-  <button class="btn primary" id="saveAsPalette">新しいパレットとして保存</button>
-  <button class="btn" id="overwritePalette">上書き保存</button>
-  <button class="btn danger" id="deletePalette">削除</button>
-</div>
 </div>
 
 <div class="section"><h2>DATA</h2>
@@ -219,7 +230,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v3.7</div>
+<div class="appmeta">3TASKS MNDL · v3.8</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -244,7 +255,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v37";
+var STORAGE="mndl-v38";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -868,43 +879,48 @@ function applyPalette(p){
  save();renderBackgroundControls();
 }
 
-function renderBackgroundControls(){
- var buttons=document.querySelectorAll("[data-bgmode]");
- buttons.forEach(function(b){
-   b.classList.toggle("primary",b.getAttribute("data-bgmode")===state.backgroundMode);
- });
- var ed=document.getElementById("customBgEditor");
- ed.style.display=state.backgroundMode==="custom"?"block":"none";
- if(state.backgroundMode==="custom")renderCustomBackgroundEditor();
+function basePreset(mode){
+ if(mode==="black")return blackBg;
+ if(mode==="custom")return state.customBackground||whiteBg;
+ return whiteBg;
 }
-function renderCustomBackgroundEditor(){
- var ed=document.getElementById("customBgEditor");ed.innerHTML="";
- var labels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",off:"OFF",done:"Completed"};
- Object.keys(labels).forEach(function(k){
-   var r=document.createElement("div");r.className="editRow";
-   r.innerHTML="<label>"+labels[k]+"</label><input type='color' value='"+state.customBackground[k]+"'><input type='text' value='"+state.customBackground[k]+"'>";
-   var pick=r.children[1],hex=r.children[2];
-   pick.oninput=function(){state.customBackground[k]=pick.value.toUpperCase();hex.value=state.customBackground[k];applyPalette(activePalette())};
-   hex.onchange=function(){var v=hex.value.trim();if(v.charAt(0)!=="#")v="#"+v;if(/^#[0-9A-Fa-f]{6}$/.test(v)){state.customBackground[k]=v.toUpperCase();pick.value=v;applyPalette(activePalette())}else hex.value=state.customBackground[k]};
-   ed.appendChild(r);
+function renderAccentChoices(){
+ var box=document.getElementById("accentChoiceList");if(!box)return;
+ box.innerHTML="";
+ palettes().forEach(function(p){
+   var b=document.createElement("button");b.type="button";
+   b.className="choiceCard"+(p.id===state.activePaletteId?" selected":"");
+   b.innerHTML=
+     "<span class='choiceSwatches accents'><i style='background:"+p.c.a1+"'></i><i style='background:"+p.c.a2+"'></i><i style='background:"+p.c.a3+"'></i></span>"+
+     "<span class='choiceMeta'><span class='choiceName'>"+p.name+"</span><span class='choiceSub'>ACCENT 1 · 2 · 3</span></span>"+
+     "<span class='choiceCheck'>✓</span>";
+   b.onclick=function(){
+     if(p.builtIn&&state.backgroundMode==="custom")state.backgroundMode="white";
+     applyPalette(p);renderColorChoices();
+   };
+   box.appendChild(b);
  });
 }
-document.querySelectorAll("[data-bgmode]").forEach(function(b){
- b.onclick=function(){
-   var mode=b.getAttribute("data-bgmode");
-   // Built-in palettes expose WHITE/BLACK. Custom palettes also expose CUSTOM.
+function renderBaseChoices(){
+ var box=document.getElementById("baseChoiceList");if(!box)return;
+ box.innerHTML="";
+ ["white","black","custom"].forEach(function(mode){
    var p=activePalette();
-   if(mode==="custom" && p.builtIn)return;
-   state.backgroundMode=mode;
-   applyPalette(p);
- };
-});
-
-function renderPaletteList(){
- var box=document.getElementById("paletteList");box.innerHTML="";
- var cb=document.getElementById("customBgBtn");if(cb)cb.disabled=activePalette().builtIn;
- palettes().forEach(function(p){var b=document.createElement("button");b.className="paletteRow";b.innerHTML="<span><span class='paletteName'>"+p.name+"</span><span class='tag'>"+(p.builtIn?"DEFAULT":"CUSTOM")+"</span></span><span class='dots'><i style='background:"+p.c.a1+"'></i><i style='background:"+p.c.a2+"'></i><i style='background:"+p.c.a3+"'></i></span>";b.onclick=function(){if(p.builtIn&&state.backgroundMode==="custom")state.backgroundMode="white";applyPalette(p);openPaletteEditor(p);renderPaletteList()};box.appendChild(b)});
+   if(mode==="custom"&&p.builtIn)return;
+   var c=basePreset(mode),active=state.backgroundMode===mode;
+   var b=document.createElement("button");b.type="button";
+   b.className="choiceCard"+(active?" selected":"");
+   b.innerHTML=
+     "<span class='choiceSwatches base'><i style='background:"+c.bg+"'></i><i style='background:"+c.panel+"'></i><i style='background:"+c.text+"'></i><i style='background:"+c.sub+"'></i></span>"+
+     "<span class='choiceMeta'><span class='choiceName'>"+mode.toUpperCase()+"</span><span class='choiceSub'>BG · PANEL · TEXT · SUB</span></span>"+
+     "<span class='choiceCheck'>✓</span>";
+   b.onclick=function(){state.backgroundMode=mode;applyPalette(activePalette());renderColorChoices()};
+   box.appendChild(b);
+ });
 }
+function renderColorChoices(){renderAccentChoices();renderBaseChoices()}
+function renderBackgroundControls(){renderColorChoices()}
+function renderPaletteList(){renderColorChoices()}
 var accentLabels={a1:"Accent 1",a2:"Accent 2",a3:"Accent 3",accentText:"Accent Text"};
 var baseLabels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",off:"OFF",done:"Completed"};
 var selectedColorKey="a1";
@@ -916,8 +932,7 @@ function openPaletteEditor(p){
  var bg=backgroundValues();Object.keys(bg).forEach(function(k){editingPalette.c[k]=bg[k]});
  selectedColorKey="a1";
  spectrumHue=hexToHsl(editingPalette.c[selectedColorKey])[0];
- document.getElementById("editor").classList.add("show");
- document.getElementById("editorTitle").textContent="EDIT · "+p.name;
+ document.getElementById("newPaletteInline").classList.add("show");
  renderPaletteEditor();
 }
 function luminanceText(hex){
@@ -1044,16 +1059,22 @@ function renderColorWorkbench(){
 document.querySelectorAll(".colorMode").forEach(function(b){b.onclick=function(){colorMode=b.dataset.colorMode;renderColorWorkbench()}});
 
 document.getElementById("newPalette").onclick=function(){
- var p=activePalette(),c=Object.assign({},p.c),bg=backgroundValues();Object.keys(bg).forEach(function(k){c[k]=bg[k]});
+ var p=activePalette(),c=Object.assign({},p.c),bg=backgroundValues();
+ Object.keys(bg).forEach(function(k){c[k]=bg[k]});
  editingPalette={id:"c"+Date.now(),name:"MY PALETTE "+(state.customPalettes.length+1),builtIn:false,c:c};
- document.getElementById("editor").classList.add("show");document.getElementById("editorTitle").textContent="NEW PALETTE";renderPaletteEditor();
+ selectedColorKey="a1";
+ document.getElementById("newPaletteInline").classList.add("show");
+ renderPaletteEditor();
+};
+document.getElementById("newPaletteClose").onclick=function(){
+ document.getElementById("newPaletteInline").classList.remove("show");
 };
 document.getElementById("saveAsPalette").onclick=function(){
  var p={id:"c"+Date.now(),name:editingPalette.builtIn?editingPalette.name+" CUSTOM":editingPalette.name+" COPY",builtIn:false,c:Object.assign({},editingPalette.c)};
  state.customPalettes.push(p);
  state.customBackground={bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,off:editingPalette.c.off,done:editingPalette.c.done};
  state.backgroundMode="custom";
- applyPalette(p);save();renderPaletteList();renderBackgroundControls();openPaletteEditor(p);
+ applyPalette(p);save();renderColorChoices();document.getElementById("newPaletteInline").classList.remove("show");
 };
 document.getElementById("overwritePalette").onclick=function(){
  if(!editingPalette||editingPalette.builtIn)return;
@@ -1064,13 +1085,13 @@ document.getElementById("overwritePalette").onclick=function(){
    applyPalette(state.customPalettes[i]);save();renderPaletteList();renderBackgroundControls();
  }
 };
-document.getElementById("deletePalette").onclick=function(){if(!editingPalette||editingPalette.builtIn)return;state.customPalettes=state.customPalettes.filter(function(x){return x.id!==editingPalette.id});document.getElementById("editor").classList.remove("show");applyPalette(builtins[0]);save();renderPaletteList()};
+document.getElementById("deletePalette").onclick=function(){if(!editingPalette||editingPalette.builtIn)return;state.customPalettes=state.customPalettes.filter(function(x){return x.id!==editingPalette.id});document.getElementById("newPaletteInline").classList.remove("show");applyPalette(builtins[0]);save();renderColorChoices()};
 
 document.getElementById("exportBtn").onclick=function(){var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="3tasks-mndl-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)};
 document.getElementById("importBtn").onclick=function(){document.getElementById("importFile").click()};
 document.getElementById("importFile").onchange=function(e){var file=e.target.files&&e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(){try{var x=JSON.parse(r.result);if(!x.nodes||!x.today)throw new Error();state=x;state.customPalettes=state.customPalettes||[];currentNode="life";save();applyPalette(activePalette());renderAll();alert("復元しました")}catch(err){alert("読み込めないJSONです")}};r.readAsText(file)};
 
-function renderAll(){renderToday();renderActions();renderMandala();renderPaletteList()}
+function renderAll(){renderToday();renderActions();renderMandala();renderColorChoices()}
 load();
 state.customPalettes=state.customPalettes||[];
 if(state.activePaletteId==="signal")state.activePaletteId="field";
