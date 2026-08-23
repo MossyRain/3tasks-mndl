@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v2.8</title>
+<title>3TASKS MNDL Safari v2.9</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -133,6 +133,10 @@ button,input{font:inherit;color:inherit}
 .depthWorld.fadeDepth .depthCell.center{color:var(--accentText)}
 .depthWorld.fadeDepth .depthCell.center:before{opacity:1}
 
+
+.zoomFixedLabel{position:absolute;z-index:30;pointer-events:none;display:grid;place-items:center;text-align:center;font-size:13px;font-weight:690;color:var(--text)}
+.zoomFixedLabel.onAccent{color:var(--accentText)}
+
 </style>
 </head>
 <body>
@@ -192,7 +196,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v2.8</div>
+<div class="appmeta">3TASKS MNDL · v2.9</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -217,7 +221,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v28";
+var STORAGE="mndl-v29";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -402,78 +406,87 @@ function animateDeeper(source,id){
 
  var live=document.getElementById("mandala");
  var sourceRect=rectInWrap(source);
+ var scale=wrap.clientWidth/sourceRect.width;
+ var wrapCenter={x:wrap.clientWidth/2,y:wrap.clientHeight/2};
+ var sourceCenter={x:sourceRect.left+sourceRect.width/2,y:sourceRect.top+sourceRect.height/2};
 
- var clone=source.cloneNode(true);
- clone.classList.remove("holdIn","holdOut");
- clone.style.position="absolute";
- clone.style.left=sourceRect.left+"px";
- clone.style.top=sourceRect.top+"px";
- clone.style.width=sourceRect.width+"px";
- clone.style.height=sourceRect.height+"px";
- clone.style.margin="0";
- clone.style.zIndex="26";
- clone.style.pointerEvents="none";
- clone.style.transition="none";
- motionLayer.appendChild(clone);
+ // Clone the whole 3x3 field so cell size and gap size keep exactly the same ratio.
+ var field=document.createElement("div");
+ field.style.position="absolute";
+ field.style.inset="0";
+ field.style.display="grid";
+ field.style.gridTemplateColumns="repeat(3,1fr)";
+ field.style.gap="2px";
+ field.style.zIndex="24";
+ field.style.pointerEvents="none";
+ field.style.transformOrigin=sourceCenter.x+"px "+sourceCenter.y+"px";
 
- var others=[];
- Array.from(live.children).forEach(function(c){
-   if(c===source)return;
-   var r=rectInWrap(c),o=c.cloneNode(true);
-   o.style.position="absolute";
-   o.style.left=r.left+"px";o.style.top=r.top+"px";
-   o.style.width=r.width+"px";o.style.height=r.height+"px";
-   o.style.margin="0";o.style.zIndex="24";o.style.pointerEvents="none";
-   motionLayer.appendChild(o);
-   others.push({el:o,rect:r});
+ Array.from(live.children).forEach(function(c,idx){
+   var d=c.cloneNode(true);
+   d.classList.remove("holdIn","holdOut");
+   // During forward zoom, keep text from visually growing.
+   var spans=d.querySelectorAll("span");
+   spans.forEach(function(s){s.style.opacity="0"});
+   d.style.fontSize="0px";
+   field.appendChild(d);
  });
+ motionLayer.appendChild(field);
+
+ // Fixed-size label follows the selected cell while the geometry enlarges.
+ var label=document.createElement("div");
+ label.className="zoomFixedLabel"+(source.classList.contains("center")?" onAccent":"");
+ label.textContent=source.textContent.replace("›","");
+ label.style.left=sourceRect.left+"px";
+ label.style.top=sourceRect.top+"px";
+ label.style.width=sourceRect.width+"px";
+ label.style.height=sourceRect.height+"px";
+ label.style.transformOrigin="center center";
+ motionLayer.appendChild(label);
 
  live.style.opacity="0";
 
- var cx=sourceRect.left+sourceRect.width/2,cy=sourceRect.top+sourceRect.height/2;
+ var tx=wrapCenter.x-sourceCenter.x;
+ var ty=wrapCenter.y-sourceCenter.y;
 
- // Slow start -> faster finish.
- var cloneAnim=clone.animate([
-   {left:sourceRect.left+"px",top:sourceRect.top+"px",width:sourceRect.width+"px",height:sourceRect.height+"px",opacity:1,offset:0},
-   {left:(sourceRect.left*.82)+"px",top:(sourceRect.top*.82)+"px",width:(sourceRect.width*1.24)+"px",height:(sourceRect.height*1.24)+"px",opacity:1,offset:.32},
-   {left:"0px",top:"0px",width:wrap.clientWidth+"px",height:wrap.clientHeight+"px",opacity:1,offset:1}
+ // Ratio-preserving camera zoom: one uniform scale applied to the entire field.
+ var fieldAnim=field.animate([
+   {transform:"translate(0px,0px) scale(1)",opacity:1,offset:0},
+   {transform:"translate("+(tx*.18)+"px,"+(ty*.18)+"px) scale("+(1+(scale-1)*.18)+")",opacity:1,offset:.32},
+   {transform:"translate("+tx+"px,"+ty+"px) scale("+scale+")",opacity:1,offset:1}
  ],{
    duration:620,
    easing:"cubic-bezier(.42,0,1,1)",
    fill:"forwards"
  });
 
- others.forEach(function(o){
-   var ox=o.rect.left+o.rect.width/2,oy=o.rect.top+o.rect.height/2;
-   o.el.animate([
-     {transform:"translate(0,0) scale(1)",opacity:1},
-     {transform:"translate("+((ox-cx)*.45)+"px,"+((oy-cy)*.45)+"px) scale(1.08)",opacity:.85,offset:.34},
-     {transform:"translate("+((ox-cx)*2.4)+"px,"+((oy-cy)*2.4)+"px) scale(1.42)",opacity:0}
-   ],{
-     duration:620,
-     easing:"cubic-bezier(.42,0,1,1)",
-     fill:"forwards"
-   });
+ // Keep the label itself at constant visual size while moving to screen center.
+ label.animate([
+   {left:sourceRect.left+"px",top:sourceRect.top+"px",width:sourceRect.width+"px",height:sourceRect.height+"px"},
+   {left:"0px",top:"0px",width:wrap.clientWidth+"px",height:wrap.clientHeight+"px"}
+ ],{
+   duration:620,
+   easing:"cubic-bezier(.42,0,1,1)",
+   fill:"forwards"
  });
 
- // Destination appears only at the very end, so no long gradient ghost remains.
+ // Crossfade only near arrival.
  setTimeout(function(){
    currentNode=id;
    renderMandala();
    var dest=document.getElementById("mandala");
    dest.style.opacity="0";
-   dest.animate([{opacity:0},{opacity:1}],{duration:120,easing:"ease-out",fill:"forwards"});
-   clone.animate([{opacity:1},{opacity:0}],{duration:120,easing:"ease-out",fill:"forwards"});
- },535);
+   dest.animate([{opacity:0},{opacity:1}],{duration:150,easing:"ease-out",fill:"forwards"});
+   field.animate([{opacity:1},{opacity:0}],{duration:150,easing:"ease-out",fill:"forwards"});
+   label.animate([{opacity:1},{opacity:0}],{duration:150,easing:"ease-out",fill:"forwards"});
+ },520);
 
- cloneAnim.onfinish=function(){
+ fieldAnim.onfinish=function(){
    setTimeout(function(){
-     clone.remove();
-     others.forEach(function(o){o.el.remove()});
+     field.remove();label.remove();
      var dest=document.getElementById("mandala");
      if(dest)dest.style.opacity="1";
      busy=false;
-   },125);
+   },155);
  };
 }
 function buildDepthGrid(nodeId){
@@ -544,8 +557,12 @@ function cameraBackTo(targetId,duration,done){
  world.style.transform=startTransform;
  world.style.opacity="1";
 
- // One level sets the acceleration phase and maximum camera speed.
- // Extra levels add travel time, not extra speed.
+ // Text belongs to the same 3D plane when pulling away:
+ // it starts visually large because of the world scale and shrinks with distance.
+ world.querySelectorAll(".depthCell").forEach(function(c){
+   c.style.fontSize="13px";
+ });
+
  var accelMs=560;
  var cruisePerExtraLevel=360;
  var totalMs=accelMs+Math.max(0,levels-1)*cruisePerExtraLevel;
@@ -562,17 +579,15 @@ function cameraBackTo(targetId,duration,done){
  if(levels===1){
    keyframes=[
      {transform:startTransform,opacity:1,offset:0},
-     {transform:"translate(0px,0px) scale(1)",opacity:.08,offset:1}
+     {transform:"translate(0px,0px) scale(1)",opacity:.10,offset:1}
    ];
  }else{
-   // First section accelerates to the one-level max speed.
-   // Remaining section travels at roughly constant visual speed.
    var accelOffset=accelMs/totalMs;
-   var midScale=Math.max(1.45, sx-(sx-1)*accelOffset);
+   var midScale=Math.max(1.45,sx-(sx-1)*accelOffset);
    keyframes=[
      {transform:startTransform,opacity:1,offset:0},
      {transform:"translate("+(-deepRect.left*midScale)+"px,"+(-deepRect.top*midScale)+"px) scale("+midScale+")",opacity:.72,offset:accelOffset},
-     {transform:"translate(0px,0px) scale(1)",opacity:.08,offset:1}
+     {transform:"translate(0px,0px) scale(1)",opacity:.10,offset:1}
    ];
  }
 
@@ -582,11 +597,11 @@ function cameraBackTo(targetId,duration,done){
    fill:"forwards"
  });
 
- // Short fade only near arrival.
- var fadeStart=Math.max(0,totalMs-140);
+ // Fade is tied to distance, but only becomes strong near the target hierarchy.
+ var fadeStart=Math.max(0,totalMs-190);
  setTimeout(function(){
-   finalGrid.animate([{opacity:0},{opacity:1}],{duration:140,easing:"ease-out",fill:"forwards"});
-   world.animate([{opacity:.35},{opacity:0}],{duration:140,easing:"ease-out",fill:"forwards"});
+   finalGrid.animate([{opacity:0},{opacity:1}],{duration:190,easing:"ease-out",fill:"forwards"});
+   world.animate([{opacity:.42},{opacity:0}],{duration:190,easing:"ease-out",fill:"forwards"});
  },fadeStart);
 
  worldAnim.onfinish=function(){
@@ -595,7 +610,7 @@ function cameraBackTo(targetId,duration,done){
      finalGrid.style.opacity="1";
      busy=false;
      if(done)done();
-   },145);
+   },195);
  };
 }
 function animateBack(afterStep){
