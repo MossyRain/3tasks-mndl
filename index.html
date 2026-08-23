@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v2.2</title>
+<title>3TASKS MNDL Safari v2.3</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -29,7 +29,7 @@ button,input{font:inherit;color:inherit}
 .footer button.active{color:var(--text)}.gear{font-size:20px}
 .appmeta{position:absolute;left:18px;right:18px;bottom:var(--safeBottom);height:20px;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:9px;letter-spacing:.08em;z-index:7}
 .cards{display:grid;gap:4px}
-.card{min-height:102px;border:0;border-radius:12px;padding:15px 14px;display:grid;grid-template-columns:44px 1fr 30px;gap:9px;align-items:center;text-align:left;color:var(--accentText)}
+.card{min-height:102px;border:0;border-radius:12px;padding:15px 14px;display:grid;grid-template-columns:44px 1fr 34px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative}.cardTools{display:grid;gap:8px;justify-items:center}.refresh{border:0;background:transparent;color:inherit;font-size:22px;line-height:1;padding:2px}.card.emptyCard{background:var(--panel);color:var(--text)}.emptyCopy{font-size:14px;font-weight:650;line-height:1.35}.emptyCard .refresh{font-size:26px;color:var(--sub)}
 .card.c1{background:var(--a1)}.card.c2{background:var(--a2)}.card.c3{background:var(--a3)}.card.done{background:var(--done);color:var(--text)}
 .num{font-size:28px;font-weight:780}.taskName{font-size:16px;font-weight:730}.trail{font-size:10px;margin-top:5px;opacity:.76;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.check{width:27px;height:27px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center}
 .progress{height:4px;background:rgba(32,33,32,.12);border-radius:999px;margin-top:13px;overflow:hidden}.progress i{display:block;width:0;height:100%;background:var(--text)}.progressText{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--sub)}
@@ -72,6 +72,17 @@ button,input{font:inherit;color:inherit}
 @keyframes fadeInFinal{from{opacity:0}to{opacity:1}}
 .zoomClone.fadeOutFinal,.childOutgoing.fadeOutFinal,.parentIncoming.fadeOutFinal{opacity:0!important}
 
+
+.paletteGroupTitle{font-size:10px;font-weight:800;letter-spacing:.09em;color:var(--sub);margin:3px 0 7px}
+.swatchPreview{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px}
+.swatchPreview.basePreview{grid-template-columns:repeat(3,1fr)}
+.swatchBtn{height:46px;border:0;border-radius:8px;position:relative;overflow:hidden;padding:0}
+.swatchBtn span{position:absolute;left:6px;bottom:5px;font-size:8px;font-weight:750;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.swatchBtn input{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+.cameraOverlay{position:absolute;inset:0;z-index:23;pointer-events:none;overflow:hidden}
+.cameraGrid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;transform-origin:0 0;will-change:transform,opacity;transition:transform .72s cubic-bezier(.18,.78,.18,1),opacity .34s ease}
+.cameraGrid .cell{pointer-events:none}
+
 </style>
 </head>
 <body>
@@ -86,7 +97,7 @@ button,input{font:inherit;color:inherit}
 
 <section class="page"><div class="scroll">
 <div class="breadcrumb" id="breadcrumb"></div>
-<div class="mandalaWrap" id="mandalaWrap"><div class="mandala" id="mandala"></div><div class="motionLayer" id="motionLayer"></div></div>
+<div class="mandalaWrap" id="mandalaWrap"><div class="mandala" id="mandala"></div><div class="motionLayer" id="motionLayer"></div><div class="cameraOverlay" id="cameraOverlay"></div></div>
 <div class="hint">タップ：EDIT CELL ／ 長押し：9マス全体へ拡大して深掘り ／ 中央長押し：親セル位置へ縮小して戻る</div>
 </div></section>
 
@@ -102,14 +113,23 @@ button,input{font:inherit;color:inherit}
 </div>
 <div id="customBgEditor" style="display:none;margin-top:10px"></div>
 </div>
-<div class="section editor" id="editor"><h2 id="editorTitle">EDIT PALETTE</h2><div class="preview" id="preview"></div><div id="editRows"></div><div class="editActions"><button class="btn primary" id="saveAsPalette">新しいパレットとして保存</button><button class="btn" id="overwritePalette">上書き保存</button><button class="btn danger" id="deletePalette">削除</button></div></div>
+<div class="section editor" id="editor">
+<h2 id="editorTitle">EDIT PALETTE</h2>
+<div class="paletteGroupTitle">ACCENT COLORS</div>
+<div class="swatchPreview" id="accentPreview"></div>
+<div id="accentRows"></div>
+<div class="paletteGroupTitle" style="margin-top:14px">BASE COLORS</div>
+<div class="swatchPreview basePreview" id="basePreview"></div>
+<div id="baseRows"></div>
+<div class="editActions"><button class="btn primary" id="saveAsPalette">新しいパレットとして保存</button><button class="btn" id="overwritePalette">上書き保存</button><button class="btn danger" id="deletePalette">削除</button></div>
+</div>
 <div class="section"><h2>DATA</h2><div class="dataActions"><button class="btn" id="exportBtn">JSONを書き出す</button><button class="btn" id="importBtn">JSONを読み込む</button><input class="fileInput" id="importFile" type="file" accept="application/json,.json"></div><div class="dataNote">Safari内へ自動保存し、JSONでもバックアップできます。</div></div>
 </div></section>
 
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v2.2</div>
+<div class="appmeta">3TASKS MNDL · v2.3</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -134,8 +154,8 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v22";
-var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer");
+var STORAGE="mndl-v23";
+var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
 var builtins=[
@@ -213,14 +233,70 @@ viewport.addEventListener("touchend",function(){
  if(g.axis==="x"&&Math.abs(g.dx)>55)setPage(g.start+(g.dx<0?1:-1),true);else setPage(g.start,true);
 },{passive:true});
 
+
+function enabledLeafIds(){
+ return leaves().filter(function(n){return state.enabled[n.id]!==false}).map(function(n){return n.id});
+}
+function todayIds(exceptIndex){
+ return state.today.map(function(t,i){return i===exceptIndex?null:t.id}).filter(Boolean);
+}
+function chooseTodayReplacement(index){
+ var used=todayIds(index);
+ var pool=enabledLeafIds().filter(function(id){return used.indexOf(id)<0});
+ if(!pool.length)return null;
+ return pool[Math.floor(Math.random()*pool.length)];
+}
+function clearTodayItem(id){
+ state.today.forEach(function(t){if(t.id===id){t.id=null;t.done=false}});
+}
+function reselectToday(index){
+ var id=chooseTodayReplacement(index);
+ state.today[index].id=id;
+ state.today[index].done=false;
+ save();renderToday();
+}
+
 function renderToday(){
  var box=document.getElementById("cards");box.innerHTML="";
- state.today.forEach(function(t,i){var n=node(t.id);if(!n)return;var b=document.createElement("button");b.className="card c"+t.tone+(t.done?" done":"");b.innerHTML="<div class='num'>0"+(i+1)+"</div><div><div class='taskName'>"+n.name+"</div><div class='trail'>"+trail(t.id)+"</div></div><div class='check'>"+(t.done?"✓":"")+"</div>";b.onclick=function(){t.done=!t.done;save();renderToday()};box.appendChild(b)});
- var d=state.today.filter(function(x){return x.done}).length;document.getElementById("count").textContent=d+" / 3";document.getElementById("bar").style.width=(d/3*100)+"%";
+ while(state.today.length<3)state.today.push({id:null,tone:state.today.length+1,done:false});
+ state.today=state.today.slice(0,3);
+
+ state.today.forEach(function(t,i){
+   var n=t.id?node(t.id):null;
+   var valid=n && n.children.length===0 && state.enabled[t.id]!==false;
+   if(!valid){t.id=null;t.done=false;n=null}
+
+   var b=document.createElement("div");
+   b.className=n?("card c"+t.tone+(t.done?" done":"")):"card emptyCard";
+
+   if(n){
+     b.innerHTML="<div class='num'>0"+(i+1)+"</div><div><div class='taskName'>"+n.name+"</div><div class='trail'>"+trail(t.id)+"</div></div><div class='cardTools'><button class='refresh' aria-label='選び直す'>↻</button><button class='check' aria-label='完了'>"+(t.done?"✓":"")+"</button></div>";
+     b.querySelector(".check").onclick=function(e){e.stopPropagation();t.done=!t.done;save();renderToday()};
+     b.querySelector(".refresh").onclick=function(e){e.stopPropagation();reselectToday(i)};
+   }else{
+     b.innerHTML="<div class='num'>0"+(i+1)+"</div><div class='emptyCopy'>今日の項目がひとつ空きました</div><div class='cardTools'><button class='refresh' aria-label='新しい項目を選ぶ'>↻</button></div>";
+     b.querySelector(".refresh").onclick=function(){reselectToday(i)};
+   }
+   box.appendChild(b);
+ });
+ var d=state.today.filter(function(x){return x.id&&x.done}).length;
+ document.getElementById("count").textContent=d+" / 3";
+ document.getElementById("bar").style.width=(d/3*100)+"%";
+ save();
 }
 function renderActions(){
  var box=document.getElementById("actions");box.innerHTML="";
- leaves().forEach(function(n){var on=state.enabled[n.id]!==false,d=document.createElement("div");d.className="action";d.innerHTML="<div class='actionCopy'><div class='actionName'>"+n.name+"</div><div class='actionTrail'>"+trail(n.id)+"</div></div><button class='toggle "+(on?"":"off")+"'>"+(on?"ON":"OFF")+"</button>";d.querySelector(".toggle").onclick=function(){state.enabled[n.id]=!on;save();renderActions()};box.appendChild(d)});
+ leaves().forEach(function(n){
+   var on=state.enabled[n.id]!==false,d=document.createElement("div");d.className="action";
+   d.innerHTML="<div class='actionCopy'><div class='actionName'>"+n.name+"</div><div class='actionTrail'>"+trail(n.id)+"</div></div><button class='toggle "+(on?"":"off")+"'>"+(on?"ON":"OFF")+"</button>";
+   d.querySelector(".toggle").onclick=function(){
+     var next=!on;
+     state.enabled[n.id]=next;
+     if(!next)clearTodayItem(n.id);
+     save();renderActions();renderToday();
+   };
+   box.appendChild(d);
+ });
 }
 function renderBreadcrumb(){
  var box=document.getElementById("breadcrumb");box.innerHTML="";var ids=pathIds(currentNode);
@@ -346,107 +422,77 @@ function animateBack(afterStep){
    if(typeof afterStep==="function")afterStep();
  },480);
 }
+function slotRectWithin(rect,slotIndex){
+ var gap=2,cellW=(rect.width-gap*2)/3,cellH=(rect.height-gap*2)/3;
+ var row=Math.floor(slotIndex/3),col=slotIndex%3;
+ return {left:rect.left+col*(cellW+gap),top:rect.top+row*(cellH+gap),width:cellW,height:cellH};
+}
+function childVisualSlot(parentId,childId){
+ var idx=node(parentId).children.indexOf(childId);
+ var map=[0,1,2,3,5,6,7,8];
+ return map[idx];
+}
+function nestedRectFromAncestor(ancestorId,descendantId){
+ var lineage=pathIds(descendantId);
+ var aidx=lineage.indexOf(ancestorId);
+ var rect={left:0,top:0,width:wrap.clientWidth,height:wrap.clientHeight};
+ for(var i=aidx;i<lineage.length-1;i++){
+   var p=lineage[i],ch=lineage[i+1],slot=childVisualSlot(p,ch);
+   rect=slotRectWithin(rect,slot);
+ }
+ return rect;
+}
+function buildStaticGrid(nodeId,container){
+ var n=node(nodeId),slots=[0,1,2,3,"c",4,5,6,7];
+ slots.forEach(function(s){
+   var d=document.createElement("div");d.className="cell";
+   if(s==="c"){d.classList.add("center");d.textContent=n.name}
+   else{var id=n.children[s];if(id)d.textContent=node(id).name;else{d.classList.add("empty");d.textContent="＋"}}
+   container.appendChild(d);
+ });
+}
 function animateBackTo(targetId){
  if(targetId===currentNode||busy)return;
  var lineage=pathIds(currentNode);
  if(lineage.indexOf(targetId)<0)return;
 
- // Breadcrumb travel is treated as one camera move.
- // Each level begins before the previous level has visually finished,
- // so there is no "landing" between levels.
- var steps=[];
- var cursor=currentNode;
- while(cursor!==targetId){
-   var p=node(cursor).parent;
-   if(!p)break;
-   steps.push({child:cursor,parent:p});
-   cursor=p;
- }
- if(!steps.length)return;
-
  busy=true;
- var stepIndex=0;
- var activeLayers=[];
+ var fromNode=currentNode;
+ var nested=nestedRectFromAncestor(targetId,fromNode);
+ var cam=document.createElement("div");cam.className="cameraGrid";
+ buildStaticGrid(targetId,cam);
+ cameraOverlay.appendChild(cam);
 
- function launchStep(){
-   if(stepIndex>=steps.length){
-     // Final settle only once, at the requested ancestor.
-     setTimeout(function(){
-       activeLayers.forEach(function(x){if(x&&x.parentNode)x.remove()});
-       motionLayer.innerHTML="";
-       var finalGrid=document.getElementById("mandala");
-       finalGrid.style.opacity="1";
-       finalGrid.style.transition="";
-       busy=false;
-     },190);
-     return;
-   }
+ // Scale the target ancestor so the currently viewed descendant cell occupies the viewport.
+ var sx=wrap.clientWidth/nested.width,sy=wrap.clientHeight/nested.height;
+ cam.style.transformOrigin="0 0";
+ cam.style.transform="translate("+(-nested.left*sx)+"px,"+(-nested.top*sy)+"px) scale("+sx+","+sy+")";
+ cam.style.opacity=".18";
 
-   var step=steps[stepIndex++];
-   var child=step.child,parentId=step.parent;
+ var live=document.getElementById("mandala");
+ live.style.transition="opacity .28s ease";
+ live.style.opacity="1";
 
-   // Current visible grid becomes the outgoing layer.
-   var liveGrid=document.getElementById("mandala");
-   var outgoing=document.createElement("div");
-   outgoing.className="childOutgoing";
-   Array.from(liveGrid.children).forEach(function(c){outgoing.appendChild(c.cloneNode(true))});
-   motionLayer.appendChild(outgoing);
-   activeLayers.push(outgoing);
+ requestAnimationFrame(function(){requestAnimationFrame(function(){
+   cam.style.transform="translate(0px,0px) scale(1)";
+   cam.style.opacity="1";
+   live.style.opacity="0";
+ })});
 
-   // Render the actual parent immediately underneath.
-   currentNode=parentId;
+ setTimeout(function(){
+   currentNode=targetId;
    renderMandala();
-   var parentGrid=document.getElementById("mandala");
-   var parent=node(parentId);
-   var childIndex=parent.children.indexOf(child);
-   var map=[0,1,2,3,5,6,7,8];
-   var target=parentGrid.children[map[childIndex]];
-   var dest=rectInWrap(target);
-
-   var incoming=document.createElement("div");
-   incoming.className="parentIncoming";
-   Array.from(parentGrid.children).forEach(function(c){incoming.appendChild(c.cloneNode(true))});
-   motionLayer.appendChild(incoming);
-   activeLayers.push(incoming);
-
-   parentGrid.style.opacity="0";
-   incoming.style.transformOrigin=(dest.left+dest.width/2)+"px "+(dest.top+dest.height/2)+"px";
-   incoming.style.transform="scale(2.2)";
-   incoming.style.opacity="0";
-
+   var finalGrid=document.getElementById("mandala");
+   finalGrid.style.opacity="0";
+   finalGrid.style.transition="opacity .16s ease";
    requestAnimationFrame(function(){requestAnimationFrame(function(){
-     var sx=dest.width/wrap.clientWidth;
-     var sy=dest.height/wrap.clientHeight;
-     outgoing.style.transformOrigin="0 0";
-     outgoing.style.transform="translate("+dest.left+"px,"+dest.top+"px) scale("+sx+","+sy+")";
-     outgoing.style.opacity=".34";
-
-     incoming.style.transform="scale(1)";
-     incoming.style.opacity="1";
+     finalGrid.style.opacity="1";
+     cam.style.opacity="0";
    })});
-
-   // Blend the real parent in while motion is still happening.
    setTimeout(function(){
-     parentGrid.style.transition="opacity .16s ease";
-     parentGrid.style.opacity="1";
-     outgoing.style.opacity="0";
-     incoming.style.opacity=".34";
-   },210);
-
-   // Start the next hierarchy step BEFORE this one settles.
-   // This overlap is what removes the stair-step / stop-start feeling.
-   setTimeout(function(){
-     launchStep();
-   },285);
-
-   // Clean this step later, independently of the next step.
-   setTimeout(function(){
-     if(outgoing.parentNode)outgoing.remove();
-     if(incoming.parentNode)incoming.remove();
-   },470);
- }
-
- launchStep();
+     cam.remove();finalGrid.style.transition="";live.style.transition="";busy=false;
+   },190);
+ },720);
 }
 function buildMoveOptions(){
  var sel=document.getElementById("moveSelect");sel.innerHTML="";
@@ -504,9 +550,12 @@ document.getElementById("deleteCell").onclick=function(){
  var label=node(editingId).name;
  if(!confirm("「"+label+"」を削除します。\n子項目がある場合は、その下の項目もすべて削除されます。よろしいですか？"))return;
  var n=node(editingId),p=node(n.parent);p.children=p.children.filter(function(x){return x!==editingId});
+ var removedIds=[];
+ function collectTree(id){removedIds.push(id);node(id).children.slice().forEach(collectTree)}
+ collectTree(editingId);
+ removedIds.forEach(clearTodayItem);
  function removeTree(id){node(id).children.slice().forEach(removeTree);delete state.nodes[id];delete state.enabled[id]}
  removeTree(editingId);
- state.today=state.today.filter(function(t){return !!state.nodes[t.id]});
  save();closeEdit();renderAll();
 };
 document.getElementById("moveCell").onclick=function(){
@@ -606,17 +655,68 @@ function renderPaletteList(){
  var cb=document.getElementById("customBgBtn");if(cb)cb.disabled=activePalette().builtIn;
  palettes().forEach(function(p){var b=document.createElement("button");b.className="paletteRow";b.innerHTML="<span><span class='paletteName'>"+p.name+"</span><span class='tag'>"+(p.builtIn?"DEFAULT":"CUSTOM")+"</span></span><span class='dots'><i style='background:"+p.c.a1+"'></i><i style='background:"+p.c.a2+"'></i><i style='background:"+p.c.a3+"'></i></span>";b.onclick=function(){if(p.builtIn&&state.backgroundMode==="custom")state.backgroundMode="white";applyPalette(p);openPaletteEditor(p);renderPaletteList()};box.appendChild(b)});
 }
-var paletteLabels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",a1:"Accent 1",a2:"Accent 2",a3:"Accent 3",accentText:"Accent Text",off:"OFF",done:"Completed"};
-function openPaletteEditor(p){editingPalette={id:p.id,name:p.name,builtIn:p.builtIn,c:Object.assign({},p.c)};document.getElementById("editor").classList.add("show");document.getElementById("editorTitle").textContent="EDIT · "+p.name;renderPaletteEditor()}
-function renderPaletteEditor(){
- var rows=document.getElementById("editRows");rows.innerHTML="";
- Object.keys(paletteLabels).forEach(function(k){var r=document.createElement("div");r.className="editRow";r.innerHTML="<label>"+paletteLabels[k]+"</label><input type='color' value='"+editingPalette.c[k]+"'><input type='text' value='"+editingPalette.c[k]+"'>";var pick=r.children[1],hex=r.children[2];pick.oninput=function(){editingPalette.c[k]=pick.value.toUpperCase();hex.value=editingPalette.c[k];previewPalette()};hex.onchange=function(){var v=hex.value.trim();if(v.charAt(0)!=="#")v="#"+v;if(/^#[0-9A-Fa-f]{6}$/.test(v)){editingPalette.c[k]=v.toUpperCase();pick.value=v;previewPalette()}else hex.value=editingPalette.c[k]};rows.appendChild(r)});
- document.getElementById("overwritePalette").style.display=editingPalette.builtIn?"none":"inline-block";document.getElementById("deletePalette").style.display=editingPalette.builtIn?"none":"inline-block";previewPalette();
+var accentLabels={a1:"Accent 1",a2:"Accent 2",a3:"Accent 3",accentText:"Accent Text"};
+var baseLabels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",off:"OFF",done:"Completed"};
+
+function openPaletteEditor(p){
+ editingPalette={id:p.id,name:p.name,builtIn:p.builtIn,c:Object.assign({},p.c)};
+ // Start base values from currently displayed mode, so saving as custom preserves what the user sees.
+ var bg=backgroundValues();Object.keys(bg).forEach(function(k){editingPalette.c[k]=bg[k]});
+ document.getElementById("editor").classList.add("show");
+ document.getElementById("editorTitle").textContent="EDIT · "+p.name;
+ renderPaletteEditor();
 }
-function previewPalette(){Object.keys(editingPalette.c).forEach(function(k){document.documentElement.style.setProperty("--"+k,editingPalette.c[k])});document.getElementById("preview").innerHTML="<div style='background:"+editingPalette.c.bg+"'></div><div style='background:"+editingPalette.c.a1+"'></div><div style='background:"+editingPalette.c.a2+"'></div><div style='background:"+editingPalette.c.a3+"'></div>"}
-document.getElementById("newPalette").onclick=function(){var p=activePalette();editingPalette={id:"c"+Date.now(),name:"MY PALETTE "+(state.customPalettes.length+1),builtIn:false,c:Object.assign({},p.c)};document.getElementById("editor").classList.add("show");document.getElementById("editorTitle").textContent="NEW PALETTE";renderPaletteEditor()};
-document.getElementById("saveAsPalette").onclick=function(){var p={id:"c"+Date.now(),name:editingPalette.builtIn?editingPalette.name+" CUSTOM":editingPalette.name+" COPY",builtIn:false,c:Object.assign({},editingPalette.c)};state.customPalettes.push(p);applyPalette(p);save();renderPaletteList();openPaletteEditor(p)};
-document.getElementById("overwritePalette").onclick=function(){if(!editingPalette||editingPalette.builtIn)return;var i=state.customPalettes.findIndex(function(x){return x.id===editingPalette.id});if(i>=0){state.customPalettes[i]={id:editingPalette.id,name:editingPalette.name,builtIn:false,c:Object.assign({},editingPalette.c)};applyPalette(state.customPalettes[i]);save();renderPaletteList()}};
+function makeColorRow(k,label,container){
+ var r=document.createElement("div");r.className="editRow";
+ r.innerHTML="<label>"+label+"</label><input type='color' value='"+editingPalette.c[k]+"'><input type='text' value='"+editingPalette.c[k]+"'>";
+ var pick=r.children[1],hex=r.children[2];
+ pick.oninput=function(){editingPalette.c[k]=pick.value.toUpperCase();hex.value=editingPalette.c[k];previewPalette()};
+ hex.onchange=function(){var v=hex.value.trim();if(v.charAt(0)!=="#")v="#"+v;if(/^#[0-9A-Fa-f]{6}$/.test(v)){editingPalette.c[k]=v.toUpperCase();pick.value=v;previewPalette()}else hex.value=editingPalette.c[k]};
+ container.appendChild(r);
+}
+function makeSwatch(k,label,container){
+ var b=document.createElement("button");b.type="button";b.className="swatchBtn";b.style.background=editingPalette.c[k];
+ var lum=editingPalette.c[k].replace("#","");
+ var rr=parseInt(lum.slice(0,2),16),gg=parseInt(lum.slice(2,4),16),bb=parseInt(lum.slice(4,6),16);
+ b.style.color=(0.2126*rr+0.7152*gg+0.0722*bb)>150?"#171717":"#F5F5F2";
+ b.innerHTML="<span>"+label+"</span><input type='color' value='"+editingPalette.c[k]+"'>";
+ b.querySelector("input").oninput=function(){editingPalette.c[k]=this.value.toUpperCase();renderPaletteEditor();previewPalette()};
+ container.appendChild(b);
+}
+function renderPaletteEditor(){
+ var aRows=document.getElementById("accentRows"),bRows=document.getElementById("baseRows");
+ var aPrev=document.getElementById("accentPreview"),bPrev=document.getElementById("basePreview");
+ aRows.innerHTML="";bRows.innerHTML="";aPrev.innerHTML="";bPrev.innerHTML="";
+ Object.keys(accentLabels).forEach(function(k){makeSwatch(k,accentLabels[k],aPrev);makeColorRow(k,accentLabels[k],aRows)});
+ Object.keys(baseLabels).forEach(function(k){makeSwatch(k,baseLabels[k],bPrev);makeColorRow(k,baseLabels[k],bRows)});
+ document.getElementById("overwritePalette").style.display=editingPalette.builtIn?"none":"inline-block";
+ document.getElementById("deletePalette").style.display=editingPalette.builtIn?"none":"inline-block";
+ previewPalette();
+}
+function previewPalette(){
+ Object.keys(editingPalette.c).forEach(function(k){document.documentElement.style.setProperty("--"+k,editingPalette.c[k])});
+}
+document.getElementById("newPalette").onclick=function(){
+ var p=activePalette(),c=Object.assign({},p.c),bg=backgroundValues();Object.keys(bg).forEach(function(k){c[k]=bg[k]});
+ editingPalette={id:"c"+Date.now(),name:"MY PALETTE "+(state.customPalettes.length+1),builtIn:false,c:c};
+ document.getElementById("editor").classList.add("show");document.getElementById("editorTitle").textContent="NEW PALETTE";renderPaletteEditor();
+};
+document.getElementById("saveAsPalette").onclick=function(){
+ var p={id:"c"+Date.now(),name:editingPalette.builtIn?editingPalette.name+" CUSTOM":editingPalette.name+" COPY",builtIn:false,c:Object.assign({},editingPalette.c)};
+ state.customPalettes.push(p);
+ state.customBackground={bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,off:editingPalette.c.off,done:editingPalette.c.done};
+ state.backgroundMode="custom";
+ applyPalette(p);save();renderPaletteList();renderBackgroundControls();openPaletteEditor(p);
+};
+document.getElementById("overwritePalette").onclick=function(){
+ if(!editingPalette||editingPalette.builtIn)return;
+ var i=state.customPalettes.findIndex(function(x){return x.id===editingPalette.id});
+ if(i>=0){
+   state.customPalettes[i]={id:editingPalette.id,name:editingPalette.name,builtIn:false,c:Object.assign({},editingPalette.c)};
+   if(state.backgroundMode==="custom")state.customBackground={bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,off:editingPalette.c.off,done:editingPalette.c.done};
+   applyPalette(state.customPalettes[i]);save();renderPaletteList();renderBackgroundControls();
+ }
+};
 document.getElementById("deletePalette").onclick=function(){if(!editingPalette||editingPalette.builtIn)return;state.customPalettes=state.customPalettes.filter(function(x){return x.id!==editingPalette.id});document.getElementById("editor").classList.remove("show");applyPalette(builtins[0]);save();renderPaletteList()};
 
 document.getElementById("exportBtn").onclick=function(){var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="3tasks-mndl-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)};
