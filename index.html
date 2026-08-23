@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v3.3</title>
+<title>3TASKS MNDL Safari v3.4</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -31,10 +31,10 @@ button,input{font:inherit;color:inherit}
 .cards{display:grid;gap:4px}
 .card{min-height:104px;border:0;border-radius:12px;padding:15px 12px 15px 14px;display:grid;grid-template-columns:44px 1fr 78px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative}
 .card.c1{background:var(--a1)}.card.c2{background:var(--a2)}.card.c3{background:var(--a3)}.card.done{background:var(--done);color:var(--text)}
-.cardRight{display:grid;grid-template-rows:28px 28px;gap:8px;align-items:center}
-.refreshPlain{width:28px;height:28px;border:0;background:transparent;color:inherit;font-size:22px;line-height:1;padding:0;display:grid;place-items:center}
+.cardRight{height:64px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;position:relative}
+.refreshPlain{position:absolute;right:0;top:0;width:28px;height:28px;border:0;background:transparent;color:inherit;font-size:22px;line-height:1;padding:0;display:grid;place-items:center}
 .refreshPlain.used{opacity:.24;pointer-events:none}
-.doneAction{border:0;background:transparent;color:inherit;padding:0;display:grid;grid-template-columns:28px auto;gap:7px;align-items:center;font-size:10px;font-weight:800;letter-spacing:.06em}
+.doneAction{border:0;background:transparent;color:inherit;padding:0;display:grid;grid-template-columns:auto 28px;gap:7px;align-items:center;font-size:10px;font-weight:800;letter-spacing:.06em}
 .doneCircle{width:28px;height:28px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
 .card.emptyCard{background:var(--panel);color:var(--text)}
 .emptyCopy{font-size:14px;font-weight:650;line-height:1.35}
@@ -147,22 +147,6 @@ button,input{font:inherit;color:inherit}
   to{opacity:1}
 }
 
-
-.gradientBridge{
-  position:absolute;
-  z-index:29;
-  border-radius:3px;
-  pointer-events:none;
-  overflow:hidden;
-  isolation:isolate;
-  background:
-    radial-gradient(circle at 18% 18%,var(--a1),transparent 56%),
-    radial-gradient(circle at 84% 22%,var(--a2),transparent 58%),
-    radial-gradient(circle at 52% 88%,var(--a3),transparent 60%),
-    linear-gradient(145deg,var(--a1),var(--a2) 52%,var(--a3));
-  will-change:left,top,width,height,opacity;
-}
-
 </style>
 </head>
 <body>
@@ -222,7 +206,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v3.3</div>
+<div class="appmeta">3TASKS MNDL · v3.4</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -247,7 +231,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v33";
+var STORAGE="mndl-v34";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -371,7 +355,7 @@ function renderToday(){
        "<div><div class='taskName'>"+n.name+"</div><div class='trail'>"+trail(t.id)+"</div></div>"+
        "<div class='cardRight'>"+
          "<button class='refreshPlain "+(state.manualReselectUsed?"used":"")+"' aria-label='選び直す'>↻</button>"+
-         "<button class='doneAction' aria-label='完了'><span class='doneCircle'>"+(t.done?"✓":"")+"</span><span>DONE</span></button>"+
+         "<button class='doneAction' aria-label='完了'><span>DONE</span><span class='doneCircle'>"+(t.done?"✓":"")+"</span></button>"+
        "</div>";
      card.querySelector(".doneAction").onclick=function(){t.done=!t.done;save();renderToday()};
      card.querySelector(".refreshPlain").onclick=function(){reselectToday(i,false)};
@@ -379,7 +363,7 @@ function renderToday(){
      card.innerHTML=
        "<div class='num'>0"+(i+1)+"</div>"+
        "<div class='emptyCopy'>今日の項目がひとつ空きました</div>"+
-       "<div class='cardRight'><button class='refreshPlain' aria-label='新しい項目を選ぶ'>↻</button><span></span></div>";
+       "<div class='cardRight'><button class='refreshPlain' aria-label='新しい項目を選ぶ'>↻</button></div>";
      card.querySelector(".refreshPlain").onclick=function(){reselectToday(i,true)};
    }
    box.appendChild(card);
@@ -436,7 +420,7 @@ function animateDeeper(source,id){
  var wrapCenter={x:wrap.clientWidth/2,y:wrap.clientHeight/2};
  var sourceCenter={x:sourceRect.left+sourceRect.width/2,y:sourceRect.top+sourceRect.height/2};
 
- // Clone whole 3x3 geometry but suppress centre gradient during animation.
+ // Clone the whole 3x3 field so cell size and gap size keep exactly the same ratio.
  var field=document.createElement("div");
  field.style.position="absolute";
  field.style.inset="0";
@@ -447,14 +431,10 @@ function animateDeeper(source,id){
  field.style.pointerEvents="none";
  field.style.transformOrigin=sourceCenter.x+"px "+sourceCenter.y+"px";
 
- Array.from(live.children).forEach(function(c){
+ Array.from(live.children).forEach(function(c,idx){
    var d=c.cloneNode(true);
    d.classList.remove("holdIn","holdOut");
-   if(d.classList.contains("center")){
-     d.style.background="var(--panel)";
-     d.style.color="var(--text)";
-     d.classList.remove("center");
-   }
+   // During forward zoom, keep text from visually growing.
    var spans=d.querySelectorAll("span");
    spans.forEach(function(s){s.style.opacity="0"});
    d.style.fontSize="0px";
@@ -462,7 +442,7 @@ function animateDeeper(source,id){
  });
  motionLayer.appendChild(field);
 
- // Fixed-size label follows selected cell.
+ // Fixed-size label follows the selected cell while the geometry enlarges.
  var label=document.createElement("div");
  label.className="zoomFixedLabel"+(source.classList.contains("center")?" onAccent":"");
  label.textContent=source.textContent.replace("›","");
@@ -473,21 +453,12 @@ function animateDeeper(source,id){
  label.style.transformOrigin="center center";
  motionLayer.appendChild(label);
 
- // Dedicated gradient bridge exists continuously throughout the transition.
- var grad=document.createElement("div");
- grad.className="gradientBridge";
- grad.style.left=sourceRect.left+"px";
- grad.style.top=sourceRect.top+"px";
- grad.style.width=sourceRect.width+"px";
- grad.style.height=sourceRect.height+"px";
- grad.style.opacity=source.classList.contains("center")?"1":"0";
- motionLayer.appendChild(grad);
-
  live.style.opacity="0";
 
  var tx=wrapCenter.x-sourceCenter.x;
  var ty=wrapCenter.y-sourceCenter.y;
 
+ // Ratio-preserving camera zoom: one uniform scale applied to the entire field.
  var fieldAnim=field.animate([
    {transform:"translate(0px,0px) scale(1)",opacity:1,offset:0},
    {transform:"translate("+(tx*.10)+"px,"+(ty*.10)+"px) scale("+(1+(scale-1)*.10)+")",opacity:.92,offset:.18},
@@ -500,6 +471,7 @@ function animateDeeper(source,id){
    fill:"forwards"
  });
 
+ // Keep the label itself at constant visual size while moving to screen center.
  label.animate([
    {left:sourceRect.left+"px",top:sourceRect.top+"px",width:sourceRect.width+"px",height:sourceRect.height+"px",opacity:1,offset:0},
    {left:(sourceRect.left*.80)+"px",top:(sourceRect.top*.80)+"px",width:(sourceRect.width+(wrap.clientWidth-sourceRect.width)*.20)+"px",height:(sourceRect.height+(wrap.clientHeight-sourceRect.height)*.20)+"px",opacity:.88,offset:.25},
@@ -511,17 +483,7 @@ function animateDeeper(source,id){
    fill:"forwards"
  });
 
- grad.animate([
-   {left:sourceRect.left+"px",top:sourceRect.top+"px",width:sourceRect.width+"px",height:sourceRect.height+"px",opacity:source.classList.contains("center")?1:0,offset:0},
-   {left:(sourceRect.left*.62)+"px",top:(sourceRect.top*.62)+"px",width:(sourceRect.width+(wrap.clientWidth-sourceRect.width)*.38)+"px",height:(sourceRect.height+(wrap.clientHeight-sourceRect.height)*.38)+"px",opacity:.55,offset:.48},
-   {left:"0px",top:"0px",width:wrap.clientWidth+"px",height:wrap.clientHeight+"px",opacity:.28,offset:1}
- ],{
-   duration:620,
-   easing:"cubic-bezier(.42,0,1,1)",
-   fill:"forwards"
- });
-
- // Destination appears underneath, while its own gradient stays hidden until hand-off.
+ // Crossfade only near arrival.
  setTimeout(function(){
    currentNode=id;
    renderMandala();
@@ -539,7 +501,6 @@ function animateDeeper(source,id){
      ],
      {duration:360,easing:"ease-out",fill:"forwards"}
    );
-
    field.animate(
      [
        {opacity:.42,offset:0},
@@ -549,7 +510,6 @@ function animateDeeper(source,id){
      ],
      {duration:360,easing:"ease-out",fill:"forwards"}
    );
-
    label.animate(
      [
        {opacity:.45,offset:0},
@@ -560,22 +520,16 @@ function animateDeeper(source,id){
      {duration:360,easing:"ease-out",fill:"forwards"}
    );
 
-   // Hand off the bridge to the real destination gradient smoothly.
+   // The destination centre gradient appears later than the grid itself.
    setTimeout(function(){
      dest.classList.remove("gradientHidden");
      dest.classList.add("gradientReveal");
-     grad.animate(
-       [{opacity:.28},{opacity:0}],
-       {duration:250,easing:"ease-out",fill:"forwards"}
-     );
-   },165);
+   },150);
  },350);
 
  fieldAnim.onfinish=function(){
    setTimeout(function(){
-     field.remove();
-     label.remove();
-     grad.remove();
+     field.remove();label.remove();
      var dest=document.getElementById("mandala");
      if(dest){
        dest.style.opacity="1";
