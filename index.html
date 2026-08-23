@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v2.3</title>
+<title>3TASKS MNDL Safari v2.4</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -29,7 +29,7 @@ button,input{font:inherit;color:inherit}
 .footer button.active{color:var(--text)}.gear{font-size:20px}
 .appmeta{position:absolute;left:18px;right:18px;bottom:var(--safeBottom);height:20px;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:9px;letter-spacing:.08em;z-index:7}
 .cards{display:grid;gap:4px}
-.card{min-height:102px;border:0;border-radius:12px;padding:15px 14px;display:grid;grid-template-columns:44px 1fr 34px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative}.cardTools{display:grid;gap:8px;justify-items:center}.refresh{border:0;background:transparent;color:inherit;font-size:22px;line-height:1;padding:2px}.card.emptyCard{background:var(--panel);color:var(--text)}.emptyCopy{font-size:14px;font-weight:650;line-height:1.35}.emptyCard .refresh{font-size:26px;color:var(--sub)}
+.card{min-height:112px;border:0;border-radius:12px;padding:15px 14px 10px;display:grid;grid-template-columns:44px 1fr;grid-template-rows:1fr auto;gap:8px 9px;align-items:center;text-align:left;color:var(--accentText);position:relative}.cardMain{display:contents}.cardActions{grid-column:1/3;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.24);padding-top:8px}.card.done .cardActions,.card.emptyCard .cardActions{border-top-color:rgba(32,33,32,.12)}.refresh{border:0;background:transparent;color:inherit;font-size:22px;line-height:1;padding:2px 5px}.doneBtn{border:0;background:transparent;color:inherit;display:flex;align-items:center;gap:7px;padding:2px 4px;font-size:10px;font-weight:800;letter-spacing:.06em}.doneCircle{width:22px;height:22px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:12px}.card.emptyCard{background:var(--panel);color:var(--text)}.emptyCopy{font-size:14px;font-weight:650;line-height:1.35}.emptyCard .refresh{font-size:26px;color:var(--sub)}.refresh.used{opacity:.24;pointer-events:none}
 .card.c1{background:var(--a1)}.card.c2{background:var(--a2)}.card.c3{background:var(--a3)}.card.done{background:var(--done);color:var(--text)}
 .num{font-size:28px;font-weight:780}.taskName{font-size:16px;font-weight:730}.trail{font-size:10px;margin-top:5px;opacity:.76;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.check{width:27px;height:27px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center}
 .progress{height:4px;background:rgba(32,33,32,.12);border-radius:999px;margin-top:13px;overflow:hidden}.progress i{display:block;width:0;height:100%;background:var(--text)}.progressText{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--sub)}
@@ -78,7 +78,7 @@ button,input{font:inherit;color:inherit}
 .swatchPreview.basePreview{grid-template-columns:repeat(3,1fr)}
 .swatchBtn{height:46px;border:0;border-radius:8px;position:relative;overflow:hidden;padding:0}
 .swatchBtn span{position:absolute;left:6px;bottom:5px;font-size:8px;font-weight:750;text-shadow:0 1px 2px rgba(0,0,0,.25)}
-.swatchBtn input{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+.swatchBtn input{position:absolute;inset:0;width:100%;height:100%;opacity:0}.selectedColorEditor{margin-top:10px;padding-top:10px;border-top:1px solid rgba(32,33,32,.10)}.selectedColorLabel{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub);margin-bottom:7px}.selectedColorControls{display:grid;grid-template-columns:54px 1fr;gap:8px;align-items:center}.selectedColorControls input[type=color]{width:54px;height:42px;border:0;background:none;padding:0}.selectedColorControls input[type=text]{border:0;border-radius:8px;background:var(--bg);padding:10px;font-size:12px;text-transform:uppercase}
 .cameraOverlay{position:absolute;inset:0;z-index:23;pointer-events:none;overflow:hidden}
 .cameraGrid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;transform-origin:0 0;will-change:transform,opacity;transition:transform .72s cubic-bezier(.18,.78,.18,1),opacity .34s ease}
 .cameraGrid .cell{pointer-events:none}
@@ -117,11 +117,21 @@ button,input{font:inherit;color:inherit}
 <h2 id="editorTitle">EDIT PALETTE</h2>
 <div class="paletteGroupTitle">ACCENT COLORS</div>
 <div class="swatchPreview" id="accentPreview"></div>
-<div id="accentRows"></div>
 <div class="paletteGroupTitle" style="margin-top:14px">BASE COLORS</div>
 <div class="swatchPreview basePreview" id="basePreview"></div>
-<div id="baseRows"></div>
-<div class="editActions"><button class="btn primary" id="saveAsPalette">新しいパレットとして保存</button><button class="btn" id="overwritePalette">上書き保存</button><button class="btn danger" id="deletePalette">削除</button></div>
+<div class="selectedColorEditor" id="selectedColorEditor">
+  <div class="selectedColorLabel" id="selectedColorLabel">Selected color</div>
+  <div class="selectedColorControls">
+    <input type="color" id="selectedColorPicker">
+    <input type="text" id="selectedColorHex" maxlength="7">
+  </div>
+</div>
+<div class="editActions">
+  <button class="btn primary" id="saveAsPalette">新しいパレットとして保存</button>
+  <button class="btn" id="overwritePalette">上書き保存</button>
+  <button class="btn danger" id="deletePalette">削除</button>
+</div>
+</div>
 </div>
 <div class="section"><h2>DATA</h2><div class="dataActions"><button class="btn" id="exportBtn">JSONを書き出す</button><button class="btn" id="importBtn">JSONを読み込む</button><input class="fileInput" id="importFile" type="file" accept="application/json,.json"></div><div class="dataNote">Safari内へ自動保存し、JSONでもバックアップできます。</div></div>
 </div></section>
@@ -129,7 +139,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v2.3</div>
+<div class="appmeta">3TASKS MNDL · v2.4</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -154,7 +164,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v23";
+var STORAGE="mndl-v24";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -187,7 +197,7 @@ var defaultNodes={
  sketch1:{id:"sketch1",name:"スケッチを1つ描く",parent:"sketch",children:[]}
 };
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"}};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false};
 
 function save(){try{localStorage.setItem(STORAGE,JSON.stringify(state))}catch(e){}}
 function load(){try{var s=JSON.parse(localStorage.getItem(STORAGE)||"null");if(s&&s.nodes)state=Object.assign(state,s)}catch(e){}}
@@ -249,10 +259,13 @@ function chooseTodayReplacement(index){
 function clearTodayItem(id){
  state.today.forEach(function(t){if(t.id===id){t.id=null;t.done=false}});
 }
-function reselectToday(index){
+function reselectToday(index,isReplenishment){
+ if(!isReplenishment && state.manualReselectUsed)return;
  var id=chooseTodayReplacement(index);
+ if(!id)return;
  state.today[index].id=id;
  state.today[index].done=false;
+ if(!isReplenishment)state.manualReselectUsed=true;
  save();renderToday();
 }
 
@@ -266,18 +279,27 @@ function renderToday(){
    var valid=n && n.children.length===0 && state.enabled[t.id]!==false;
    if(!valid){t.id=null;t.done=false;n=null}
 
-   var b=document.createElement("div");
-   b.className=n?("card c"+t.tone+(t.done?" done":"")):"card emptyCard";
+   var card=document.createElement("div");
+   card.className=n?("card c"+t.tone+(t.done?" done":"")):"card emptyCard";
 
    if(n){
-     b.innerHTML="<div class='num'>0"+(i+1)+"</div><div><div class='taskName'>"+n.name+"</div><div class='trail'>"+trail(t.id)+"</div></div><div class='cardTools'><button class='refresh' aria-label='選び直す'>↻</button><button class='check' aria-label='完了'>"+(t.done?"✓":"")+"</button></div>";
-     b.querySelector(".check").onclick=function(e){e.stopPropagation();t.done=!t.done;save();renderToday()};
-     b.querySelector(".refresh").onclick=function(e){e.stopPropagation();reselectToday(i)};
+     card.innerHTML=
+       "<div class='num'>0"+(i+1)+"</div>"+
+       "<div><div class='taskName'>"+n.name+"</div><div class='trail'>"+trail(t.id)+"</div></div>"+
+       "<div class='cardActions'>"+
+         "<button class='refresh "+(state.manualReselectUsed?"used":"")+"' aria-label='選び直す'>↻</button>"+
+         "<button class='doneBtn' aria-label='完了'><span class='doneCircle'>"+(t.done?"✓":"")+"</span><span>DONE</span></button>"+
+       "</div>";
+     card.querySelector(".doneBtn").onclick=function(){t.done=!t.done;save();renderToday()};
+     card.querySelector(".refresh").onclick=function(){reselectToday(i,false)};
    }else{
-     b.innerHTML="<div class='num'>0"+(i+1)+"</div><div class='emptyCopy'>今日の項目がひとつ空きました</div><div class='cardTools'><button class='refresh' aria-label='新しい項目を選ぶ'>↻</button></div>";
-     b.querySelector(".refresh").onclick=function(){reselectToday(i)};
+     card.innerHTML=
+       "<div class='num'>0"+(i+1)+"</div>"+
+       "<div class='emptyCopy'>今日の項目がひとつ空きました</div>"+
+       "<div class='cardActions'><span></span><button class='refresh' aria-label='新しい項目を選ぶ'>↻</button></div>";
+     card.querySelector(".refresh").onclick=function(){reselectToday(i,true)};
    }
-   box.appendChild(b);
+   box.appendChild(card);
  });
  var d=state.today.filter(function(x){return x.id&&x.done}).length;
  document.getElementById("count").textContent=d+" / 3";
@@ -454,23 +476,29 @@ function buildStaticGrid(nodeId,container){
 function animateBackTo(targetId){
  if(targetId===currentNode||busy)return;
  var lineage=pathIds(currentNode);
- if(lineage.indexOf(targetId)<0)return;
+ var targetIndex=lineage.indexOf(targetId);
+ if(targetIndex<0)return;
 
+ var levels=(lineage.length-1)-targetIndex;
  busy=true;
+
  var fromNode=currentNode;
  var nested=nestedRectFromAncestor(targetId,fromNode);
- var cam=document.createElement("div");cam.className="cameraGrid";
+ var cam=document.createElement("div");
+ cam.className="cameraGrid";
  buildStaticGrid(targetId,cam);
  cameraOverlay.appendChild(cam);
 
- // Scale the target ancestor so the currently viewed descendant cell occupies the viewport.
- var sx=wrap.clientWidth/nested.width,sy=wrap.clientHeight/nested.height;
+ var sx=wrap.clientWidth/nested.width;
+ var sy=wrap.clientHeight/nested.height;
+ var duration=Math.min(1.35,0.42+levels*0.28);
+ cam.style.transition="transform "+duration+"s cubic-bezier(.16,.72,.16,1),opacity "+Math.min(.42,duration*.45)+"s ease";
  cam.style.transformOrigin="0 0";
  cam.style.transform="translate("+(-nested.left*sx)+"px,"+(-nested.top*sy)+"px) scale("+sx+","+sy+")";
- cam.style.opacity=".18";
+ cam.style.opacity=".08";
 
  var live=document.getElementById("mandala");
- live.style.transition="opacity .28s ease";
+ live.style.transition="opacity "+Math.min(.32,duration*.35)+"s ease";
  live.style.opacity="1";
 
  requestAnimationFrame(function(){requestAnimationFrame(function(){
@@ -479,20 +507,26 @@ function animateBackTo(targetId){
    live.style.opacity="0";
  })});
 
+ var revealAt=Math.max(220,Math.round(duration*1000)-180);
  setTimeout(function(){
    currentNode=targetId;
    renderMandala();
    var finalGrid=document.getElementById("mandala");
    finalGrid.style.opacity="0";
-   finalGrid.style.transition="opacity .16s ease";
+   finalGrid.style.transition="opacity .18s ease";
    requestAnimationFrame(function(){requestAnimationFrame(function(){
      finalGrid.style.opacity="1";
      cam.style.opacity="0";
    })});
-   setTimeout(function(){
-     cam.remove();finalGrid.style.transition="";live.style.transition="";busy=false;
-   },190);
- },720);
+ },revealAt);
+
+ setTimeout(function(){
+   var finalGrid=document.getElementById("mandala");
+   cam.remove();
+   if(finalGrid){finalGrid.style.transition="";finalGrid.style.opacity="1"}
+   live.style.transition="";
+   busy=false;
+ },Math.round(duration*1000)+210);
 }
 function buildMoveOptions(){
  var sel=document.getElementById("moveSelect");sel.innerHTML="";
@@ -657,45 +691,62 @@ function renderPaletteList(){
 }
 var accentLabels={a1:"Accent 1",a2:"Accent 2",a3:"Accent 3",accentText:"Accent Text"};
 var baseLabels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",off:"OFF",done:"Completed"};
+var selectedColorKey="a1";
 
 function openPaletteEditor(p){
  editingPalette={id:p.id,name:p.name,builtIn:p.builtIn,c:Object.assign({},p.c)};
- // Start base values from currently displayed mode, so saving as custom preserves what the user sees.
  var bg=backgroundValues();Object.keys(bg).forEach(function(k){editingPalette.c[k]=bg[k]});
+ selectedColorKey="a1";
  document.getElementById("editor").classList.add("show");
  document.getElementById("editorTitle").textContent="EDIT · "+p.name;
  renderPaletteEditor();
 }
-function makeColorRow(k,label,container){
- var r=document.createElement("div");r.className="editRow";
- r.innerHTML="<label>"+label+"</label><input type='color' value='"+editingPalette.c[k]+"'><input type='text' value='"+editingPalette.c[k]+"'>";
- var pick=r.children[1],hex=r.children[2];
- pick.oninput=function(){editingPalette.c[k]=pick.value.toUpperCase();hex.value=editingPalette.c[k];previewPalette()};
- hex.onchange=function(){var v=hex.value.trim();if(v.charAt(0)!=="#")v="#"+v;if(/^#[0-9A-Fa-f]{6}$/.test(v)){editingPalette.c[k]=v.toUpperCase();pick.value=v;previewPalette()}else hex.value=editingPalette.c[k]};
- container.appendChild(r);
+
+function luminanceText(hex){
+ var h=hex.replace("#",""),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+ return (0.2126*r+0.7152*g+0.0722*b)>150?"#171717":"#F5F5F2";
 }
 function makeSwatch(k,label,container){
- var b=document.createElement("button");b.type="button";b.className="swatchBtn";b.style.background=editingPalette.c[k];
- var lum=editingPalette.c[k].replace("#","");
- var rr=parseInt(lum.slice(0,2),16),gg=parseInt(lum.slice(2,4),16),bb=parseInt(lum.slice(4,6),16);
- b.style.color=(0.2126*rr+0.7152*gg+0.0722*bb)>150?"#171717":"#F5F5F2";
- b.innerHTML="<span>"+label+"</span><input type='color' value='"+editingPalette.c[k]+"'>";
- b.querySelector("input").oninput=function(){editingPalette.c[k]=this.value.toUpperCase();renderPaletteEditor();previewPalette()};
+ var b=document.createElement("button");b.type="button";b.className="swatchBtn";
+ b.style.background=editingPalette.c[k];b.style.color=luminanceText(editingPalette.c[k]);
+ b.innerHTML="<span>"+label+"</span>";
+ b.onclick=function(){selectedColorKey=k;syncSelectedColorEditor();highlightSelectedSwatches()};
+ b.dataset.colorKey=k;
  container.appendChild(b);
 }
+function highlightSelectedSwatches(){
+ document.querySelectorAll(".swatchBtn").forEach(function(b){
+   b.style.outline=b.dataset.colorKey===selectedColorKey?"2px solid var(--text)":"none";
+   b.style.outlineOffset=b.dataset.colorKey===selectedColorKey?"2px":"0";
+ });
+}
+function syncSelectedColorEditor(){
+ var label=accentLabels[selectedColorKey]||baseLabels[selectedColorKey]||selectedColorKey;
+ document.getElementById("selectedColorLabel").textContent=label;
+ document.getElementById("selectedColorPicker").value=editingPalette.c[selectedColorKey];
+ document.getElementById("selectedColorHex").value=editingPalette.c[selectedColorKey];
+}
 function renderPaletteEditor(){
- var aRows=document.getElementById("accentRows"),bRows=document.getElementById("baseRows");
  var aPrev=document.getElementById("accentPreview"),bPrev=document.getElementById("basePreview");
- aRows.innerHTML="";bRows.innerHTML="";aPrev.innerHTML="";bPrev.innerHTML="";
- Object.keys(accentLabels).forEach(function(k){makeSwatch(k,accentLabels[k],aPrev);makeColorRow(k,accentLabels[k],aRows)});
- Object.keys(baseLabels).forEach(function(k){makeSwatch(k,baseLabels[k],bPrev);makeColorRow(k,baseLabels[k],bRows)});
+ aPrev.innerHTML="";bPrev.innerHTML="";
+ Object.keys(accentLabels).forEach(function(k){makeSwatch(k,accentLabels[k],aPrev)});
+ Object.keys(baseLabels).forEach(function(k){makeSwatch(k,baseLabels[k],bPrev)});
  document.getElementById("overwritePalette").style.display=editingPalette.builtIn?"none":"inline-block";
  document.getElementById("deletePalette").style.display=editingPalette.builtIn?"none":"inline-block";
- previewPalette();
+ syncSelectedColorEditor();highlightSelectedSwatches();previewPalette();
 }
 function previewPalette(){
  Object.keys(editingPalette.c).forEach(function(k){document.documentElement.style.setProperty("--"+k,editingPalette.c[k])});
 }
+document.getElementById("selectedColorPicker").oninput=function(){
+ editingPalette.c[selectedColorKey]=this.value.toUpperCase();
+ renderPaletteEditor();
+};
+document.getElementById("selectedColorHex").onchange=function(){
+ var v=this.value.trim();if(v.charAt(0)!=="#")v="#"+v;
+ if(/^#[0-9A-Fa-f]{6}$/.test(v)){editingPalette.c[selectedColorKey]=v.toUpperCase();renderPaletteEditor()}
+ else this.value=editingPalette.c[selectedColorKey];
+};
 document.getElementById("newPalette").onclick=function(){
  var p=activePalette(),c=Object.assign({},p.c),bg=backgroundValues();Object.keys(bg).forEach(function(k){c[k]=bg[k]});
  editingPalette={id:"c"+Date.now(),name:"MY PALETTE "+(state.customPalettes.length+1),builtIn:false,c:c};
@@ -729,6 +780,7 @@ state.customPalettes=state.customPalettes||[];
 if(state.activePaletteId==="signal")state.activePaletteId="field";
 state.backgroundMode=state.backgroundMode||"white";
 state.customBackground=state.customBackground||{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"};
+if(typeof state.manualReselectUsed!=="boolean")state.manualReselectUsed=false;
 applyPalette(activePalette());renderAll();renderBackgroundControls();setPage(0,false);
 })();
 
