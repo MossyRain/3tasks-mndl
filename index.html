@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v2.6</title>
+<title>3TASKS MNDL Safari v2.7</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -126,6 +126,13 @@ button,input{font:inherit;color:inherit}
 .hueStrip{width:100%;height:18px;border-radius:9px;margin-top:10px;appearance:none;-webkit-appearance:none;background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
 .hueStrip::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #333}
 
+
+.depthWorld .depthGrid{transform-origin:0 0}
+.depthWorld.fadeDepth{opacity:1}
+.depthWorld.fadeDepth .depthCell{transition:opacity .22s ease}
+.depthWorld.fadeDepth .depthCell.center{color:var(--accentText)}
+.depthWorld.fadeDepth .depthCell.center:before{opacity:1}
+
 </style>
 </head>
 <body>
@@ -185,7 +192,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v2.6</div>
+<div class="appmeta">3TASKS MNDL · v2.7</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -210,7 +217,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v26";
+var STORAGE="mndl-v27";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -390,61 +397,80 @@ function makeCloneFromCell(el,text,center){
 function fullRect(){return{left:0,top:0,width:wrap.clientWidth,height:wrap.clientHeight}}
 
 function animateDeeper(source,id){
- if(busy)return;busy=true;
- var grid=document.getElementById("mandala");
- var srcRect=rectInWrap(source),centerX=srcRect.left+srcRect.width/2,centerY=srcRect.top+srcRect.height/2;
- var cells=Array.from(grid.children),clones=[];
+ if(busy)return;
+ busy=true;
 
- cells.forEach(function(c){
-   var r=rectInWrap(c),cl=document.createElement("div");
-   cl.className="zoomClone"+(c.classList.contains("center")?" centerLike":"");
-   cl.textContent=c.textContent.replace("›","");
-   cl.style.left=r.left+"px";cl.style.top=r.top+"px";cl.style.width=r.width+"px";cl.style.height=r.height+"px";
-   motionLayer.appendChild(cl);clones.push({el:cl,rect:r,isTarget:c===source});
+ var live=document.getElementById("mandala");
+ var sourceRect=rectInWrap(source);
+
+ // Preserve the source cell exactly as rendered, including centre gradient if any.
+ var clone=source.cloneNode(true);
+ clone.classList.remove("holdIn","holdOut");
+ clone.style.position="absolute";
+ clone.style.left=sourceRect.left+"px";
+ clone.style.top=sourceRect.top+"px";
+ clone.style.width=sourceRect.width+"px";
+ clone.style.height=sourceRect.height+"px";
+ clone.style.margin="0";
+ clone.style.zIndex="26";
+ clone.style.pointerEvents="none";
+ clone.style.transition="left .46s cubic-bezier(.18,.82,.2,1),top .46s cubic-bezier(.18,.82,.2,1),width .46s cubic-bezier(.18,.82,.2,1),height .46s cubic-bezier(.18,.82,.2,1),opacity .22s ease";
+ motionLayer.appendChild(clone);
+
+ // Other cells move outward as before.
+ var others=[];
+ Array.from(live.children).forEach(function(c){
+   if(c===source)return;
+   var r=rectInWrap(c),o=c.cloneNode(true);
+   o.style.position="absolute";
+   o.style.left=r.left+"px";o.style.top=r.top+"px";
+   o.style.width=r.width+"px";o.style.height=r.height+"px";
+   o.style.margin="0";o.style.zIndex="24";o.style.pointerEvents="none";
+   o.style.transition="transform .46s cubic-bezier(.18,.82,.2,1),opacity .26s ease";
+   motionLayer.appendChild(o);
+   others.push({el:o,rect:r});
  });
- grid.style.opacity="0";
+ live.style.opacity="0";
+
+ var cx=sourceRect.left+sourceRect.width/2,cy=sourceRect.top+sourceRect.height/2;
 
  requestAnimationFrame(function(){requestAnimationFrame(function(){
-   clones.forEach(function(o){
-     var cX=o.rect.left+o.rect.width/2,cY=o.rect.top+o.rect.height/2,dx=cX-centerX,dy=cY-centerY;
-     if(o.isTarget){
-       o.el.style.left="0px";o.el.style.top="0px";o.el.style.width=wrap.clientWidth+"px";o.el.style.height=wrap.clientHeight+"px";
-     }else{
-       o.el.style.transform="translate("+(dx*2.5)+"px,"+(dy*2.5)+"px) scale(1.55)";
-       o.el.style.opacity="0";
-     }
+   clone.style.left="0px";clone.style.top="0px";
+   clone.style.width=wrap.clientWidth+"px";
+   clone.style.height=wrap.clientHeight+"px";
+
+   others.forEach(function(o){
+     var ox=o.rect.left+o.rect.width/2,oy=o.rect.top+o.rect.height/2;
+     o.el.style.transform="translate("+((ox-cx)*2.5)+"px,"+((oy-cy)*2.5)+"px) scale(1.45)";
+     o.el.style.opacity="0";
    });
  })});
 
- // Blend destination hierarchy in before the zoom has finished.
+ // Before the zoom ends, render the destination hierarchy underneath.
  setTimeout(function(){
-   currentNode=id;renderMandala();
-   var newGrid=document.getElementById("mandala");
-   newGrid.style.opacity="0";
-   newGrid.style.transition="opacity .22s ease";
-   requestAnimationFrame(function(){requestAnimationFrame(function(){
-     newGrid.style.opacity="1";
-     var targetClone=clones.find(function(o){return o.isTarget});
-     if(targetClone)targetClone.el.style.opacity="0";
-   })});
- },255);
+   currentNode=id;
+   renderMandala();
+   var dest=document.getElementById("mandala");
+   dest.style.opacity="0";
+
+   var fade=dest.animate(
+     [{opacity:0},{opacity:.25,offset:.25},{opacity:1}],
+     {duration:260,easing:"ease",fill:"forwards"}
+   );
+   clone.animate(
+     [{opacity:1},{opacity:.72,offset:.35},{opacity:0}],
+     {duration:260,easing:"ease",fill:"forwards"}
+   );
+ },250);
 
  setTimeout(function(){
-   clones.forEach(function(o){o.el.remove()});
-   var g=document.getElementById("mandala");g.style.transition="";g.style.opacity="1";
+   clone.remove();
+   others.forEach(function(o){o.el.remove()});
+   var dest=document.getElementById("mandala");
+   if(dest)dest.style.opacity="1";
    busy=false;
- },480);
+ },535);
 }
-function renderGridSnapshot(nodeId,container){
- var n=node(nodeId),slots=[0,1,2,3,"c",4,5,6,7];
- slots.forEach(function(s){
-   var d=document.createElement("div");d.className="cell";
-   if(s==="c"){d.classList.add("center");d.textContent=n.name}
-   else{var id=n.children[s];if(id){d.textContent=node(id).name}else{d.classList.add("empty");d.textContent="＋"}}
-   container.appendChild(d);
- });
-}
-
 function buildDepthGrid(nodeId){
  var grid=document.createElement("div");grid.className="depthGrid";
  var n=node(nodeId),slots=[0,1,2,3,"c",4,5,6,7];
@@ -500,43 +526,55 @@ function cameraBackTo(targetId,duration,done){
  var fromId=currentNode;
  var built=buildNestedWorld(targetId,fromId);
  var world=built.world,deepRect=built.deepRect;
+ world.classList.add("fadeDepth");
  cameraOverlay.appendChild(world);
 
  var sx=wrap.clientWidth/deepRect.width;
  var sy=wrap.clientHeight/deepRect.height;
  var startTransform="translate("+(-deepRect.left*sx)+"px,"+(-deepRect.top*sy)+"px) scale("+sx+","+sy+")";
+
+ world.style.transformOrigin="0 0";
  world.style.transform=startTransform;
  world.style.opacity="1";
 
  var live=document.getElementById("mandala");
  live.style.opacity="0";
 
- var anim=world.animate([
-   {transform:startTransform,opacity:1},
-   {transform:"translate(0px,0px) scale(1)",opacity:1}
+ // Render the target hierarchy underneath immediately, but initially faint.
+ currentNode=targetId;
+ renderMandala();
+ var finalGrid=document.getElementById("mandala");
+ finalGrid.style.opacity="0.08";
+
+ // One continuous camera pull-back.
+ // Because the entire nested world is scaled, text shrinks naturally with distance.
+ var worldAnim=world.animate([
+   {transform:startTransform,opacity:1,offset:0},
+   {transform:"translate(0px,0px) scale(1.72)",opacity:.82,offset:.36},
+   {transform:"translate(0px,0px) scale(1)",opacity:.18,offset:1}
  ],{
    duration:duration,
    easing:"cubic-bezier(.18,.72,.15,1)",
    fill:"forwards"
  });
 
- // Render destination near the end and blend it with the world.
- setTimeout(function(){
-   currentNode=targetId;renderMandala();
-   var finalGrid=document.getElementById("mandala");
-   finalGrid.style.opacity="0";
-   finalGrid.animate([{opacity:0},{opacity:1}],{duration:180,easing:"ease",fill:"forwards"});
-   world.animate([{opacity:1},{opacity:0}],{duration:180,easing:"ease",fill:"forwards"});
- },Math.max(0,duration-170));
+ // Parent hierarchy gains clarity progressively as distance increases.
+ finalGrid.animate([
+   {opacity:.08,offset:0},
+   {opacity:.18,offset:.30},
+   {opacity:.52,offset:.62},
+   {opacity:1,offset:1}
+ ],{
+   duration:duration,
+   easing:"ease",
+   fill:"forwards"
+ });
 
- anim.onfinish=function(){
-   setTimeout(function(){
-     world.remove();
-     var finalGrid=document.getElementById("mandala");
-     if(finalGrid)finalGrid.style.opacity="1";
-     busy=false;
-     if(done)done();
-   },180);
+ worldAnim.onfinish=function(){
+   world.remove();
+   finalGrid.style.opacity="1";
+   busy=false;
+   if(done)done();
  };
 }
 function animateBack(afterStep){
