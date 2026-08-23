@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v4.1</title>
+<title>3TASKS MNDL Safari v4.2</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -32,7 +32,7 @@ button,input{font:inherit;color:inherit}
 .card{min-height:104px;border:0;border-radius:12px;padding:15px 12px 15px 14px;display:grid;grid-template-columns:44px 1fr 78px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative}
 .card.c1{background:var(--a1)}.card.c2{background:var(--a2)}.card.c3{background:var(--a3)}.card.done{background:var(--done);color:var(--text)}
 .cardRight{height:64px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;position:relative}
-.refreshPlain{position:absolute;right:-12px;top:-16px;width:20px;height:20px;border:0;background:transparent;color:inherit;font-size:15px;line-height:1;padding:0;display:grid;place-items:center;opacity:.58}
+.refreshPlain{position:absolute;right:-10px;top:-16px;width:20px;height:20px;border:0;background:transparent;color:inherit;font-size:15px;line-height:1;padding:0;display:grid;place-items:center;opacity:.58}
 .refreshPlain.used{opacity:.24;pointer-events:none}
 .doneAction{border:0;background:transparent;color:inherit;padding:0;display:grid;grid-template-columns:auto 28px;gap:7px;align-items:center;font-size:10px;font-weight:800;letter-spacing:.06em}
 .doneCircle{width:28px;height:28px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800}
@@ -101,8 +101,8 @@ button,input{font:inherit;color:inherit}
 .colorMode{border:0;background:none;padding:5px 0;color:var(--sub);font-size:10px;font-weight:800;letter-spacing:.08em}
 .colorMode.active{color:var(--text)}
 .colorModePanel{min-height:110px}
-.colorGrid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
-.gridColor{aspect-ratio:1;border:0;border-radius:6px}
+.colorGrid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;width:100%}
+.gridColor{width:100%;aspect-ratio:1;border:0;border-radius:3px;min-width:0}
 .spectrumRow,.sliderLine{display:grid;grid-template-columns:66px 1fr 40px;gap:8px;align-items:center;margin:9px 0}
 .spectrumRow label,.sliderLine label,.sliderLine output{font-size:10px;color:var(--sub)}
 .sliderLine output{text-align:right}
@@ -167,8 +167,8 @@ button,input{font:inherit;color:inherit}
 .paletteNameBlock{display:grid;grid-template-columns:92px 1fr;gap:8px;align-items:center;margin-bottom:8px}
 .paletteNameBlock label{font-size:9px;font-weight:800;letter-spacing:.07em;color:var(--sub)}
 .paletteNameBlock input{border:0;border-radius:8px;background:var(--bg);padding:9px 10px;font-size:12px}
-.colorGrid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
-.gridColor{aspect-ratio:1;border:0;border-radius:2px}
+.colorGrid{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:3px;width:100%}
+.gridColor{width:100%;aspect-ratio:1;border:0;border-radius:3px;min-width:0}
 .colorRange{-webkit-appearance:none;appearance:none;height:10px;border-radius:999px;outline:none}
 .colorRange::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid rgba(0,0,0,.35)}
 .colorRange::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid rgba(0,0,0,.35)}
@@ -251,7 +251,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v4.1</div>
+<div class="appmeta">3TASKS MNDL · v4.2</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -276,7 +276,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v41";
+var STORAGE="mndl-v42";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -320,7 +320,7 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false};
 
 function save(){try{localStorage.setItem(STORAGE,JSON.stringify(state))}catch(e){}}
 function load(){try{var s=JSON.parse(localStorage.getItem(STORAGE)||"null");if(s&&s.nodes)state=Object.assign(state,s)}catch(e){}}
@@ -884,8 +884,8 @@ function renderMandala(){
 
 function palettes(){return builtins.concat(state.customPalettes||[])}
 function activePalette(){return palettes().find(function(p){return p.id===state.activePaletteId})||builtins[0]}
-var whiteBg={bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"};
-var blackBg={bg:"#181918",panel:"#2C2D2C",text:"#F0F0ED",sub:"#9A9C9A",off:"#4A4B4A",done:"#4F504F"};
+var whiteBg={bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"};
+var blackBg={bg:"#181918",panel:"#2C2D2C",text:"#F0F0ED",sub:"#9A9C9A",accentText:"#F4F4F1",off:"#4A4B4A",done:"#4F504F"};
 
 function backgroundValues(){
  if(state.backgroundMode==="black")return blackBg;
@@ -897,7 +897,7 @@ function backgroundValues(){
 }
 function applyPalette(p){
  state.activePaletteId=p.id;
- ["a1","a2","a3","accentText"].forEach(function(k){document.documentElement.style.setProperty("--"+k,p.c[k])});
+ ["a1","a2","a3"].forEach(function(k){document.documentElement.style.setProperty("--"+k,p.c[k])});
  var bg=backgroundValues();
  Object.keys(bg).forEach(function(k){document.documentElement.style.setProperty("--"+k,bg[k])});
  save();renderBackgroundControls();
@@ -963,8 +963,8 @@ function renderBaseChoices(){
 function renderColorChoices(){renderAccentChoices();renderBaseChoices()}
 function renderBackgroundControls(){renderColorChoices()}
 function renderPaletteList(){renderColorChoices()}
-var accentLabels={a1:"Accent 1",a2:"Accent 2",a3:"Accent 3",accentText:"Accent Text"};
-var baseLabels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",off:"OFF",done:"Completed"};
+var accentLabels={a1:"Accent 1",a2:"Accent 2",a3:"Accent 3"};
+var baseLabels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",accentText:"Accent Text",off:"OFF",done:"Completed"};
 var selectedColorKey="a1";
 var colorMode="grid";
 var spectrumHue=0;
@@ -1039,22 +1039,41 @@ function setSelectedColor(v,rerenderWorkbench){
  if(rerenderWorkbench!==false)renderColorWorkbench();
 }
 function renderGridMode(){
- var box=document.getElementById("gridEditor");box.innerHTML="";
- var colors=[
- "#000000","#222222","#444444","#666666","#888888","#AAAAAA","#CCCCCC","#FFFFFF",
- "#7A1717","#A72D25","#C94A3F","#E67B70","#F2B0A9","#7B3D18","#A65F25","#C98742",
- "#E2B36F","#F0D6AE","#6C5B12","#937719","#B69100","#D3B92D","#E7D976","#F4EDB8",
- "#315C1C","#4F7E2A","#70A33E","#98C564","#C4DDA3","#176B58","#2B8F78","#5BB29B",
- "#94CDC2","#BEE3DA","#174B70","#315A9F","#4D7FB9","#78A1CF","#B3C9E2","#312870",
- "#5046A4","#7168C3","#9D98D7","#C6C3E8","#6B1D68","#8E337C","#A30084","#C55DAA",
- "#E1A9CE","#6B4C59","#8E6576","#B2879D","#D1B4C0","#684F3D","#8F7357","#B89B78"
- ];
- colors.forEach(function(c){
+ var box=document.getElementById("gridEditor");
+ box.innerHTML="";
+ box.className="colorModePanel";
+
+ var matrix=document.createElement("div");
+ matrix.className="colorGrid";
+ box.appendChild(matrix);
+
+ // Horizontal axis = lightness, vertical axis = hue.
+ // First row is neutral grayscale; following rows move around the hue wheel.
+ var lightness=[12,22,32,42,52,62,72,82,92];
+
+ // Neutral row
+ lightness.forEach(function(l){
+   var c=hslToHex(0,0,l);
    var b=document.createElement("button");
-   b.className="gridColor";
-   b.style.background=c;
+   b.type="button";b.className="gridColor";b.style.background=c;
+   b.setAttribute("aria-label","Gray "+l);
    b.onclick=function(){setSelectedColor(c)};
-   box.appendChild(b);
+   matrix.appendChild(b);
+ });
+
+ // Hue rows
+ var hues=[0,30,60,90,120,150,180,210,240,270,300,330];
+ hues.forEach(function(h){
+   lightness.forEach(function(l){
+     // Saturation is kept moderately high so hue remains recognizable
+     // while the horizontal lightness axis is visually clear.
+     var c=hslToHex(h,78,l);
+     var b=document.createElement("button");
+     b.type="button";b.className="gridColor";b.style.background=c;
+     b.setAttribute("aria-label","Hue "+h+" Lightness "+l);
+     b.onclick=function(){setSelectedColor(c)};
+     matrix.appendChild(b);
+   });
  });
 }
 function renderSpectrumMode(){
@@ -1154,8 +1173,8 @@ document.getElementById("saveAccentPalette").onclick=function(){
      a1:editingPalette.c.a1,
      a2:editingPalette.c.a2,
      a3:editingPalette.c.a3,
-     accentText:editingPalette.c.accentText,
-     bg:whiteBg.bg,panel:whiteBg.panel,text:whiteBg.text,sub:whiteBg.sub,off:whiteBg.off,done:whiteBg.done
+     bg:whiteBg.bg,panel:whiteBg.panel,text:whiteBg.text,sub:whiteBg.sub,
+     accentText:whiteBg.accentText,off:whiteBg.off,done:whiteBg.done
    }
  };
  state.customPalettes.push(p);
@@ -1174,6 +1193,7 @@ document.getElementById("saveBasePalette").onclick=function(){
      panel:editingPalette.c.panel,
      text:editingPalette.c.text,
      sub:editingPalette.c.sub,
+     accentText:editingPalette.c.accentText,
      off:editingPalette.c.off,
      done:editingPalette.c.done
    }
@@ -1192,7 +1212,7 @@ document.getElementById("overwritePalette").onclick=function(){
  var i=state.customPalettes.findIndex(function(x){return x.id===editingPalette.id});
  if(i>=0){
    state.customPalettes[i]={id:editingPalette.id,name:editingPalette.name,builtIn:false,c:Object.assign({},editingPalette.c)};
-   if(state.backgroundMode==="custom")state.customBackground={bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,off:editingPalette.c.off,done:editingPalette.c.done};
+   if(state.backgroundMode==="custom")state.customBackground={bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,accentText:editingPalette.c.accentText,off:editingPalette.c.off,done:editingPalette.c.done};
    applyPalette(state.customPalettes[i]);save();renderPaletteList();renderBackgroundControls();
  }
 };
@@ -1207,7 +1227,7 @@ load();
 state.customPalettes=state.customPalettes||[];state.customBases=state.customBases||[];
 if(state.activePaletteId==="signal")state.activePaletteId="field";
 state.backgroundMode=state.backgroundMode||"white";
-state.customBackground=state.customBackground||{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"};
+state.customBackground=state.customBackground||{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"};
 if(typeof state.manualReselectUsed!=="boolean")state.manualReselectUsed=false;
 applyPalette(activePalette());renderAll();renderBackgroundControls();setPage(0,false);
 })();
