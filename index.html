@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v2.1</title>
+<title>3TASKS MNDL Safari v2.2</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -65,9 +65,9 @@ button,input{font:inherit;color:inherit}
 .zoomClone{position:absolute;border-radius:3px;background:var(--panel);display:grid;place-items:center;text-align:center;font-size:13px;font-weight:690;padding:7px;overflow:hidden;isolation:isolate;transition:left .46s cubic-bezier(.18,.82,.2,1),top .46s cubic-bezier(.18,.82,.2,1),width .46s cubic-bezier(.18,.82,.2,1),height .46s cubic-bezier(.18,.82,.2,1),transform .46s cubic-bezier(.18,.82,.2,1),opacity .28s ease}
 .zoomClone.centerLike{color:var(--accentText)}
 .zoomClone.centerLike:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 18% 18%,var(--a1),transparent 56%),radial-gradient(circle at 84% 22%,var(--a2),transparent 58%),radial-gradient(circle at 52% 88%,var(--a3),transparent 60%),linear-gradient(145deg,var(--a1),var(--a2) 52%,var(--a3))}
-.parentIncoming{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;opacity:0;transform:scale(1.32);transition:transform .46s cubic-bezier(.18,.82,.2,1),opacity .20s ease}
+.parentIncoming{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;opacity:0;transform:scale(1.32);transition:transform .44s cubic-bezier(.18,.82,.2,1),opacity .18s ease}
 .parentIncoming.show{opacity:1;transform:scale(1)}
-.childOutgoing{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;transition:transform .46s cubic-bezier(.18,.82,.2,1),opacity .20s ease}
+.childOutgoing{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;transition:transform .44s cubic-bezier(.18,.82,.2,1),opacity .18s ease}
 .mandala.fadeInFinal{animation:fadeInFinal .20s ease both}
 @keyframes fadeInFinal{from{opacity:0}to{opacity:1}}
 .zoomClone.fadeOutFinal,.childOutgoing.fadeOutFinal,.parentIncoming.fadeOutFinal{opacity:0!important}
@@ -109,7 +109,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v2.1</div>
+<div class="appmeta">3TASKS MNDL · v2.2</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -134,7 +134,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v21";
+var STORAGE="mndl-v22";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -347,20 +347,106 @@ function animateBack(afterStep){
  },480);
 }
 function animateBackTo(targetId){
- if(busy||targetId===currentNode)return;
-
+ if(targetId===currentNode||busy)return;
  var lineage=pathIds(currentNode);
- var targetIndex=lineage.indexOf(targetId);
- if(targetIndex<0)return; // breadcrumb should only point to ancestors
+ if(lineage.indexOf(targetId)<0)return;
 
- function next(){
-   if(currentNode===targetId)return;
-   animateBack(function(){
-     // Small visual pause keeps separate levels legible without feeling slow.
-     if(currentNode!==targetId)setTimeout(next,20);
-   });
+ // Breadcrumb travel is treated as one camera move.
+ // Each level begins before the previous level has visually finished,
+ // so there is no "landing" between levels.
+ var steps=[];
+ var cursor=currentNode;
+ while(cursor!==targetId){
+   var p=node(cursor).parent;
+   if(!p)break;
+   steps.push({child:cursor,parent:p});
+   cursor=p;
  }
- next();
+ if(!steps.length)return;
+
+ busy=true;
+ var stepIndex=0;
+ var activeLayers=[];
+
+ function launchStep(){
+   if(stepIndex>=steps.length){
+     // Final settle only once, at the requested ancestor.
+     setTimeout(function(){
+       activeLayers.forEach(function(x){if(x&&x.parentNode)x.remove()});
+       motionLayer.innerHTML="";
+       var finalGrid=document.getElementById("mandala");
+       finalGrid.style.opacity="1";
+       finalGrid.style.transition="";
+       busy=false;
+     },190);
+     return;
+   }
+
+   var step=steps[stepIndex++];
+   var child=step.child,parentId=step.parent;
+
+   // Current visible grid becomes the outgoing layer.
+   var liveGrid=document.getElementById("mandala");
+   var outgoing=document.createElement("div");
+   outgoing.className="childOutgoing";
+   Array.from(liveGrid.children).forEach(function(c){outgoing.appendChild(c.cloneNode(true))});
+   motionLayer.appendChild(outgoing);
+   activeLayers.push(outgoing);
+
+   // Render the actual parent immediately underneath.
+   currentNode=parentId;
+   renderMandala();
+   var parentGrid=document.getElementById("mandala");
+   var parent=node(parentId);
+   var childIndex=parent.children.indexOf(child);
+   var map=[0,1,2,3,5,6,7,8];
+   var target=parentGrid.children[map[childIndex]];
+   var dest=rectInWrap(target);
+
+   var incoming=document.createElement("div");
+   incoming.className="parentIncoming";
+   Array.from(parentGrid.children).forEach(function(c){incoming.appendChild(c.cloneNode(true))});
+   motionLayer.appendChild(incoming);
+   activeLayers.push(incoming);
+
+   parentGrid.style.opacity="0";
+   incoming.style.transformOrigin=(dest.left+dest.width/2)+"px "+(dest.top+dest.height/2)+"px";
+   incoming.style.transform="scale(2.2)";
+   incoming.style.opacity="0";
+
+   requestAnimationFrame(function(){requestAnimationFrame(function(){
+     var sx=dest.width/wrap.clientWidth;
+     var sy=dest.height/wrap.clientHeight;
+     outgoing.style.transformOrigin="0 0";
+     outgoing.style.transform="translate("+dest.left+"px,"+dest.top+"px) scale("+sx+","+sy+")";
+     outgoing.style.opacity=".34";
+
+     incoming.style.transform="scale(1)";
+     incoming.style.opacity="1";
+   })});
+
+   // Blend the real parent in while motion is still happening.
+   setTimeout(function(){
+     parentGrid.style.transition="opacity .16s ease";
+     parentGrid.style.opacity="1";
+     outgoing.style.opacity="0";
+     incoming.style.opacity=".34";
+   },210);
+
+   // Start the next hierarchy step BEFORE this one settles.
+   // This overlap is what removes the stair-step / stop-start feeling.
+   setTimeout(function(){
+     launchStep();
+   },285);
+
+   // Clean this step later, independently of the next step.
+   setTimeout(function(){
+     if(outgoing.parentNode)outgoing.remove();
+     if(incoming.parentNode)incoming.remove();
+   },470);
+ }
+
+ launchStep();
 }
 function buildMoveOptions(){
  var sel=document.getElementById("moveSelect");sel.innerHTML="";
