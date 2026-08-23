@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v3.1</title>
+<title>3TASKS MNDL Safari v3.2</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -206,7 +206,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v3.1</div>
+<div class="appmeta">3TASKS MNDL · v3.2</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -231,7 +231,7 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v31";
+var STORAGE="mndl-v32";
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -461,8 +461,10 @@ function animateDeeper(source,id){
  // Ratio-preserving camera zoom: one uniform scale applied to the entire field.
  var fieldAnim=field.animate([
    {transform:"translate(0px,0px) scale(1)",opacity:1,offset:0},
-   {transform:"translate("+(tx*.18)+"px,"+(ty*.18)+"px) scale("+(1+(scale-1)*.18)+")",opacity:1,offset:.32},
-   {transform:"translate("+tx+"px,"+ty+"px) scale("+scale+")",opacity:1,offset:1}
+   {transform:"translate("+(tx*.10)+"px,"+(ty*.10)+"px) scale("+(1+(scale-1)*.10)+")",opacity:.92,offset:.18},
+   {transform:"translate("+(tx*.28)+"px,"+(ty*.28)+"px) scale("+(1+(scale-1)*.28)+")",opacity:.78,offset:.38},
+   {transform:"translate("+(tx*.62)+"px,"+(ty*.62)+"px) scale("+(1+(scale-1)*.62)+")",opacity:.48,offset:.68},
+   {transform:"translate("+tx+"px,"+ty+"px) scale("+scale+")",opacity:.16,offset:1}
  ],{
    duration:620,
    easing:"cubic-bezier(.42,0,1,1)",
@@ -471,8 +473,10 @@ function animateDeeper(source,id){
 
  // Keep the label itself at constant visual size while moving to screen center.
  label.animate([
-   {left:sourceRect.left+"px",top:sourceRect.top+"px",width:sourceRect.width+"px",height:sourceRect.height+"px"},
-   {left:"0px",top:"0px",width:wrap.clientWidth+"px",height:wrap.clientHeight+"px"}
+   {left:sourceRect.left+"px",top:sourceRect.top+"px",width:sourceRect.width+"px",height:sourceRect.height+"px",opacity:1,offset:0},
+   {left:(sourceRect.left*.80)+"px",top:(sourceRect.top*.80)+"px",width:(sourceRect.width+(wrap.clientWidth-sourceRect.width)*.20)+"px",height:(sourceRect.height+(wrap.clientHeight-sourceRect.height)*.20)+"px",opacity:.88,offset:.25},
+   {left:(sourceRect.left*.42)+"px",top:(sourceRect.top*.42)+"px",width:(sourceRect.width+(wrap.clientWidth-sourceRect.width)*.58)+"px",height:(sourceRect.height+(wrap.clientHeight-sourceRect.height)*.58)+"px",opacity:.62,offset:.60},
+   {left:"0px",top:"0px",width:wrap.clientWidth+"px",height:wrap.clientHeight+"px",opacity:.26,offset:1}
  ],{
    duration:620,
    easing:"cubic-bezier(.42,0,1,1)",
@@ -488,24 +492,40 @@ function animateDeeper(source,id){
    dest.classList.add("gradientHidden");
 
    dest.animate(
-     [{opacity:0},{opacity:.35,offset:.35},{opacity:1}],
-     {duration:280,easing:"ease-out",fill:"forwards"}
+     [
+       {opacity:0,offset:0},
+       {opacity:.08,offset:.22},
+       {opacity:.22,offset:.45},
+       {opacity:.52,offset:.70},
+       {opacity:1,offset:1}
+     ],
+     {duration:360,easing:"ease-out",fill:"forwards"}
    );
    field.animate(
-     [{opacity:1},{opacity:.72,offset:.35},{opacity:0}],
-     {duration:280,easing:"ease-out",fill:"forwards"}
+     [
+       {opacity:.42,offset:0},
+       {opacity:.30,offset:.35},
+       {opacity:.16,offset:.65},
+       {opacity:0,offset:1}
+     ],
+     {duration:360,easing:"ease-out",fill:"forwards"}
    );
    label.animate(
-     [{opacity:1},{opacity:.72,offset:.35},{opacity:0}],
-     {duration:280,easing:"ease-out",fill:"forwards"}
+     [
+       {opacity:.45,offset:0},
+       {opacity:.32,offset:.35},
+       {opacity:.14,offset:.68},
+       {opacity:0,offset:1}
+     ],
+     {duration:360,easing:"ease-out",fill:"forwards"}
    );
 
-   // Let the cell/grid appear first, then let the centre gradient bloom in.
+   // The destination centre gradient appears later than the grid itself.
    setTimeout(function(){
      dest.classList.remove("gradientHidden");
      dest.classList.add("gradientReveal");
-   },70);
- },430);
+   },150);
+ },350);
 
  fieldAnim.onfinish=function(){
    setTimeout(function(){
@@ -516,7 +536,7 @@ function animateDeeper(source,id){
        dest.classList.remove("gradientHidden","gradientReveal");
      }
      busy=false;
-   },285);
+   },365);
  };
 }
 function buildDepthGrid(nodeId){
