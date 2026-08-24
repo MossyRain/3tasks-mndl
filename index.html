@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v4.7</title>
+<title>3TASKS MNDL Safari v4.8</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -257,7 +257,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v4.7</div>
+<div class="appmeta">3TASKS MNDL · v4.8</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -327,12 +327,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.7"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.8"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="4.7";
+   state.appVersion="4.8";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -349,7 +349,7 @@ function load(){
    if(s&&s.nodes){
      state=Object.assign(state,s);
      state.dataVersion=1;
-     state.appVersion="4.7";
+     state.appVersion="4.8";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
@@ -985,7 +985,39 @@ var openColorGroup=null,paletteEditorContext=null,pressTimer=null,pressTriggered
 function basePreset(mode){if(mode==="black")return blackBg;if(mode==="custom")return state.customBackground||whiteBg;return whiteBg}
 function activeBaseItem(){if(state.backgroundMode==="black")return{id:"black",name:"BLACK",c:blackBg,builtIn:true};if(state.backgroundMode==="custom"){var b=(state.customBases||[]).find(function(x){return x.id===state.activeBaseId});if(b)return{id:b.id,name:b.name,c:b.c,builtIn:false}}return{id:"white",name:"WHITE",c:whiteBg,builtIn:true}}
 function choiceMarkup(c,name,type,selected,chev){var keys=type==="accent"?["a1","a2","a3"]:["bg","panel","text","sub"];return"<span class='choiceSwatches "+(type==="accent"?"accents":"base")+"'>"+keys.map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span><span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
-function bindLongPress(el,onTap,onLong){var timer,done=false;function s(){done=false;clearTimeout(timer);timer=setTimeout(function(){done=true;onLong()},520)}function c(){clearTimeout(timer)}el.addEventListener("touchstart",s,{passive:true});el.addEventListener("touchend",function(){c();if(!done)onTap()},{passive:true});el.addEventListener("touchcancel",c,{passive:true});el.addEventListener("mousedown",s);el.addEventListener("mouseup",function(){c();if(!done)onTap()});el.addEventListener("mouseleave",c);el.onclick=function(e){e.preventDefault()}}
+function bindLongPress(el,onTap,onLong){
+ var timer=null;
+ var longDone=false;
+ var sx=0,sy=0,moved=false;
+
+ el.onpointerdown=function(e){
+   if(e.pointerType==="mouse"&&e.button!==0)return;
+   longDone=false;moved=false;sx=e.clientX;sy=e.clientY;
+   clearTimeout(timer);
+   timer=setTimeout(function(){
+     if(moved)return;
+     longDone=true;
+     onLong();
+   },520);
+ };
+
+ el.onpointermove=function(e){
+   if(Math.hypot(e.clientX-sx,e.clientY-sy)>10){
+     moved=true;
+     clearTimeout(timer);
+   }
+ };
+
+ el.onpointerup=function(e){
+   clearTimeout(timer);
+   if(!longDone&&!moved)onTap();
+ };
+
+ el.onpointercancel=function(){
+   clearTimeout(timer);
+ };
+ el.onclick=function(e){e.preventDefault()};
+}
 function renderAccentAccordion(){var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,openColorGroup==="accent"?"⌃":"⌄");bindLongPress(cur,function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()},function(){openPaletteEditor("accent",p,false)});opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;palettes().forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"accent",false,false);bindLongPress(b,function(){applyPalette(item);save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("accent",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+";add.onclick=function(){openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add)}
 function renderBaseAccordion(){var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,openColorGroup==="base"?"⌃":"⌄");bindLongPress(cur,function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()},function(){openPaletteEditor("base",p,false)});opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));items.forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"base",false,false);bindLongPress(b,function(){if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}applyPalette(activePalette());save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("base",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+";add.onclick=function(){openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add)}
 function renderColorChoices(){renderAccentAccordion();renderBaseAccordion()}function renderBackgroundControls(){renderColorChoices()}function renderPaletteList(){renderColorChoices()}
