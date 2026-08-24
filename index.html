@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v4.4</title>
+<title>3TASKS MNDL Safari v4.5</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -29,7 +29,7 @@ button,input{font:inherit;color:inherit}
 .footer button.active{color:var(--text)}.gear{font-size:20px}
 .appmeta{position:absolute;left:18px;right:18px;bottom:var(--safeBottom);height:20px;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:9px;letter-spacing:.08em;z-index:7}
 .cards{display:grid;gap:4px}
-.card{min-height:104px;border:0;border-radius:12px;padding:15px 12px 15px 14px;display:grid;grid-template-columns:44px 1fr 78px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative}
+.card{width:100%;max-width:100%;min-width:0;min-height:104px;border:0;border-radius:12px;padding:15px 12px 15px 14px;display:grid;grid-template-columns:44px minmax(0,1fr) 78px;gap:9px;align-items:center;text-align:left;color:var(--accentText);position:relative;overflow:hidden}
 .card.c1{background:var(--a1)}.card.c2{background:var(--a2)}.card.c3{background:var(--a3)}.card.done{background:var(--done);color:var(--text)}
 .cardRight{height:64px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;position:relative}
 .refreshPlain{position:absolute;right:-10px;top:-16px;width:20px;height:20px;border:0;background:transparent;color:inherit;font-size:15px;line-height:1;padding:0;display:grid;place-items:center;opacity:.58}
@@ -187,6 +187,22 @@ button,input{font:inherit;color:inherit}
   cursor:default;
 }
 
+
+.cards{width:100%;max-width:100%;min-width:0}
+.card>div{min-width:0}
+.card .taskName,
+.card .trail,
+.card .emptyCopy{min-width:0;max-width:100%;overflow:hidden}
+.card .taskName{overflow-wrap:anywhere}
+.cardRight{min-width:0;max-width:78px}
+.page{min-width:0;max-width:25%}
+@supports (padding:max(0px)){
+  .app{
+    padding-left:env(safe-area-inset-left,0px);
+    padding-right:env(safe-area-inset-right,0px);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -265,7 +281,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v4.4</div>
+<div class="appmeta">3TASKS MNDL · v4.5</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -335,12 +351,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.4"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.5"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="4.4";
+   state.appVersion="4.5";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -357,7 +373,7 @@ function load(){
    if(s&&s.nodes){
      state=Object.assign(state,s);
      state.dataVersion=1;
-     state.appVersion="4.4";
+     state.appVersion="4.5";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
