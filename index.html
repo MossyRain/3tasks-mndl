@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v4.3</title>
+<title>3TASKS MNDL Safari v4.4</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -265,7 +265,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v4.3</div>
+<div class="appmeta">3TASKS MNDL · v4.4</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -290,7 +290,8 @@ button,input{font:inherit;color:inherit}
 <script>
 
 (function(){
-var STORAGE="mndl-v43";
+var STORAGE="3tasks-mndl-data";
+var LEGACY_STORAGE_KEYS=["mndl-v43"];
 var track=document.getElementById("track"),viewport=document.getElementById("viewport"),title=document.getElementById("title"),wrap=document.getElementById("mandalaWrap"),motionLayer=document.getElementById("motionLayer"),cameraOverlay=document.getElementById("cameraOverlay");
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
@@ -334,10 +335,52 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.4"};
 
-function save(){try{localStorage.setItem(STORAGE,JSON.stringify(state))}catch(e){}}
-function load(){try{var s=JSON.parse(localStorage.getItem(STORAGE)||"null");if(s&&s.nodes)state=Object.assign(state,s)}catch(e){}}
+function save(){
+ try{
+   state.dataVersion=1;
+   state.appVersion="4.4";
+   localStorage.setItem(STORAGE,JSON.stringify(state));
+ }catch(e){}
+}
+function load(){
+ try{
+   var raw=localStorage.getItem(STORAGE);
+   if(!raw){
+     for(var i=0;i<LEGACY_STORAGE_KEYS.length;i++){
+       var legacy=localStorage.getItem(LEGACY_STORAGE_KEYS[i]);
+       if(legacy){raw=legacy;break}
+     }
+   }
+   var s=raw?JSON.parse(raw):null;
+   if(s&&s.nodes){
+     state=Object.assign(state,s);
+     state.dataVersion=1;
+     state.appVersion="4.4";
+     localStorage.setItem(STORAGE,JSON.stringify(state));
+   }
+ }catch(e){}
+}
+function japanDateKey(date){
+ var parts=new Intl.DateTimeFormat("en-CA",{
+   timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit"
+ }).formatToParts(date||new Date());
+ var get=function(t){var p=parts.find(function(x){return x.type===t});return p?p.value:""};
+ return get("year")+"-"+get("month")+"-"+get("day");
+}
+function msUntilJapanMidnight(){
+ var now=new Date();
+ var parts=new Intl.DateTimeFormat("en-US",{
+   timeZone:"Asia/Tokyo",year:"numeric",month:"2-digit",day:"2-digit",
+   hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false
+ }).formatToParts(now);
+ var get=function(t){var p=parts.find(function(x){return x.type===t});return +(p?p.value:0)};
+ var y=get("year"),m=get("month"),d=get("day");
+ var nextJstMidnightUTC=Date.UTC(y,m-1,d+1,0,0,0)-9*60*60*1000;
+ return Math.max(1000,nextJstMidnightUTC-now.getTime());
+}
+
 function node(id){return state.nodes[id]}
 function pathIds(id){var a=[],n=node(id);while(n){a.unshift(n.id);n=n.parent?node(n.parent):null}return a}
 function trail(id){return pathIds(id).slice(0,-1).map(function(x){return node(x).name}).join(" ← ")}
@@ -389,7 +432,8 @@ function todayIds(exceptIndex){
 }
 function chooseTodayReplacement(index){
  var used=todayIds(index);
- var pool=enabledLeafIds().filter(function(id){return used.indexOf(id)<0});
+ var current=state.today[index]&&state.today[index].id;
+ var pool=enabledLeafIds().filter(function(id){return used.indexOf(id)<0 && id!==current});
  if(!pool.length)return null;
  return pool[Math.floor(Math.random()*pool.length)];
 }
@@ -397,13 +441,41 @@ function clearTodayItem(id){
  state.today.forEach(function(t){if(t.id===id){t.id=null;t.done=false}});
 }
 function reselectToday(index,isReplenishment){
- if(!isReplenishment && state.manualReselectUsed)return;
+ if(!isReplenishment){
+   if(state.manualReselectUsed)return;
+   if(!confirm("このタスクを再シャッフルしますか？\n再シャッフルは1回のみ可能です。"))return;
+ }
  var id=chooseTodayReplacement(index);
- if(!id)return;
+ if(!id){alert("選べる別のタスクがありません。");return}
  state.today[index].id=id;
  state.today[index].done=false;
  if(!isReplenishment)state.manualReselectUsed=true;
  save();renderToday();
+}
+
+function shuffleTodayForNewDay(force){
+ var key=japanDateKey(new Date());
+ if(!force && state.todayDateKey===key)return false;
+ var pool=enabledLeafIds().slice();
+ for(var i=pool.length-1;i>0;i--){
+   var j=Math.floor(Math.random()*(i+1));
+   var tmp=pool[i];pool[i]=pool[j];pool[j]=tmp;
+ }
+ state.today=[];
+ for(var k=0;k<3;k++)state.today.push({id:pool[k]||null,tone:k+1,done:false});
+ state.manualReselectUsed=false;
+ state.todayDateKey=key;
+ save();
+ return true;
+}
+var midnightTimer=null;
+function scheduleJapanMidnightShuffle(){
+ if(midnightTimer)clearTimeout(midnightTimer);
+ midnightTimer=setTimeout(function(){
+   shuffleTodayForNewDay(true);
+   renderToday();
+   scheduleJapanMidnightShuffle();
+ },msUntilJapanMidnight()+250);
 }
 
 function renderToday(){
@@ -1238,12 +1310,22 @@ document.getElementById("importFile").onchange=function(e){var file=e.target.fil
 
 function renderAll(){renderToday();renderActions();renderMandala();renderColorChoices()}
 load();
-state.customPalettes=state.customPalettes||[];state.customBases=state.customBases||[];
+state.customPalettes=state.customPalettes||[];
 if(state.activePaletteId==="signal")state.activePaletteId="field";
 state.backgroundMode=state.backgroundMode||"white";
-state.customBackground=state.customBackground||{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"};
+state.customBackground=state.customBackground||{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",off:"#D6D7D6",done:"#D0D1D0"};
 if(typeof state.manualReselectUsed!=="boolean")state.manualReselectUsed=false;
-applyPalette(activePalette());renderAll();renderBackgroundControls();setPage(0,false);
+
+// Preserve the existing v4.3 TODAY set on first migration.
+// Automatic midnight reshuffle starts from the following Japan calendar day.
+if(!state.todayDateKey)state.todayDateKey=japanDateKey(new Date());
+shuffleTodayForNewDay(false);
+applyPalette(activePalette());
+renderAll();
+renderBackgroundControls();
+setPage(0,false);
+save();
+scheduleJapanMidnightShuffle();
 })();
 
 </script>
