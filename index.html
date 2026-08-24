@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v4.6</title>
+<title>3TASKS MNDL Safari v4.7</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -257,7 +257,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v4.6</div>
+<div class="appmeta">3TASKS MNDL · v4.7</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -327,12 +327,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.6"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.7"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="4.6";
+   state.appVersion="4.7";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -349,7 +349,7 @@ function load(){
    if(s&&s.nodes){
      state=Object.assign(state,s);
      state.dataVersion=1;
-     state.appVersion="4.6";
+     state.appVersion="4.7";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
@@ -989,7 +989,9 @@ function bindLongPress(el,onTap,onLong){var timer,done=false;function s(){done=f
 function renderAccentAccordion(){var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,openColorGroup==="accent"?"⌃":"⌄");bindLongPress(cur,function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()},function(){openPaletteEditor("accent",p,false)});opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;palettes().forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"accent",false,false);bindLongPress(b,function(){applyPalette(item);save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("accent",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+";add.onclick=function(){openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add)}
 function renderBaseAccordion(){var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,openColorGroup==="base"?"⌃":"⌄");bindLongPress(cur,function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()},function(){openPaletteEditor("base",p,false)});opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));items.forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"base",false,false);bindLongPress(b,function(){if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}applyPalette(activePalette());save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("base",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+";add.onclick=function(){openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add)}
 function renderColorChoices(){renderAccentAccordion();renderBaseAccordion()}function renderBackgroundControls(){renderColorChoices()}function renderPaletteList(){renderColorChoices()}
-function openPaletteEditor(type,item,isNew){paletteEditorContext={type:type,item:item,isNew:isNew,builtIn:!!item.builtIn};var c;if(type==="accent"){c=Object.assign({},backgroundValues(),{a1:item.c.a1,a2:item.c.a2,a3:item.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="a1"}else{var ap=activePalette();c=Object.assign({},item.c,{a1:ap.c.a1,a2:ap.c.a2,a3:ap.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="bg"}document.getElementById("paletteEditName").value=isNew?"":item.name;document.getElementById("paletteEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+(type==="accent"?"ACCENT":"BASE");document.getElementById("accentPreview").style.display=type==="accent"?"grid":"none";document.getElementById("basePreview").style.display=type==="base"?"grid":"none";buildPaletteEditorActions();document.getElementById("paletteEditorSheet").classList.add("show");renderPaletteEditor()}
+function openPaletteEditor(type,item,isNew){paletteEditorContext={type:type,item:item,isNew:isNew,builtIn:!!item.builtIn};var c;if(type==="accent"){c=Object.assign({},backgroundValues(),{a1:item.c.a1,a2:item.c.a2,a3:item.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="a1"}else{var ap=activePalette();c=Object.assign({},item.c,{a1:ap.c.a1,a2:ap.c.a2,a3:ap.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="bg"}document.getElementById("paletteEditName").value=isNew?"":item.name;document.getElementById("paletteEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+(type==="accent"?"ACCENT":"BASE");document.getElementById("accentPreview").style.display=type==="accent"?"grid":"none";document.getElementById("basePreview").style.display=type==="base"?"grid":"none";buildPaletteEditorActions();document.getElementById("paletteEditorSheet").classList.add("show");
+ document.querySelectorAll(".colorMode").forEach(function(b){b.onclick=function(){colorMode=b.dataset.colorMode;renderColorWorkbench()}});
+ renderPaletteEditor()}
 function closePaletteEditor(){document.getElementById("paletteEditorSheet").classList.remove("show");paletteEditorContext=null}
 function buildPaletteEditorActions(){var box=document.getElementById("paletteEditorActions"),ctx=paletteEditorContext;box.innerHTML="";function b(t,c,f){var x=document.createElement("button");x.type="button";x.className="btn "+(c||"");x.textContent=t;x.onclick=f;box.appendChild(x)}if(ctx.isNew)b("追加","primary",savePaletteAsNew);else{if(!ctx.builtIn)b("上書き保存","primary",overwriteCurrentPalette);b("名前をつけて保存","",savePaletteAsNew);if(!ctx.builtIn)b("削除","danger",deleteCurrentPalette)}}
 function savePaletteAsNew(){var ctx=paletteEditorContext,name=(document.getElementById("paletteEditName").value||"").trim();if(!name){alert("名前を入力してください。");return}if(ctx.type==="accent"){var p={id:"c"+Date.now(),name:name,builtIn:false,c:Object.assign({},activePalette().c,{a1:editingPalette.c.a1,a2:editingPalette.c.a2,a3:editingPalette.c.a3})};state.customPalettes.push(p);state.activePaletteId=p.id}else{var b={id:"b"+Date.now(),name:name,c:{bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,accentText:editingPalette.c.accentText,off:editingPalette.c.off,done:editingPalette.c.done}};state.customBases=state.customBases||[];state.customBases.push(b);state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor();openColorGroup=null;renderColorChoices()}
@@ -1002,14 +1004,12 @@ var selectedColorKey="a1";
 var colorMode="grid";
 var spectrumHue=0;
 
-function openPaletteEditor(p){
- editingPalette={id:p.id,name:p.name,builtIn:p.builtIn,c:Object.assign({},p.c)};
- var bg=backgroundValues();Object.keys(bg).forEach(function(k){editingPalette.c[k]=bg[k]});
- selectedColorKey="a1";
- spectrumHue=hexToHsl(editingPalette.c[selectedColorKey])[0];
- document.getElementById("newPaletteInline").classList.add("show");
- renderPaletteEditor();
+function openLegacyPaletteEditor(p){
+ // Compatibility shim retained for older calls; v4.7 uses openPaletteEditor(type,item,isNew).
+ if(!p)return;
+ openPaletteEditor("accent",p,false);
 }
+
 function luminanceText(hex){
  var h=hex.replace("#",""),r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
  return (0.2126*r+0.7152*g+0.0722*b)>150?"#171717":"#F5F5F2";
@@ -1037,8 +1037,6 @@ function renderPaletteEditor(){
  aPrev.innerHTML="";bPrev.innerHTML="";
  Object.keys(accentLabels).forEach(function(k){makeSwatch(k,accentLabels[k],aPrev)});
  Object.keys(baseLabels).forEach(function(k){makeSwatch(k,baseLabels[k],bPrev)});
- document.getElementById("overwritePalette").style.display=editingPalette.builtIn?"none":"inline-block";
- document.getElementById("deletePalette").style.display=editingPalette.builtIn?"none":"inline-block";
  highlightSelectedSwatches();previewPalette();renderColorWorkbench();
 }
 function refreshSwatchesOnly(){
@@ -1187,8 +1185,6 @@ document.querySelectorAll(".colorMode").forEach(function(b){b.onclick=function()
 
 
 
-
-document.getElementById("deletePalette").onclick=function(){if(!editingPalette||editingPalette.builtIn)return;state.customPalettes=state.customPalettes.filter(function(x){return x.id!==editingPalette.id});document.getElementById("newPaletteInline").classList.remove("show");applyPalette(builtins[0]);save();renderColorChoices()};
 
 document.getElementById("paletteEditorClose").onclick=closePaletteEditor;
 document.getElementById("exportBtn").onclick=function(){var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="3tasks-mndl-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)};
