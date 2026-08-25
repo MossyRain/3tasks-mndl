@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v4.8</title>
+<title>3TASKS MNDL Safari v4.9</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -208,7 +208,7 @@ button,input{font:inherit;color:inherit}
 .colorHead .label{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub)}.colorHead .note{font-size:9px;color:var(--sub);opacity:.72}
 .colorCurrent{width:100%;border:1px solid rgba(32,33,32,.10);background:transparent;border-radius:10px;padding:8px 9px;display:grid;grid-template-columns:112px 1fr 20px;gap:10px;align-items:center;text-align:left}
 .colorCurrent .chev{font-size:12px;color:var(--sub);text-align:center}.colorOptions{display:none;gap:6px;margin-top:6px}.colorOptions.open{display:grid}
-.colorAdd{width:100%;height:34px;border:1px dashed rgba(32,33,32,.18);border-radius:9px;background:transparent;color:var(--sub);font-size:18px}
+.colorAdd{width:100%;min-height:40px;border:1px solid rgba(32,33,32,.16);border-radius:9px;background:var(--bg);color:var(--text);font-size:10px;font-weight:800;letter-spacing:.07em;padding:10px 12px;text-align:center}
 .paletteEditorSheet{display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(32,33,32,.10)}.paletteEditorSheet.show{display:block}
 .paletteEditorTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.paletteEditorTop strong{font-size:11px;letter-spacing:.08em}.paletteEditorTop button{border:0;background:transparent;font-size:18px;color:var(--sub)}
 .paletteNameRow{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;margin-bottom:10px}.paletteNameRow label{font-size:9px;font-weight:800;color:var(--sub)}.paletteNameRow input{border:0;border-radius:8px;background:var(--bg);padding:9px 10px;font-size:12px;min-width:0}
@@ -235,15 +235,48 @@ button,input{font:inherit;color:inherit}
 <section class="page"><div class="scroll">
 <div class="section" id="colorSection"><h2>COLOR</h2>
 <div class="colorAccordion">
-<div><div class="colorHead"><span class="label">ACCENT COLOR</span><span class="note">（ACCENT 1・2・3）</span></div><button type="button" class="colorCurrent" id="accentCurrent"></button><div class="colorOptions" id="accentOptions"></div></div>
-<div><div class="colorHead"><span class="label">BASE COLOR</span><span class="note">（BG・PANEL・TEXT・SUB…）</span></div><button type="button" class="colorCurrent" id="baseCurrent"></button><div class="colorOptions" id="baseOptions"></div></div>
+  <div class="colorBlock" id="accentBlock">
+    <div class="colorHead"><span class="label">ACCENT COLOR</span><span class="note">（ACCENT 1・2・3）</span></div>
+    <button type="button" class="colorCurrent" id="accentCurrent"></button>
+    <div class="colorOptions" id="accentOptions"></div>
+    <div class="paletteEditorSheet" id="accentEditorSheet">
+      <div class="paletteEditorTop"><strong id="accentEditorTitle">EDIT ACCENT</strong><button type="button" id="accentEditorClose">×</button></div>
+      <div class="paletteNameRow"><label>NAME</label><input type="text" id="accentEditName"></div>
+      <div id="accentPreview" class="swatchPreview"></div>
+      <div class="colorWorkbench">
+        <div class="colorModeTabs">
+          <button type="button" class="colorMode active" data-color-mode="spectrum">SPECTRUM</button>
+          <button type="button" class="colorMode" data-color-mode="sliders">SLIDERS</button>
+        </div>
+        <div id="accentSpectrumEditor" class="colorModePanel"></div>
+        <div id="accentSlidersEditor" class="colorModePanel" style="display:none"></div>
+      </div>
+      <div class="editActions" id="accentEditorActions"></div>
+    </div>
+  </div>
+
+  <div class="colorBlock" id="baseBlock">
+    <div class="colorHead"><span class="label">BASE COLOR</span><span class="note">（BG・PANEL・TEXT・SUB…）</span></div>
+    <button type="button" class="colorCurrent" id="baseCurrent"></button>
+    <div class="colorOptions" id="baseOptions"></div>
+    <div class="paletteEditorSheet" id="baseEditorSheet">
+      <div class="paletteEditorTop"><strong id="baseEditorTitle">EDIT BASE</strong><button type="button" id="baseEditorClose">×</button></div>
+      <div class="paletteNameRow"><label>NAME</label><input type="text" id="baseEditName"></div>
+      <div id="basePreview" class="swatchPreview basePreview"></div>
+      <div class="colorWorkbench">
+        <div class="colorModeTabs">
+          <button type="button" class="colorMode active" data-color-mode="spectrum">SPECTRUM</button>
+          <button type="button" class="colorMode" data-color-mode="sliders">SLIDERS</button>
+        </div>
+        <div id="baseSpectrumEditor" class="colorModePanel"></div>
+        <div id="baseSlidersEditor" class="colorModePanel" style="display:none"></div>
+      </div>
+      <div class="editActions" id="baseEditorActions"></div>
+    </div>
+  </div>
 </div>
-<div class="paletteEditorSheet" id="paletteEditorSheet">
-<div class="paletteEditorTop"><strong id="paletteEditorTitle">EDIT</strong><button type="button" id="paletteEditorClose">×</button></div>
-<div class="paletteNameRow"><label>NAME</label><input type="text" id="paletteEditName"></div>
-<div id="accentPreview" class="swatchPreview"></div><div id="basePreview" class="swatchPreview basePreview"></div>
-<div class="colorWorkbench" id="colorWorkbench"><div class="colorModeTabs"><button type="button" class="colorMode active" data-color-mode="grid">GRID</button><button type="button" class="colorMode" data-color-mode="spectrum">SPECTRUM</button><button type="button" class="colorMode" data-color-mode="sliders">SLIDERS</button></div><div id="gridEditor" class="colorModePanel"></div><div id="spectrumEditor" class="colorModePanel" style="display:none"></div><div id="slidersEditor" class="colorModePanel" style="display:none"></div></div>
-<div class="editActions" id="paletteEditorActions"></div></div></div>
+</div>
+
 <div class="section"><h2>DATA</h2>
   <div class="dataActions">
     <button class="btn" id="exportBtn">JSONを書き出す</button>
@@ -257,7 +290,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v4.8</div>
+<div class="appmeta">3TASKS MNDL · v4.9</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -327,12 +360,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.8"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"4.9"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="4.8";
+   state.appVersion="4.9";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -349,7 +382,7 @@ function load(){
    if(s&&s.nodes){
      state=Object.assign(state,s);
      state.dataVersion=1;
-     state.appVersion="4.8";
+     state.appVersion="4.9";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
@@ -981,54 +1014,25 @@ function applyPalette(p){
  save();renderBackgroundControls();
 }
 
-var openColorGroup=null,paletteEditorContext=null,pressTimer=null,pressTriggered=false;
+var openColorGroup=null,paletteEditorContext=null;
+var accentMode="spectrum",baseMode="spectrum";
+
 function basePreset(mode){if(mode==="black")return blackBg;if(mode==="custom")return state.customBackground||whiteBg;return whiteBg}
 function activeBaseItem(){if(state.backgroundMode==="black")return{id:"black",name:"BLACK",c:blackBg,builtIn:true};if(state.backgroundMode==="custom"){var b=(state.customBases||[]).find(function(x){return x.id===state.activeBaseId});if(b)return{id:b.id,name:b.name,c:b.c,builtIn:false}}return{id:"white",name:"WHITE",c:whiteBg,builtIn:true}}
 function choiceMarkup(c,name,type,selected,chev){var keys=type==="accent"?["a1","a2","a3"]:["bg","panel","text","sub"];return"<span class='choiceSwatches "+(type==="accent"?"accents":"base")+"'>"+keys.map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span><span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
-function bindLongPress(el,onTap,onLong){
- var timer=null;
- var longDone=false;
- var sx=0,sy=0,moved=false;
+function bindLongPress(el,onTap,onLong){var timer=null,longDone=false,sx=0,sy=0,moved=false;el.onpointerdown=function(e){if(e.pointerType==="mouse"&&e.button!==0)return;longDone=false;moved=false;sx=e.clientX;sy=e.clientY;clearTimeout(timer);timer=setTimeout(function(){if(!moved){longDone=true;onLong()}},520)};el.onpointermove=function(e){if(Math.hypot(e.clientX-sx,e.clientY-sy)>10){moved=true;clearTimeout(timer)}};el.onpointerup=function(){clearTimeout(timer);if(!longDone&&!moved)onTap()};el.onpointercancel=function(){clearTimeout(timer)};el.onclick=function(e){e.preventDefault()}}
 
- el.onpointerdown=function(e){
-   if(e.pointerType==="mouse"&&e.button!==0)return;
-   longDone=false;moved=false;sx=e.clientX;sy=e.clientY;
-   clearTimeout(timer);
-   timer=setTimeout(function(){
-     if(moved)return;
-     longDone=true;
-     onLong();
-   },520);
- };
-
- el.onpointermove=function(e){
-   if(Math.hypot(e.clientX-sx,e.clientY-sy)>10){
-     moved=true;
-     clearTimeout(timer);
-   }
- };
-
- el.onpointerup=function(e){
-   clearTimeout(timer);
-   if(!longDone&&!moved)onTap();
- };
-
- el.onpointercancel=function(){
-   clearTimeout(timer);
- };
- el.onclick=function(e){e.preventDefault()};
-}
-function renderAccentAccordion(){var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,openColorGroup==="accent"?"⌃":"⌄");bindLongPress(cur,function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()},function(){openPaletteEditor("accent",p,false)});opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;palettes().forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"accent",false,false);bindLongPress(b,function(){applyPalette(item);save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("accent",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+";add.onclick=function(){openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add)}
-function renderBaseAccordion(){var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,openColorGroup==="base"?"⌃":"⌄");bindLongPress(cur,function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()},function(){openPaletteEditor("base",p,false)});opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));items.forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"base",false,false);bindLongPress(b,function(){if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}applyPalette(activePalette());save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("base",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+";add.onclick=function(){openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add)}
+function renderAccentAccordion(){var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,openColorGroup==="accent"?"⌃":"⌄");bindLongPress(cur,function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()},function(){openPaletteEditor("accent",p,false)});opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;palettes().forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"accent",false,false);bindLongPress(b,function(){applyPalette(item);save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("accent",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add)}
+function renderBaseAccordion(){var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,openColorGroup==="base"?"⌃":"⌄");bindLongPress(cur,function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()},function(){openPaletteEditor("base",p,false)});opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));items.forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"base",false,false);bindLongPress(b,function(){if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}applyPalette(activePalette());save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("base",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";add.onclick=function(){openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add)}
 function renderColorChoices(){renderAccentAccordion();renderBaseAccordion()}function renderBackgroundControls(){renderColorChoices()}function renderPaletteList(){renderColorChoices()}
-function openPaletteEditor(type,item,isNew){paletteEditorContext={type:type,item:item,isNew:isNew,builtIn:!!item.builtIn};var c;if(type==="accent"){c=Object.assign({},backgroundValues(),{a1:item.c.a1,a2:item.c.a2,a3:item.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="a1"}else{var ap=activePalette();c=Object.assign({},item.c,{a1:ap.c.a1,a2:ap.c.a2,a3:ap.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="bg"}document.getElementById("paletteEditName").value=isNew?"":item.name;document.getElementById("paletteEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+(type==="accent"?"ACCENT":"BASE");document.getElementById("accentPreview").style.display=type==="accent"?"grid":"none";document.getElementById("basePreview").style.display=type==="base"?"grid":"none";buildPaletteEditorActions();document.getElementById("paletteEditorSheet").classList.add("show");
- document.querySelectorAll(".colorMode").forEach(function(b){b.onclick=function(){colorMode=b.dataset.colorMode;renderColorWorkbench()}});
- renderPaletteEditor()}
-function closePaletteEditor(){document.getElementById("paletteEditorSheet").classList.remove("show");paletteEditorContext=null}
-function buildPaletteEditorActions(){var box=document.getElementById("paletteEditorActions"),ctx=paletteEditorContext;box.innerHTML="";function b(t,c,f){var x=document.createElement("button");x.type="button";x.className="btn "+(c||"");x.textContent=t;x.onclick=f;box.appendChild(x)}if(ctx.isNew)b("追加","primary",savePaletteAsNew);else{if(!ctx.builtIn)b("上書き保存","primary",overwriteCurrentPalette);b("名前をつけて保存","",savePaletteAsNew);if(!ctx.builtIn)b("削除","danger",deleteCurrentPalette)}}
-function savePaletteAsNew(){var ctx=paletteEditorContext,name=(document.getElementById("paletteEditName").value||"").trim();if(!name){alert("名前を入力してください。");return}if(ctx.type==="accent"){var p={id:"c"+Date.now(),name:name,builtIn:false,c:Object.assign({},activePalette().c,{a1:editingPalette.c.a1,a2:editingPalette.c.a2,a3:editingPalette.c.a3})};state.customPalettes.push(p);state.activePaletteId=p.id}else{var b={id:"b"+Date.now(),name:name,c:{bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,accentText:editingPalette.c.accentText,off:editingPalette.c.off,done:editingPalette.c.done}};state.customBases=state.customBases||[];state.customBases.push(b);state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor();openColorGroup=null;renderColorChoices()}
-function overwriteCurrentPalette(){var ctx=paletteEditorContext,name=(document.getElementById("paletteEditName").value||"").trim();if(!ctx||ctx.builtIn)return;if(!name){alert("名前を入力してください。");return}if(ctx.type==="accent"){var p=state.customPalettes.find(function(x){return x.id===ctx.item.id});if(!p)return;p.name=name;p.c.a1=editingPalette.c.a1;p.c.a2=editingPalette.c.a2;p.c.a3=editingPalette.c.a3;state.activePaletteId=p.id}else{var b=(state.customBases||[]).find(function(x){return x.id===ctx.item.id});if(!b)return;b.name=name;["bg","panel","text","sub","accentText","off","done"].forEach(function(k){b.c[k]=editingPalette.c[k]});state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor();openColorGroup=null;renderColorChoices()}
-function deleteCurrentPalette(){var ctx=paletteEditorContext;if(!ctx||ctx.builtIn)return;if(!confirm("このパレットを削除しますか？"))return;if(ctx.type==="accent"){state.customPalettes=state.customPalettes.filter(function(x){return x.id!==ctx.item.id});if(state.activePaletteId===ctx.item.id)state.activePaletteId=builtins[0].id}else{state.customBases=(state.customBases||[]).filter(function(x){return x.id!==ctx.item.id});if(state.activeBaseId===ctx.item.id){state.backgroundMode="white";state.activeBaseId=null}}applyPalette(activePalette());save();closePaletteEditor();openColorGroup=null;renderColorChoices()}
+
+function openPaletteEditor(type,item,isNew){paletteEditorContext={type:type,item:item,isNew:isNew,builtIn:!!item.builtIn};var c;if(type==="accent"){c=Object.assign({},backgroundValues(),{a1:item.c.a1,a2:item.c.a2,a3:item.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="a1";document.getElementById("accentEditName").value=isNew?"":item.name;document.getElementById("accentEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+"ACCENT";buildPaletteEditorActions("accent");document.getElementById("accentEditorSheet").classList.add("show");document.getElementById("baseEditorSheet").classList.remove("show")}else{var ap=activePalette();c=Object.assign({},item.c,{a1:ap.c.a1,a2:ap.c.a2,a3:ap.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="bg";document.getElementById("baseEditName").value=isNew?"":item.name;document.getElementById("baseEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+"BASE";buildPaletteEditorActions("base");document.getElementById("baseEditorSheet").classList.add("show");document.getElementById("accentEditorSheet").classList.remove("show")}renderPaletteEditor();renderColorWorkbenchFor(type)}
+function closePaletteEditor(type){document.getElementById(type==="accent"?"accentEditorSheet":"baseEditorSheet").classList.remove("show");paletteEditorContext=null}
+function buildPaletteEditorActions(type){var box=document.getElementById(type==="accent"?"accentEditorActions":"baseEditorActions"),ctx=paletteEditorContext;box.innerHTML="";function b(t,c,f){var x=document.createElement("button");x.type="button";x.className="btn "+(c||"");x.textContent=t;x.onclick=f;box.appendChild(x)}if(ctx.isNew)b("追加","primary",savePaletteAsNew);else{if(!ctx.builtIn)b("上書き保存","primary",overwriteCurrentPalette);b("名前をつけて保存","",savePaletteAsNew);if(!ctx.builtIn)b("削除","danger",deleteCurrentPalette)}}
+function currentNameInput(){return document.getElementById(paletteEditorContext.type==="accent"?"accentEditName":"baseEditName")}
+function savePaletteAsNew(){var ctx=paletteEditorContext,name=(currentNameInput().value||"").trim();if(!name){alert("名前を入力してください。");return}if(ctx.type==="accent"){var p={id:"c"+Date.now(),name:name,builtIn:false,c:Object.assign({},activePalette().c,{a1:editingPalette.c.a1,a2:editingPalette.c.a2,a3:editingPalette.c.a3})};state.customPalettes.push(p);state.activePaletteId=p.id}else{var b={id:"b"+Date.now(),name:name,c:{bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,accentText:editingPalette.c.accentText,off:editingPalette.c.off,done:editingPalette.c.done}};state.customBases=state.customBases||[];state.customBases.push(b);state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor(ctx.type);openColorGroup=null;renderColorChoices()}
+function overwriteCurrentPalette(){var ctx=paletteEditorContext,name=(currentNameInput().value||"").trim();if(!ctx||ctx.builtIn)return;if(!name){alert("名前を入力してください。");return}if(ctx.type==="accent"){var p=state.customPalettes.find(function(x){return x.id===ctx.item.id});if(!p)return;p.name=name;p.c.a1=editingPalette.c.a1;p.c.a2=editingPalette.c.a2;p.c.a3=editingPalette.c.a3;state.activePaletteId=p.id}else{var b=(state.customBases||[]).find(function(x){return x.id===ctx.item.id});if(!b)return;b.name=name;["bg","panel","text","sub","accentText","off","done"].forEach(function(k){b.c[k]=editingPalette.c[k]});state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor(ctx.type);openColorGroup=null;renderColorChoices()}
+function deleteCurrentPalette(){var ctx=paletteEditorContext;if(!ctx||ctx.builtIn)return;if(!confirm("このパレットを削除しますか？"))return;if(ctx.type==="accent"){state.customPalettes=state.customPalettes.filter(function(x){return x.id!==ctx.item.id});if(state.activePaletteId===ctx.item.id)state.activePaletteId=builtins[0].id}else{state.customBases=(state.customBases||[]).filter(function(x){return x.id!==ctx.item.id});if(state.activeBaseId===ctx.item.id){state.backgroundMode="white";state.activeBaseId=null}}applyPalette(activePalette());save();closePaletteEditor(ctx.type);openColorGroup=null;renderColorChoices()}
 
 var accentLabels={a1:"Accent 1",a2:"Accent 2",a3:"Accent 3"};
 var baseLabels={bg:"Background",panel:"Panel / Cell",text:"Primary Text",sub:"Secondary Text",accentText:"Accent Text",off:"OFF",done:"Completed"};
@@ -1065,11 +1069,15 @@ function highlightSelectedSwatches(){
  });
 }
 function renderPaletteEditor(){
- var aPrev=document.getElementById("accentPreview"),bPrev=document.getElementById("basePreview");
- aPrev.innerHTML="";bPrev.innerHTML="";
- Object.keys(accentLabels).forEach(function(k){makeSwatch(k,accentLabels[k],aPrev)});
- Object.keys(baseLabels).forEach(function(k){makeSwatch(k,baseLabels[k],bPrev)});
- highlightSelectedSwatches();previewPalette();renderColorWorkbench();
+ var ctx=paletteEditorContext;if(!ctx)return;
+ if(ctx.type==="accent"){
+   var aPrev=document.getElementById("accentPreview");aPrev.innerHTML="";
+   Object.keys(accentLabels).forEach(function(k){makeSwatch(k,accentLabels[k],aPrev)});
+ }else{
+   var bPrev=document.getElementById("basePreview");bPrev.innerHTML="";
+   Object.keys(baseLabels).forEach(function(k){makeSwatch(k,baseLabels[k],bPrev)});
+ }
+ highlightSelectedSwatches();previewPalette();
 }
 function refreshSwatchesOnly(){
  document.querySelectorAll(".swatchBtn").forEach(function(b){
@@ -1099,7 +1107,7 @@ function hslToHex(h,s,l){
 function setSelectedColor(v,rerenderWorkbench){
  editingPalette.c[selectedColorKey]=v.toUpperCase();
  previewPalette();
- if(rerenderWorkbench!==false)renderColorWorkbench();
+ if(rerenderWorkbench!==false&&paletteEditorContext)renderColorWorkbenchFor(paletteEditorContext.type);
 }
 function renderGridMode(){
  var box=document.getElementById("gridEditor");
@@ -1139,8 +1147,8 @@ function renderGridMode(){
    });
  });
 }
-function renderSpectrumMode(){
- var box=document.getElementById("spectrumEditor"),hsl=hexToHsl(editingPalette.c[selectedColorKey]);
+function renderSpectrumModeInto(box){
+ var hsl=hexToHsl(editingPalette.c[selectedColorKey]);
  spectrumHue=isFinite(spectrumHue)?spectrumHue:hsl[0];
  box.innerHTML="<div class='spectrumPanel' id='spectrumPanel'><div class='spectrumWhite'></div><div class='spectrumBlack'></div><div class='spectrumCursor' id='spectrumCursor'></div></div><input class='hueStrip' id='hueStrip' type='range' min='0' max='360' value='"+Math.round(spectrumHue)+"'>";
  var panel=document.getElementById("spectrumPanel"),cursor=document.getElementById("spectrumCursor"),hue=document.getElementById("hueStrip");
@@ -1170,8 +1178,8 @@ function renderSpectrumMode(){
 function sliderHTML(label,id,min,max,val){
  return "<div class='sliderLine'><label>"+label+"</label><input class='colorRange' id='"+id+"' type='range' min='"+min+"' max='"+max+"' value='"+val+"'><output>"+Math.round(val)+"</output></div>";
 }
-function renderSlidersMode(){
- var hsl=hexToHsl(editingPalette.c[selectedColorKey]),box=document.getElementById("slidersEditor");
+function renderSlidersModeInto(box){
+ var hsl=hexToHsl(editingPalette.c[selectedColorKey]);
  box.innerHTML=sliderHTML("H","slideH",0,360,hsl[0])+sliderHTML("S","slideS",0,100,hsl[1])+sliderHTML("L","slideL",0,100,hsl[2])+
  "<div class='hexReadout'><div class='chip' style='background:"+editingPalette.c[selectedColorKey]+"'></div><input class='hexInput' id='slideHex' value='"+editingPalette.c[selectedColorKey]+"'></div>";
 
@@ -1200,16 +1208,17 @@ function renderSlidersMode(){
    if(/^#[0-9A-Fa-f]{6}$/.test(v))setSelectedColor(v);
  };
 }
-function renderColorWorkbench(){
- document.querySelectorAll(".colorMode").forEach(function(b){b.classList.toggle("active",b.dataset.colorMode===colorMode)});
- document.getElementById("gridEditor").style.display=colorMode==="grid"?"block":"none";
- document.getElementById("spectrumEditor").style.display=colorMode==="spectrum"?"block":"none";
- document.getElementById("slidersEditor").style.display=colorMode==="sliders"?"block":"none";
- if(colorMode==="grid")renderGridMode();
- if(colorMode==="spectrum")renderSpectrumMode();
- if(colorMode==="sliders")renderSlidersMode();
+function renderColorWorkbenchFor(type){
+ var mode=type==="accent"?accentMode:baseMode;
+ var sheet=document.getElementById(type==="accent"?"accentEditorSheet":"baseEditorSheet");
+ var spec=document.getElementById(type==="accent"?"accentSpectrumEditor":"baseSpectrumEditor");
+ var slid=document.getElementById(type==="accent"?"accentSlidersEditor":"baseSlidersEditor");
+ sheet.querySelectorAll(".colorMode").forEach(function(b){b.classList.toggle("active",b.dataset.colorMode===mode)});
+ spec.style.display=mode==="spectrum"?"block":"none";
+ slid.style.display=mode==="sliders"?"block":"none";
+ if(mode==="spectrum")renderSpectrumModeInto(spec);
+ if(mode==="sliders")renderSlidersModeInto(slid);
 }
-document.querySelectorAll(".colorMode").forEach(function(b){b.onclick=function(){colorMode=b.dataset.colorMode;renderColorWorkbench()}});
 
 
 
@@ -1218,7 +1227,11 @@ document.querySelectorAll(".colorMode").forEach(function(b){b.onclick=function()
 
 
 
-document.getElementById("paletteEditorClose").onclick=closePaletteEditor;
+
+document.querySelectorAll("#accentEditorSheet .colorMode").forEach(function(b){b.onclick=function(){accentMode=b.dataset.colorMode;renderColorWorkbenchFor("accent")}});
+document.querySelectorAll("#baseEditorSheet .colorMode").forEach(function(b){b.onclick=function(){baseMode=b.dataset.colorMode;renderColorWorkbenchFor("base")}});
+document.getElementById("accentEditorClose").onclick=function(){closePaletteEditor("accent")};
+document.getElementById("baseEditorClose").onclick=function(){closePaletteEditor("base")};
 document.getElementById("exportBtn").onclick=function(){var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="3tasks-mndl-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)};
 document.getElementById("importBtn").onclick=function(){document.getElementById("importFile").click()};
 document.getElementById("importFile").onchange=function(e){var file=e.target.files&&e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(){try{var x=JSON.parse(r.result);if(!x.nodes||!x.today)throw new Error();state=x;state.customPalettes=state.customPalettes||[];state.customBases=state.customBases||[];currentNode="life";save();applyPalette(activePalette());renderAll();alert("復元しました")}catch(err){alert("読み込めないJSONです")}};r.readAsText(file)};
