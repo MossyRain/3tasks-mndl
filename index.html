@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v5.1</title>
+<title>3TASKS MNDL Safari v5.2</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -53,7 +53,7 @@ button,input{font:inherit;color:inherit}
 .deep{position:absolute;right:5px;bottom:4px;opacity:.4}.hint{font-size:10px;color:var(--sub);margin-top:9px}
 .ghost{position:absolute;z-index:20;border-radius:3px;background:var(--panel);display:grid;place-items:center;text-align:center;padding:7px;font-size:13px;font-weight:690;overflow:hidden;isolation:isolate;pointer-events:none;transition:left .42s cubic-bezier(.18,.82,.2,1),top .42s cubic-bezier(.18,.82,.2,1),width .42s cubic-bezier(.18,.82,.2,1),height .42s cubic-bezier(.18,.82,.2,1),opacity .16s ease}
 .ghost.center:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 18% 18%,var(--a1),transparent 56%),radial-gradient(circle at 84% 22%,var(--a2),transparent 58%),radial-gradient(circle at 52% 88%,var(--a3),transparent 60%),linear-gradient(145deg,var(--a1),var(--a2) 52%,var(--a3))}
-.actions{display:grid;gap:4px}.action{background:var(--panel);border-radius:8px;padding:12px 13px;display:flex;justify-content:space-between;align-items:center;gap:12px}.actionCopy{min-width:0}.actionName{font-size:14px;font-weight:710}.actionTrail{font-size:10px;color:var(--sub);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions{display:grid;gap:4px}.action{background:var(--panel);border-radius:8px;padding:12px 13px;display:flex;justify-content:space-between;align-items:center;gap:12px}.actionCopy{min-width:0;flex:1;cursor:text}.actionName{font-size:14px;font-weight:710}.actionNameInput{width:100%;border:1px solid rgba(32,33,32,.16);border-radius:7px;background:var(--bg);padding:7px 8px;font-size:16px;font-weight:710;outline:none}.actionTrail{font-size:10px;color:var(--sub);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .toggle{border:0;border-radius:999px;min-width:48px;padding:8px 11px;font-size:10px;font-weight:800;color:var(--accentText);background:radial-gradient(circle at 5% 15%,var(--a1) 0 20%,transparent 54%),radial-gradient(circle at 95% 15%,var(--a2) 0 20%,transparent 54%),radial-gradient(circle at 50% 115%,var(--a3) 0 28%,transparent 62%),linear-gradient(135deg,var(--a1),var(--a2) 50%,var(--a3))}
 .toggle.off{background:var(--off);color:#555}
 .section{background:var(--panel);border-radius:12px;padding:13px;margin-bottom:8px}.section h2{margin:0 0 10px;font-size:11px;letter-spacing:.09em}
@@ -206,13 +206,13 @@ button,input{font:inherit;color:inherit}
 
 .colorAccordion{display:grid;gap:12px}.colorHead{display:flex;justify-content:space-between;align-items:end;margin-bottom:6px}
 .colorHead .label{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub)}.colorHead .note{font-size:9px;color:var(--sub);opacity:.72}
-.colorCurrent{width:100%;border:1px solid rgba(32,33,32,.10);background:transparent;border-radius:10px;padding:8px 9px;display:grid;grid-template-columns:112px 1fr 20px;gap:10px;align-items:center;text-align:left}
+.colorCurrent{width:100%;border:1px solid rgba(32,33,32,.10);background:transparent;border-radius:10px;padding:8px 9px;display:grid;grid-template-columns:112px 1fr 20px;gap:10px;align-items:center;text-align:left}.colorCurrentRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:stretch}.paletteEditBtn{border:1px solid rgba(32,33,32,.16);border-radius:9px;background:transparent;padding:0 12px;font-size:10px;font-weight:800;letter-spacing:.06em}
 .colorCurrent .chev{font-size:12px;color:var(--sub);text-align:center}.colorOptions{display:none;gap:6px;margin-top:6px}.colorOptions.open{display:grid}
 .colorAdd{width:100%;min-height:40px;border:1px solid rgba(32,33,32,.16);border-radius:9px;background:var(--bg);color:var(--text);font-size:10px;font-weight:800;letter-spacing:.07em;padding:10px 12px;text-align:center}
 .paletteEditorSheet{display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(32,33,32,.10)}.paletteEditorSheet.show{display:block}
 .paletteEditorTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.paletteEditorTop strong{font-size:11px;letter-spacing:.08em}.paletteEditorTop button{border:0;background:transparent;font-size:18px;color:var(--sub)}
 .paletteNameRow{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;margin-bottom:10px}.paletteNameRow label{font-size:9px;font-weight:800;color:var(--sub)}.paletteNameRow input{border:0;border-radius:8px;background:var(--bg);padding:9px 10px;font-size:12px;min-width:0}
-.colorHeadButton{width:100%;border:0;background:transparent;padding:0;text-align:left}.colorHeadButton>span:first-child{display:flex;align-items:baseline;gap:6px}.headChev{font-size:14px;color:var(--sub)}.editReset{display:flex;justify-content:flex-end;margin-top:8px}.editTodayRow{display:none;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 2px;border-top:1px solid rgba(127,127,127,.16);border-bottom:1px solid rgba(127,127,127,.16)}.editTodayRow.show{display:flex}.editTodayRow>span{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub)}</style>
+.colorHeadButton{width:100%;border:1px solid rgba(32,33,32,.16);border-radius:9px;background:transparent;padding:8px 10px;text-align:left}.colorHeadButton>span:first-child{display:flex;align-items:baseline;gap:6px}.headChev{font-size:14px;color:var(--sub)}.editReset{display:flex;justify-content:flex-end;margin-top:8px}.editorFooter{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}.editorFooter .editActions{margin-top:0}.editorFooter .btn{min-height:42px}.editTodayRow{display:none;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 2px;border-top:1px solid rgba(127,127,127,.16);border-bottom:1px solid rgba(127,127,127,.16)}.editTodayRow.show{display:flex}.editTodayRow>span{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub)}</style>
 <link rel="apple-touch-icon" sizes="180x180" href="3tasks_icon_180.png">
 </head>
 <body>
@@ -238,11 +238,10 @@ button,input{font:inherit;color:inherit}
 <div class="colorAccordion">
   <div class="colorBlock" id="accentBlock">
     <button type="button" class="colorHead colorHeadButton" id="accentToggle"><span><span class="label">ACCENT COLOR</span><span class="note">（ACCENT 1・2・3）</span></span><span class="headChev" id="accentChev">⌄</span></button>
-    <button type="button" class="colorCurrent" id="accentCurrent"></button>
+    <div class="colorCurrentRow"><button type="button" class="colorCurrent" id="accentCurrent"></button><button type="button" class="paletteEditBtn" id="accentEditBtn">EDIT</button></div>
     <div class="colorOptions" id="accentOptions"></div>
     <div class="paletteEditorSheet" id="accentEditorSheet">
       <div class="paletteEditorTop"><strong id="accentEditorTitle">EDIT ACCENT</strong><button type="button" id="accentEditorClose">×</button></div>
-      <div class="paletteNameRow"><label>NAME</label><input type="text" id="accentEditName"></div>
       <div id="accentPreview" class="swatchPreview"></div>
       <div class="colorWorkbench">
         <div class="colorModeTabs">
@@ -252,17 +251,16 @@ button,input{font:inherit;color:inherit}
         <div id="accentSpectrumEditor" class="colorModePanel"></div>
         <div id="accentSlidersEditor" class="colorModePanel" style="display:none"></div>
       </div>
-      <div class="editReset"><button type="button" class="btn" id="accentReset">RESET</button></div><div class="editActions" id="accentEditorActions"></div>
+      <div class="editorFooter"><div class="editActions" id="accentEditorActions"></div><button type="button" class="btn" id="accentReset">RESET</button></div>
     </div>
   </div>
 
   <div class="colorBlock" id="baseBlock">
     <button type="button" class="colorHead colorHeadButton" id="baseToggle"><span><span class="label">BASE COLOR</span><span class="note">（BG・PANEL・TEXT・SUB…）</span></span><span class="headChev" id="baseChev">⌄</span></button>
-    <button type="button" class="colorCurrent" id="baseCurrent"></button>
+    <div class="colorCurrentRow"><button type="button" class="colorCurrent" id="baseCurrent"></button><button type="button" class="paletteEditBtn" id="baseEditBtn">EDIT</button></div>
     <div class="colorOptions" id="baseOptions"></div>
     <div class="paletteEditorSheet" id="baseEditorSheet">
       <div class="paletteEditorTop"><strong id="baseEditorTitle">EDIT BASE</strong><button type="button" id="baseEditorClose">×</button></div>
-      <div class="paletteNameRow"><label>NAME</label><input type="text" id="baseEditName"></div>
       <div id="basePreview" class="swatchPreview basePreview"></div>
       <div class="colorWorkbench">
         <div class="colorModeTabs">
@@ -272,7 +270,7 @@ button,input{font:inherit;color:inherit}
         <div id="baseSpectrumEditor" class="colorModePanel"></div>
         <div id="baseSlidersEditor" class="colorModePanel" style="display:none"></div>
       </div>
-      <div class="editReset"><button type="button" class="btn" id="baseReset">RESET</button></div><div class="editActions" id="baseEditorActions"></div>
+      <div class="editorFooter"><div class="editActions" id="baseEditorActions"></div><button type="button" class="btn" id="baseReset">RESET</button></div>
     </div>
   </div>
 </div>
@@ -291,7 +289,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v5.1</div>
+<div class="appmeta">3TASKS MNDL · v5.2</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -324,9 +322,9 @@ var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,
 
 var builtins=[
  {id:"current",name:"CURRENT",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#4A5793",a2:"#37AB91",a3:"#379CB7",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
- {id:"field",name:"FIELD",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#A30084",a2:"#B69100",a3:"#00466D",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
- {id:"mist",name:"MIST",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#94CDC2",a2:"#C9C3AE",a3:"#8F7C9A",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
- {id:"neon",name:"NEON",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#0001F1",a2:"#B2D000",a3:"#F5008B",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}}
+ {id:"atoll",name:"ATOLL",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#A30084",a2:"#B69100",a3:"#00466D",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
+ {id:"cirrus",name:"CIRRUS",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#94CDC2",a2:"#C9C3AE",a3:"#8F7C9A",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
+ {id:"nebula",name:"NEBULA",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#23035F",a2:"#A3B47D",a3:"#DA45B7",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}}
 ];
 
 var defaultNodes={
@@ -362,12 +360,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.1"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.2"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="5.1";
+   state.appVersion="5.2";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -383,9 +381,9 @@ function load(){
    var s=raw?JSON.parse(raw):null;
    if(s&&s.nodes){
      state=Object.assign(state,s);
-     if(state.activePaletteId==="form")state.activePaletteId="current";
+     if(state.activePaletteId==="form")state.activePaletteId="current";if(state.activePaletteId==="field")state.activePaletteId="atoll";if(state.activePaletteId==="mist")state.activePaletteId="cirrus";if(state.activePaletteId==="neon")state.activePaletteId="nebula";
      state.dataVersion=1;
-     state.appVersion="5.1";
+     state.appVersion="5.2";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
@@ -428,7 +426,7 @@ function setPage(n,animate){
  track.style.transform="translate3d(-"+(page*25)+"%,0,0)";
  title.textContent=["TODAY","MANDALA","ACTIONS","SETTINGS"][page];
  var dateEl=document.getElementById("todayDate");
- if(dateEl)dateEl.style.display=page===0?"block":"none";
+ if(dateEl)dateEl.style.visibility=page===0?"visible":"hidden";
  var bs=document.querySelectorAll("[data-page]");for(var i=0;i<bs.length;i++)bs[i].classList.toggle("active",i===page);
  if(page===1)restoreEditIfMandala();
 }
@@ -549,14 +547,19 @@ function renderActions(){
  var box=document.getElementById("actions");box.innerHTML="";
  leaves().forEach(function(n){
    var on=state.enabled[n.id]!==false,d=document.createElement("div");d.className="action";
-   d.innerHTML="<div class='actionCopy'><div class='actionName'>"+n.name+"</div><div class='actionTrail'>"+trail(n.id)+"</div></div><button class='toggle "+(on?"":"off")+"'>"+(on?"ON":"OFF")+"</button>";
-   d.querySelector(".toggle").onclick=function(){
-     var next=!on;
-     state.enabled[n.id]=next;
-     if(!next)clearTodayItem(n.id);
-     save();renderActions();renderToday();
+   var copy=document.createElement("div");copy.className="actionCopy";
+   var name=document.createElement("div");name.className="actionName";name.textContent=n.name;
+   var tr=document.createElement("div");tr.className="actionTrail";tr.textContent=trail(n.id);
+   copy.appendChild(name);copy.appendChild(tr);
+   copy.onclick=function(){
+     if(copy.querySelector("input"))return;
+     var input=document.createElement("input");input.type="text";input.className="actionNameInput";input.value=n.name;name.replaceWith(input);input.focus();input.select();
+     var finished=false;function finish(cancel){if(finished)return;finished=true;var v=input.value.trim();if(!cancel&&v){n.name=v;save();renderMandala();renderToday()}renderActions()}
+     input.onblur=function(){finish(false)};input.onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();input.blur()}else if(e.key==="Escape"){e.preventDefault();finish(true)}};
    };
-   box.appendChild(d);
+   var toggle=document.createElement("button");toggle.type="button";toggle.className="toggle "+(on?"":"off");toggle.textContent=on?"ON":"OFF";
+   toggle.onclick=function(){var next=!on;state.enabled[n.id]=next;if(!next)clearTodayItem(n.id);save();renderActions();renderToday()};
+   d.appendChild(copy);d.appendChild(toggle);box.appendChild(d);
  });
 }
 function renderBreadcrumb(){
@@ -1045,17 +1048,16 @@ function activeBaseItem(){if(state.backgroundMode==="black")return{id:"black",na
 function choiceMarkup(c,name,type,selected,chev){var keys=type==="accent"?["a1","a2","a3"]:["bg","panel","text","sub"];return"<span class='choiceSwatches "+(type==="accent"?"accents":"base")+"'>"+keys.map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span><span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
 function bindLongPress(el,onTap,onLong){var timer=null,longDone=false,sx=0,sy=0,moved=false;el.onpointerdown=function(e){if(e.pointerType==="mouse"&&e.button!==0)return;longDone=false;moved=false;sx=e.clientX;sy=e.clientY;clearTimeout(timer);timer=setTimeout(function(){if(!moved){longDone=true;onLong()}},520)};el.onpointermove=function(e){if(Math.hypot(e.clientX-sx,e.clientY-sy)>10){moved=true;clearTimeout(timer)}};el.onpointerup=function(){clearTimeout(timer);if(!longDone&&!moved)onTap()};el.onpointercancel=function(){clearTimeout(timer)};el.onclick=function(e){e.preventDefault()}}
 
-function renderAccentAccordion(){var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,false);document.getElementById("accentChev").textContent=openColorGroup==="accent"?"⌃":"⌄";bindLongPress(cur,function(){},function(){openPaletteEditor("accent",p,false)});opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;palettes().forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"accent",false,false);bindLongPress(b,function(){applyPalette(item);save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("accent",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add)}
-function renderBaseAccordion(){var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,false);document.getElementById("baseChev").textContent=openColorGroup==="base"?"⌃":"⌄";bindLongPress(cur,function(){},function(){openPaletteEditor("base",p,false)});opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));items.forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"base",false,false);bindLongPress(b,function(){if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}applyPalette(activePalette());save();openColorGroup=null;renderColorChoices()},function(){openPaletteEditor("base",item,false)});opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";add.onclick=function(){openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add)}
+function renderAccentAccordion(){var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,false);document.getElementById("accentChev").textContent=openColorGroup==="accent"?"⌃":"⌄";cur.onclick=function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()};document.getElementById("accentEditBtn").onclick=function(){openPaletteEditor("accent",p,false)};opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;palettes().forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"accent",false,false);b.onclick=function(){applyPalette(item);save();openColorGroup=null;renderColorChoices()};opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add)}
+function renderBaseAccordion(){var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,false);document.getElementById("baseChev").textContent=openColorGroup==="base"?"⌃":"⌄";cur.onclick=function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()};document.getElementById("baseEditBtn").onclick=function(){openPaletteEditor("base",p,false)};opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));items.forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"base",false,false);b.onclick=function(){if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}applyPalette(activePalette());save();openColorGroup=null;renderColorChoices()};opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";add.onclick=function(){openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add)}
 function renderColorChoices(){renderAccentAccordion();renderBaseAccordion()}function renderBackgroundControls(){renderColorChoices()}function renderPaletteList(){renderColorChoices()}
 
-function openPaletteEditor(type,item,isNew){paletteEditorContext={type:type,item:item,isNew:isNew,builtIn:!!item.builtIn,originalPaletteId:state.activePaletteId,originalBackgroundMode:state.backgroundMode,originalBaseId:state.activeBaseId,originalCustomBackground:Object.assign({},state.customBackground||whiteBg),initialColors:null};var c;if(type==="accent"){c=Object.assign({},backgroundValues(),{a1:item.c.a1,a2:item.c.a2,a3:item.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="a1";document.getElementById("accentEditName").value=isNew?"":item.name;document.getElementById("accentEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+"ACCENT";buildPaletteEditorActions("accent");document.getElementById("accentEditorSheet").classList.add("show");document.getElementById("baseEditorSheet").classList.remove("show")}else{var ap=activePalette();c=Object.assign({},item.c,{a1:ap.c.a1,a2:ap.c.a2,a3:ap.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="bg";document.getElementById("baseEditName").value=isNew?"":item.name;document.getElementById("baseEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+"BASE";buildPaletteEditorActions("base");document.getElementById("baseEditorSheet").classList.add("show");document.getElementById("accentEditorSheet").classList.remove("show")}paletteEditorContext.initialColors=Object.assign({},editingPalette.c);renderPaletteEditor();renderColorWorkbenchFor(type)}
+function openPaletteEditor(type,item,isNew){paletteEditorContext={type:type,item:item,isNew:isNew,builtIn:!!item.builtIn,originalPaletteId:state.activePaletteId,originalBackgroundMode:state.backgroundMode,originalBaseId:state.activeBaseId,originalCustomBackground:Object.assign({},state.customBackground||whiteBg),initialColors:null};var c;if(type==="accent"){c=Object.assign({},backgroundValues(),{a1:item.c.a1,a2:item.c.a2,a3:item.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="a1";document.getElementById("accentEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+"ACCENT";buildPaletteEditorActions("accent");document.getElementById("accentEditorSheet").classList.add("show");document.getElementById("baseEditorSheet").classList.remove("show")}else{var ap=activePalette();c=Object.assign({},item.c,{a1:ap.c.a1,a2:ap.c.a2,a3:ap.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="bg";document.getElementById("baseEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+"BASE";buildPaletteEditorActions("base");document.getElementById("baseEditorSheet").classList.add("show");document.getElementById("accentEditorSheet").classList.remove("show")}paletteEditorContext.initialColors=Object.assign({},editingPalette.c);renderPaletteEditor();renderColorWorkbenchFor(type)}
 function closePaletteEditor(type,commit){var ctx=paletteEditorContext;document.getElementById(type==="accent"?"accentEditorSheet":"baseEditorSheet").classList.remove("show");if(ctx&&!commit){state.activePaletteId=ctx.originalPaletteId;state.backgroundMode=ctx.originalBackgroundMode;state.activeBaseId=ctx.originalBaseId;state.customBackground=Object.assign({},ctx.originalCustomBackground);applyPalette(activePalette());renderColorChoices()}paletteEditorContext=null}
-function buildPaletteEditorActions(type){var box=document.getElementById(type==="accent"?"accentEditorActions":"baseEditorActions"),ctx=paletteEditorContext;box.innerHTML="";function b(t,c,f){var x=document.createElement("button");x.type="button";x.className="btn "+(c||"");x.textContent=t;x.onclick=f;box.appendChild(x)}if(ctx.isNew)b("追加","primary",savePaletteAsNew);else{if(!ctx.builtIn)b("上書き保存","primary",overwriteCurrentPalette);b("名前をつけて保存","",savePaletteAsNew);if(!ctx.builtIn)b("削除","danger",deleteCurrentPalette)}}
+function buildPaletteEditorActions(type){var box=document.getElementById(type==="accent"?"accentEditorActions":"baseEditorActions"),ctx=paletteEditorContext;box.innerHTML="";function b(t,c,f){var x=document.createElement("button");x.type="button";x.className="btn "+(c||"");x.textContent=t;x.onclick=f;box.appendChild(x)}if(ctx.isNew)b("名前をつけて保存","primary",savePaletteAsNew);else{if(!ctx.builtIn)b("上書き保存","primary",overwriteCurrentPalette);b("名前をつけて保存","",savePaletteAsNew);if(!ctx.builtIn)b("削除","danger",deleteCurrentPalette)}}
 function resetSelectedColor(){if(!paletteEditorContext||!paletteEditorContext.initialColors)return;var v=paletteEditorContext.initialColors[selectedColorKey];if(!v)return;editingPalette.c[selectedColorKey]=v;previewPalette();refreshSwatchesOnly();renderColorWorkbenchFor(paletteEditorContext.type)}
-function currentNameInput(){return document.getElementById(paletteEditorContext.type==="accent"?"accentEditName":"baseEditName")}
-function savePaletteAsNew(){var ctx=paletteEditorContext,name=(currentNameInput().value||"").trim();if(!name){alert("名前を入力してください。");return}if(ctx.type==="accent"){var p={id:"c"+Date.now(),name:name,builtIn:false,c:Object.assign({},activePalette().c,{a1:editingPalette.c.a1,a2:editingPalette.c.a2,a3:editingPalette.c.a3})};state.customPalettes.push(p);state.activePaletteId=p.id}else{var b={id:"b"+Date.now(),name:name,c:{bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,accentText:editingPalette.c.accentText,off:editingPalette.c.off,done:editingPalette.c.done}};state.customBases=state.customBases||[];state.customBases.push(b);state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor(ctx.type,true);openColorGroup=null;renderColorChoices()}
-function overwriteCurrentPalette(){var ctx=paletteEditorContext,name=(currentNameInput().value||"").trim();if(!ctx||ctx.builtIn)return;if(!name){alert("名前を入力してください。");return}if(ctx.type==="accent"){var p=state.customPalettes.find(function(x){return x.id===ctx.item.id});if(!p)return;p.name=name;p.c.a1=editingPalette.c.a1;p.c.a2=editingPalette.c.a2;p.c.a3=editingPalette.c.a3;state.activePaletteId=p.id}else{var b=(state.customBases||[]).find(function(x){return x.id===ctx.item.id});if(!b)return;b.name=name;["bg","panel","text","sub","accentText","off","done"].forEach(function(k){b.c[k]=editingPalette.c[k]});state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor(ctx.type,true);openColorGroup=null;renderColorChoices()}
+function savePaletteAsNew(){var ctx=paletteEditorContext,name=(prompt("パレット名を入力してください","")||"").trim();if(!name){alert("名前を入力してください。");return}if(ctx.type==="accent"){var p={id:"c"+Date.now(),name:name,builtIn:false,c:Object.assign({},activePalette().c,{a1:editingPalette.c.a1,a2:editingPalette.c.a2,a3:editingPalette.c.a3})};state.customPalettes.push(p);state.activePaletteId=p.id}else{var b={id:"b"+Date.now(),name:name,c:{bg:editingPalette.c.bg,panel:editingPalette.c.panel,text:editingPalette.c.text,sub:editingPalette.c.sub,accentText:editingPalette.c.accentText,off:editingPalette.c.off,done:editingPalette.c.done}};state.customBases=state.customBases||[];state.customBases.push(b);state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor(ctx.type,true);openColorGroup=null;renderColorChoices()}
+function overwriteCurrentPalette(){var ctx=paletteEditorContext;if(!ctx||ctx.builtIn)return;var name=ctx.item.name;if(ctx.type==="accent"){var p=state.customPalettes.find(function(x){return x.id===ctx.item.id});if(!p)return;p.name=name;p.c.a1=editingPalette.c.a1;p.c.a2=editingPalette.c.a2;p.c.a3=editingPalette.c.a3;state.activePaletteId=p.id}else{var b=(state.customBases||[]).find(function(x){return x.id===ctx.item.id});if(!b)return;b.name=name;["bg","panel","text","sub","accentText","off","done"].forEach(function(k){b.c[k]=editingPalette.c[k]});state.backgroundMode="custom";state.activeBaseId=b.id;state.customBackground=Object.assign({},b.c)}applyPalette(activePalette());save();closePaletteEditor(ctx.type,true);openColorGroup=null;renderColorChoices()}
 function deleteCurrentPalette(){var ctx=paletteEditorContext;if(!ctx||ctx.builtIn)return;if(!confirm("このパレットを削除しますか？"))return;if(ctx.type==="accent"){state.customPalettes=state.customPalettes.filter(function(x){return x.id!==ctx.item.id});if(state.activePaletteId===ctx.item.id)state.activePaletteId=builtins[0].id}else{state.customBases=(state.customBases||[]).filter(function(x){return x.id!==ctx.item.id});if(state.activeBaseId===ctx.item.id){state.backgroundMode="white";state.activeBaseId=null}}applyPalette(activePalette());save();closePaletteEditor(ctx.type,true);openColorGroup=null;renderColorChoices()}
 
 var accentLabels={a1:"Accent 1",a2:"Accent 2",a3:"Accent 3"};
@@ -1080,7 +1082,7 @@ function makeSwatch(k,label,container){
  b.innerHTML="<span class='swatchName'>"+label+"</span><span class='swatchHex'>"+editingPalette.c[k]+"</span>";
  b.onclick=function(){
    selectedColorKey=k;
-   spectrumHue=hexToHsl(editingPalette.c[selectedColorKey])[0];
+   spectrumHue=hexToHsv(editingPalette.c[selectedColorKey])[0];
    highlightSelectedSwatches();
    renderColorWorkbench();
  };
@@ -1128,6 +1130,8 @@ function hslToHex(h,s,l){
  if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}
  return "#"+[r,g,b].map(function(v){return Math.round((v+m)*255).toString(16).padStart(2,"0")}).join("").toUpperCase();
 }
+function hexToHsv(hex){var r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255,max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min,h=0;if(d){if(max===r)h=60*(((g-b)/d)%6);else if(max===g)h=60*((b-r)/d+2);else h=60*((r-g)/d+4)}if(h<0)h+=360;return[h,max===0?0:d/max*100,max*100]}
+function hsvToHex(h,s,v){h=((h%360)+360)%360;s=Math.max(0,Math.min(100,s))/100;v=Math.max(0,Math.min(100,v))/100;var c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c,r=0,g=0,b=0;if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}return "#"+[r,g,b].map(function(n){return Math.round((n+m)*255).toString(16).padStart(2,"0")}).join("").toUpperCase()}
 function setSelectedColor(v,rerenderWorkbench){
  editingPalette.c[selectedColorKey]=v.toUpperCase();
  previewPalette();
@@ -1172,31 +1176,14 @@ function renderGridMode(){
  });
 }
 function renderSpectrumModeInto(box){
- var hsl=hexToHsl(editingPalette.c[selectedColorKey]);
- spectrumHue=isFinite(spectrumHue)?spectrumHue:hsl[0];
+ var hsv=hexToHsv(editingPalette.c[selectedColorKey]);spectrumHue=hsv[0];
  box.innerHTML="<div class='spectrumPanel' id='spectrumPanel'><div class='spectrumWhite'></div><div class='spectrumBlack'></div><div class='spectrumCursor' id='spectrumCursor'></div></div><input class='hueStrip' id='hueStrip' type='range' min='0' max='360' value='"+Math.round(spectrumHue)+"'>";
  var panel=document.getElementById("spectrumPanel"),cursor=document.getElementById("spectrumCursor"),hue=document.getElementById("hueStrip");
  function setHueBackground(){panel.style.background="hsl("+spectrumHue+",100%,50%)"}
- function setCursorFromColor(){
-   var c=hexToHsl(editingPalette.c[selectedColorKey]);
-   var x=c[1]/100*panel.clientWidth;
-   var y=(1-c[2]/100)*panel.clientHeight;
-   cursor.style.left=Math.max(0,Math.min(panel.clientWidth,x))+"px";
-   cursor.style.top=Math.max(0,Math.min(panel.clientHeight,y))+"px";
- }
- function pickAt(clientX,clientY){
-   var r=panel.getBoundingClientRect();
-   var x=Math.max(0,Math.min(r.width,clientX-r.left));
-   var y=Math.max(0,Math.min(r.height,clientY-r.top));
-   var s=x/r.width*100;
-   // panel's black overlay makes vertical coordinate closer to lightness-like control
-   var l=(1-y/r.height)*100;
-   setSelectedColor(hslToHex(spectrumHue,s,l),false);
-   cursor.style.left=x+"px";cursor.style.top=y+"px";
- }
- panel.addEventListener("pointerdown",function(e){panel.setPointerCapture(e.pointerId);pickAt(e.clientX,e.clientY)});
- panel.addEventListener("pointermove",function(e){if(e.buttons)pickAt(e.clientX,e.clientY)});
- hue.oninput=function(){spectrumHue=+this.value;setHueBackground();var c=hexToHsl(editingPalette.c[selectedColorKey]);setSelectedColor(hslToHex(spectrumHue,c[1],c[2]),false)};
+ function setCursorFromColor(){var c=hexToHsv(editingPalette.c[selectedColorKey]);cursor.style.left=(c[1]/100*panel.clientWidth)+"px";cursor.style.top=((1-c[2]/100)*panel.clientHeight)+"px"}
+ function pickAt(clientX,clientY){var r=panel.getBoundingClientRect(),x=Math.max(0,Math.min(r.width,clientX-r.left)),y=Math.max(0,Math.min(r.height,clientY-r.top)),sat=x/r.width*100,val=(1-y/r.height)*100;setSelectedColor(hsvToHex(spectrumHue,sat,val),false);cursor.style.left=x+"px";cursor.style.top=y+"px"}
+ panel.addEventListener("pointerdown",function(e){panel.setPointerCapture(e.pointerId);pickAt(e.clientX,e.clientY)});panel.addEventListener("pointermove",function(e){if(e.buttons)pickAt(e.clientX,e.clientY)});
+ hue.oninput=function(){spectrumHue=+this.value;setHueBackground();var c=hexToHsv(editingPalette.c[selectedColorKey]);setSelectedColor(hsvToHex(spectrumHue,c[1],c[2]),false)};
  setHueBackground();setTimeout(setCursorFromColor,0);
 }
 function sliderHTML(label,id,min,max,val){
