@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v5.0</title>
+<title>3TASKS MNDL Safari v5.1</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -212,7 +212,7 @@ button,input{font:inherit;color:inherit}
 .paletteEditorSheet{display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(32,33,32,.10)}.paletteEditorSheet.show{display:block}
 .paletteEditorTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.paletteEditorTop strong{font-size:11px;letter-spacing:.08em}.paletteEditorTop button{border:0;background:transparent;font-size:18px;color:var(--sub)}
 .paletteNameRow{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;margin-bottom:10px}.paletteNameRow label{font-size:9px;font-weight:800;color:var(--sub)}.paletteNameRow input{border:0;border-radius:8px;background:var(--bg);padding:9px 10px;font-size:12px;min-width:0}
-.colorHeadButton{width:100%;border:0;background:transparent;padding:0;text-align:left}.colorHeadButton>span:first-child{display:flex;align-items:baseline;gap:6px}.headChev{font-size:14px;color:var(--sub)}.editReset{display:flex;justify-content:flex-end;margin-top:8px}</style>
+.colorHeadButton{width:100%;border:0;background:transparent;padding:0;text-align:left}.colorHeadButton>span:first-child{display:flex;align-items:baseline;gap:6px}.headChev{font-size:14px;color:var(--sub)}.editReset{display:flex;justify-content:flex-end;margin-top:8px}.editTodayRow{display:none;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 2px;border-top:1px solid rgba(127,127,127,.16);border-bottom:1px solid rgba(127,127,127,.16)}.editTodayRow.show{display:flex}.editTodayRow>span{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub)}</style>
 <link rel="apple-touch-icon" sizes="180x180" href="3tasks_icon_180.png">
 </head>
 <body>
@@ -291,12 +291,13 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v5.0</div>
+<div class="appmeta">3TASKS MNDL · v5.1</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
   <div class="editTrail" id="editTrail"></div>
   <input class="editInput" id="editInput" type="text" placeholder="項目名">
+  <div class="editTodayRow" id="editTodayRow"><span>TODAY</span><button type="button" class="toggle" id="editTodayToggle">ON</button></div>
   <div class="editActions">
     <button class="btn primary" id="editSave">保存</button>
     <button class="btn" id="moveCell">移動</button>
@@ -322,8 +323,8 @@ var track=document.getElementById("track"),viewport=document.getElementById("vie
 var page=0,gesture=null,currentNode="life",editingId=null,editingEmptySlot=null,editingPalette=null,busy=false,editVisiblePage=1;
 
 var builtins=[
+ {id:"current",name:"CURRENT",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#4A5793",a2:"#37AB91",a3:"#379CB7",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
  {id:"field",name:"FIELD",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#A30084",a2:"#B69100",a3:"#00466D",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
- {id:"form",name:"FORM",builtIn:true,c:{bg:"#E9E9E9",panel:"#F3F3F3",text:"#171717",sub:"#737373",a1:"#C94A3F",a2:"#315A9F",a3:"#9A7226",accentText:"#F2F2EF",off:"#D3D3D3",done:"#CFCFCF"}},
  {id:"mist",name:"MIST",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#94CDC2",a2:"#C9C3AE",a3:"#8F7C9A",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}},
  {id:"neon",name:"NEON",builtIn:true,c:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",a1:"#0001F1",a2:"#B2D000",a3:"#F5008B",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"}}
 ];
@@ -361,12 +362,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"field",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.0"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.1"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="5.0";
+   state.appVersion="5.1";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -382,8 +383,9 @@ function load(){
    var s=raw?JSON.parse(raw):null;
    if(s&&s.nodes){
      state=Object.assign(state,s);
+     if(state.activePaletteId==="form")state.activePaletteId="current";
      state.dataVersion=1;
-     state.appVersion="5.0";
+     state.appVersion="5.1";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
@@ -425,6 +427,8 @@ function setPage(n,animate){
  track.style.transition=animate===false?"none":"transform .23s cubic-bezier(.2,.8,.2,1)";
  track.style.transform="translate3d(-"+(page*25)+"%,0,0)";
  title.textContent=["TODAY","MANDALA","ACTIONS","SETTINGS"][page];
+ var dateEl=document.getElementById("todayDate");
+ if(dateEl)dateEl.style.display=page===0?"block":"none";
  var bs=document.querySelectorAll("[data-page]");for(var i=0;i<bs.length;i++)bs[i].classList.toggle("active",i===page);
  if(page===1)restoreEditIfMandala();
 }
@@ -916,12 +920,22 @@ function closeEdit(){
  document.getElementById("editSheet").classList.remove("show","hiddenBySwipe");
  document.getElementById("movePanel").classList.remove("show");
 }
+function renderEditTodayToggle(){
+ var row=document.getElementById("editTodayRow"),btn=document.getElementById("editTodayToggle");
+ var isLeaf=!!(editingId&&node(editingId)&&node(editingId).children.length===0);
+ row.classList.toggle("show",isLeaf);
+ if(!isLeaf)return;
+ var on=state.enabled[editingId]!==false;
+ btn.className="toggle "+(on?"":"off");
+ btn.textContent=on?"ON":"OFF";
+}
 function openEditExisting(id){
  editingId=id;editingEmptySlot=null;
  document.getElementById("editTrail").textContent=pathIds(id).map(function(x){return node(x).name}).join(" ← ");
  document.getElementById("editInput").value=node(id).name;
  document.getElementById("moveCell").disabled=(id==="life");
  document.getElementById("deleteCell").disabled=(id==="life");
+ renderEditTodayToggle();
  showEdit();
 }
 function openEditEmpty(slot){
@@ -929,8 +943,16 @@ function openEditEmpty(slot){
  document.getElementById("editTrail").textContent=pathIds(currentNode).map(function(x){return node(x).name}).join(" ← ")+" ← ＋";
  document.getElementById("editInput").value="";
  document.getElementById("moveCell").disabled=true;document.getElementById("deleteCell").disabled=true;
+ renderEditTodayToggle();
  showEdit();
 }
+document.getElementById("editTodayToggle").onclick=function(){
+ if(!editingId||!node(editingId)||node(editingId).children.length!==0)return;
+ var next=state.enabled[editingId]===false;
+ state.enabled[editingId]=next;
+ if(!next)clearTodayItem(editingId);
+ save();renderEditTodayToggle();renderActions();renderToday();
+};
 document.getElementById("editBackdrop").onclick=closeEdit;
 document.getElementById("editClose").onclick=closeEdit;
 document.getElementById("editSave").onclick=function(){
