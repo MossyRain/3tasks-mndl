@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v5.4</title>
+<title>3TASKS MNDL Safari v5.5</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -312,7 +312,7 @@ html.base-black .paletteEditBtn{
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v5.4</div>
+<div class="appmeta">3TASKS MNDL · v5.5</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -384,12 +384,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.4"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.5"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="5.4";
+   state.appVersion="5.5";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -407,7 +407,7 @@ function load(){
      state=Object.assign(state,s);
      if(state.activePaletteId==="form")state.activePaletteId="current";if(state.activePaletteId==="field")state.activePaletteId="atoll";if(state.activePaletteId==="mist")state.activePaletteId="cirrus";if(state.activePaletteId==="neon")state.activePaletteId="nebula";
      state.dataVersion=1;
-     state.appVersion="5.4";
+     state.appVersion="5.5";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
@@ -1162,6 +1162,7 @@ function hsvToHex(h,s,v){h=((h%360)+360)%360;s=Math.max(0,Math.min(100,s))/100;v
 function setSelectedColor(v,rerenderWorkbench){
  editingPalette.c[selectedColorKey]=v.toUpperCase();
  previewPalette();
+ refreshSwatchesOnly();
  if(rerenderWorkbench!==false&&paletteEditorContext)renderColorWorkbenchFor(paletteEditorContext.type);
 }
 function renderGridMode(){
@@ -1202,13 +1203,22 @@ function renderGridMode(){
    });
  });
 }
+
+function isolateColorGesture(el){
+ if(!el)return;
+ ["pointerdown","pointermove","touchstart","touchmove"].forEach(function(ev){
+   el.addEventListener(ev,function(e){e.stopPropagation()}, {passive:false});
+ });
+}
+
 function renderSpectrumModeInto(box){
  var hsv=hexToHsv(editingPalette.c[selectedColorKey]);spectrumHue=hsv[0];
  box.innerHTML="<div class='spectrumPanel' id='spectrumPanel'><div class='spectrumWhite'></div><div class='spectrumBlack'></div><div class='spectrumCursor' id='spectrumCursor'></div></div><input class='hueStrip' id='hueStrip' type='range' min='0' max='360' value='"+Math.round(spectrumHue)+"'>";
- var panel=document.getElementById("spectrumPanel"),cursor=document.getElementById("spectrumCursor"),hue=document.getElementById("hueStrip");
+ var panel=box.querySelector(".spectrumPanel"),cursor=box.querySelector(".spectrumCursor"),hue=box.querySelector(".hueStrip");
  function setHueBackground(){panel.style.background="hsl("+spectrumHue+",100%,50%)"}
  function setCursorFromColor(){var c=hexToHsv(editingPalette.c[selectedColorKey]);cursor.style.left=(c[1]/100*panel.clientWidth)+"px";cursor.style.top=((1-c[2]/100)*panel.clientHeight)+"px"}
  function pickAt(clientX,clientY){var r=panel.getBoundingClientRect(),x=Math.max(0,Math.min(r.width,clientX-r.left)),y=Math.max(0,Math.min(r.height,clientY-r.top)),sat=x/r.width*100,val=(1-y/r.height)*100;setSelectedColor(hsvToHex(spectrumHue,sat,val),false);cursor.style.left=x+"px";cursor.style.top=y+"px"}
+ isolateColorGesture(panel);isolateColorGesture(hue);
  panel.addEventListener("pointerdown",function(e){panel.setPointerCapture(e.pointerId);pickAt(e.clientX,e.clientY)});panel.addEventListener("pointermove",function(e){if(e.buttons)pickAt(e.clientX,e.clientY)});
  hue.oninput=function(){spectrumHue=+this.value;setHueBackground();var c=hexToHsv(editingPalette.c[selectedColorKey]);setSelectedColor(hsvToHex(spectrumHue,c[1],c[2]),false)};
  setHueBackground();setTimeout(setCursorFromColor,0);
@@ -1221,7 +1231,7 @@ function renderSlidersModeInto(box){
  box.innerHTML=sliderHTML("H","slideH",0,360,hsl[0])+sliderHTML("S","slideS",0,100,hsl[1])+sliderHTML("L","slideL",0,100,hsl[2])+
  "<div class='hexReadout'><div class='chip' style='background:"+editingPalette.c[selectedColorKey]+"'></div><input class='hexInput' id='slideHex' value='"+editingPalette.c[selectedColorKey]+"'></div>";
 
- var h=document.getElementById("slideH"),s=document.getElementById("slideS"),l=document.getElementById("slideL");
+ var h=box.querySelector("#slideH"),s=box.querySelector("#slideS"),l=box.querySelector("#slideL");
  h.style.background="linear-gradient(to right,#ff0000,#ffff00,#00ff00,#00ffff,#0000ff,#ff00ff,#ff0000)";
  function refreshGradients(){
    var hv=+h.value,sv=+s.value,lv=+l.value;
@@ -1229,6 +1239,7 @@ function renderSlidersModeInto(box){
    l.style.background="linear-gradient(to right,#000,hsl("+hv+","+sv+"%,50%),#fff)";
  }
  refreshGradients();
+ [h,s,l].forEach(isolateColorGesture);
 
  [h,s,l].forEach(function(el){
    el.oninput=function(){
