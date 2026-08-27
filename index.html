@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#E7E8E8">
-<title>3TASKS MNDL Safari v5.3</title>
+<title>3TASKS MNDL Safari v5.4</title>
 <style>
 :root{
   --bg:#E7E8E8;--panel:#F4F4F3;--text:#202120;--sub:#747675;
@@ -212,7 +212,30 @@ button,input{font:inherit;color:inherit}
 .paletteEditorSheet{display:none;margin-top:6px;padding:12px 10px 10px;border:1px solid rgba(32,33,32,.10);border-radius:10px;background:rgba(127,127,127,.035)}.paletteEditorSheet.show{display:block}
 .paletteEditorTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.paletteEditorTop strong{font-size:11px;letter-spacing:.08em}.paletteEditorTop button{border:0;background:transparent;font-size:18px;color:var(--sub)}
 .paletteNameRow{display:grid;grid-template-columns:70px 1fr;gap:8px;align-items:center;margin-bottom:10px}.paletteNameRow label{font-size:9px;font-weight:800;color:var(--sub)}.paletteNameRow input{border:0;border-radius:8px;background:var(--bg);padding:9px 10px;font-size:12px;min-width:0}
-.colorHeadButton{width:100%;border:1px solid rgba(32,33,32,.16);border-radius:9px;background:transparent;padding:8px 10px;text-align:left}.colorHeadButton>span:first-child{display:flex;align-items:baseline;gap:6px}.headChev{font-size:14px;color:var(--sub)}.editReset{display:flex;justify-content:flex-end;margin-top:8px}.editorFooter{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}.editorFooter .editActions{margin-top:0}.editorFooter .btn{min-height:42px}.editTodayRow{display:none;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 2px;border-top:1px solid rgba(127,127,127,.16);border-bottom:1px solid rgba(127,127,127,.16)}.editTodayRow.show{display:flex}.editTodayRow>span{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub)}</style>
+.colorHeadButton{width:100%;border:1px solid rgba(32,33,32,.16);border-radius:9px;background:transparent;padding:8px 10px;text-align:left}.colorHeadButton>span:first-child{display:flex;align-items:baseline;gap:6px}.headChev{font-size:14px;color:var(--sub)}.editReset{display:flex;justify-content:flex-end;margin-top:8px}.editorFooter{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}.editorFooter .editActions{margin-top:0}.editorFooter .btn{min-height:42px}.editTodayRow{display:none;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 2px;border-top:1px solid rgba(127,127,127,.16);border-bottom:1px solid rgba(127,127,127,.16)}.editTodayRow.show{display:flex}.editTodayRow>span{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--sub)}
+html.base-white .colorHeadButton,
+html.base-white .colorCurrent,
+html.base-white .paletteEditBtn,
+html.base-white .choiceCard,
+html.base-black .colorHeadButton,
+html.base-black .colorCurrent,
+html.base-black .paletteEditBtn,
+html.base-black .choiceCard{
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
+html.base-white .colorHeadButton,
+html.base-white .colorCurrent,
+html.base-white .paletteEditBtn{
+  background:rgba(32,33,32,.018);
+}
+html.base-black .colorHeadButton,
+html.base-black .colorCurrent,
+html.base-black .paletteEditBtn{
+  background:rgba(255,255,255,.018);
+}
+
+</style>
 <link rel="apple-touch-icon" sizes="180x180" href="3tasks_icon_180.png">
 </head>
 <body>
@@ -289,7 +312,7 @@ button,input{font:inherit;color:inherit}
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v5.3</div>
+<div class="appmeta">3TASKS MNDL · v5.4</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
@@ -361,12 +384,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.3"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.4"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="5.3";
+   state.appVersion="5.4";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -384,7 +407,7 @@ function load(){
      state=Object.assign(state,s);
      if(state.activePaletteId==="form")state.activePaletteId="current";if(state.activePaletteId==="field")state.activePaletteId="atoll";if(state.activePaletteId==="mist")state.activePaletteId="cirrus";if(state.activePaletteId==="neon")state.activePaletteId="nebula";
      state.dataVersion=1;
-     state.appVersion="5.3";
+     state.appVersion="5.4";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
@@ -1039,6 +1062,9 @@ function applyPalette(p){
  var bg=backgroundValues();
  Object.keys(bg).forEach(function(k){document.documentElement.style.setProperty("--"+k,bg[k])});
  save();renderBackgroundControls();
+ var root=document.documentElement;
+ root.classList.remove("base-white","base-black","base-custom");
+ root.classList.add(state.backgroundMode==="black"?"base-black":(state.backgroundMode==="white"?"base-white":"base-custom"));
 }
 
 var openColorGroup=null,paletteEditorContext=null;
