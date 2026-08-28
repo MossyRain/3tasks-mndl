@@ -251,7 +251,7 @@ html.base-black .paletteEditBtn{
 .todayEditSheet{position:absolute;left:18px;right:18px;bottom:calc(var(--safeBottom) + 104px);background:var(--panel);border-radius:14px;padding:14px;z-index:32;box-shadow:0 14px 34px rgba(0,0,0,.16);display:none}
 .todayEditSheet.show{display:block}
 
-</style>
+.choiceSwatches.base.baseTriplet{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:112px;height:38px;align-items:stretch}.choiceSwatches.base.baseTriplet>.baseMain{display:block;width:100%;height:100%;border-radius:4px}.baseAuxGrid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;width:100%;height:100%}.baseAuxGrid i{display:block;width:100%;height:100%;border-radius:2px}.baseAuxGrid .p1{grid-column:1;grid-row:1}.baseAuxGrid .p3{grid-column:3;grid-row:1}.baseAuxGrid .p5{grid-column:2;grid-row:2}.baseAuxGrid .p7{grid-column:1;grid-row:3}.baseAuxGrid .p9{grid-column:3;grid-row:3}</style>
 <link rel="apple-touch-icon" sizes="180x180" href="3tasks_icon_180.png">
 </head>
 <body>
@@ -328,7 +328,7 @@ html.base-black .paletteEditBtn{
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v5.6</div>
+<div class="appmeta">3TASKS MNDL · v5.7</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="todayEditSheet" id="todayEditSheet">
   <div class="editTitle">EDIT ACTION</div>
@@ -1110,7 +1110,7 @@ var accentMode="spectrum",baseMode="spectrum";
 
 function basePreset(mode){if(mode==="black")return blackBg;if(mode==="custom")return state.customBackground||whiteBg;return whiteBg}
 function activeBaseItem(){if(state.backgroundMode==="black")return{id:"black",name:"BLACK",c:blackBg,builtIn:true};if(state.backgroundMode==="custom"){var b=(state.customBases||[]).find(function(x){return x.id===state.activeBaseId});if(b)return{id:b.id,name:b.name,c:b.c,builtIn:false}}return{id:"white",name:"WHITE",c:whiteBg,builtIn:true}}
-function choiceMarkup(c,name,type,selected,chev){var keys=type==="accent"?["a1","a2","a3"]:["bg","panel","text","sub","accentText","off","done"];return"<span class='choiceSwatches "+(type==="accent"?"accents":"base")+"'>"+keys.map(function(k){var cl=type==="base"?(k==="bg"?"baseBg":(k==="panel"?"basePanel":"baseOther")):"";return"<i class='"+cl+"' style='background:"+c[k]+"'></i>"}).join("")+"</span><span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
+function choiceMarkup(c,name,type,selected,chev){var sw;if(type==="accent"){sw="<span class='choiceSwatches accents'>"+["a1","a2","a3"].map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span>"}else{var aux=["text","sub","accentText","off","done"];sw="<span class='choiceSwatches base baseTriplet'><i class='baseMain' style='background:"+c.bg+"'></i><i class='baseMain' style='background:"+c.panel+"'></i><span class='baseAuxGrid'>"+aux.map(function(k,i){return"<i class='"+["p1","p3","p5","p7","p9"][i]+"' style='background:"+c[k]+"'></i>"}).join("")+"</span></span>"}return sw+"<span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
 function bindLongPress(el,onTap,onLong){var timer=null,longDone=false,sx=0,sy=0,moved=false;el.onpointerdown=function(e){if(e.pointerType==="mouse"&&e.button!==0)return;longDone=false;moved=false;sx=e.clientX;sy=e.clientY;clearTimeout(timer);timer=setTimeout(function(){if(!moved){longDone=true;onLong()}},520)};el.onpointermove=function(e){if(Math.hypot(e.clientX-sx,e.clientY-sy)>10){moved=true;clearTimeout(timer)}};el.onpointerup=function(){clearTimeout(timer);if(!longDone&&!moved)onTap()};el.onpointercancel=function(){clearTimeout(timer)};el.onclick=function(e){e.preventDefault()}}
 
 function sameEditor(type,item){return paletteEditorContext&&paletteEditorContext.type===type&&!paletteEditorContext.isNew&&paletteEditorContext.item&&paletteEditorContext.item.id===item.id}
@@ -1133,7 +1133,8 @@ function renderAccentAccordion(){
  document.getElementById("accentEditBtn").onclick=function(){togglePaletteEditor("accent",p)};
  opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;
  palettes().forEach(function(item){
-   opts.appendChild(paletteOptionRow("accent",item,item.id===p.id,function(){applyPalette(item);save();renderColorChoices()}));
+   if(item.id===p.id)return;
+   opts.appendChild(paletteOptionRow("accent",item,false,function(){applyPalette(item);save();renderColorChoices()}));
  });
  var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add);
 }
@@ -1146,7 +1147,8 @@ function renderBaseAccordion(){
  opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;
  var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));
  items.forEach(function(item){
-   opts.appendChild(paletteOptionRow("base",item,item.id===p.id,function(){
+   if(item.id===p.id)return;
+   opts.appendChild(paletteOptionRow("base",item,false,function(){
      if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}
      applyPalette(activePalette());save();renderColorChoices();
    }));
