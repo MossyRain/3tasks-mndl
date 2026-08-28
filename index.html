@@ -251,7 +251,14 @@ html.base-black .paletteEditBtn{
 .todayEditSheet{position:absolute;left:18px;right:18px;bottom:calc(var(--safeBottom) + 104px);background:var(--panel);border-radius:14px;padding:14px;z-index:32;box-shadow:0 14px 34px rgba(0,0,0,.16);display:none}
 .todayEditSheet.show{display:block}
 
-.choiceSwatches.base.baseTriplet{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:112px;height:38px;align-items:stretch}.choiceSwatches.base.baseTriplet>.baseMain{display:block;width:100%;height:100%;border-radius:4px}.baseAuxGrid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;width:100%;height:100%}.baseAuxGrid i{display:block;width:100%;height:100%;border-radius:2px}.baseAuxGrid .p1{grid-column:1;grid-row:1}.baseAuxGrid .p3{grid-column:3;grid-row:1}.baseAuxGrid .p5{grid-column:2;grid-row:2}.baseAuxGrid .p7{grid-column:1;grid-row:3}.baseAuxGrid .p9{grid-column:3;grid-row:3}</style>
+.choiceSwatches.base.baseTriplet{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;width:112px;height:38px;align-items:stretch}.choiceSwatches.base.baseTriplet>.baseMain{display:block;width:100%;height:100%;border-radius:4px}.baseAuxGrid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2px;width:100%;height:100%}.baseAuxGrid i{display:block;width:100%;height:100%;border-radius:2px}.baseAuxGrid .p1{grid-column:1;grid-row:1}.baseAuxGrid .p3{grid-column:3;grid-row:1}.baseAuxGrid .p5{grid-column:2;grid-row:2}.baseAuxGrid .p7{grid-column:1;grid-row:3}.baseAuxGrid .p9{grid-column:3;grid-row:3}
+/* v5.8 */
+.baseAuxLine{display:flex;align-items:flex-end;justify-content:space-between;gap:2px;width:100%;height:100%}
+.baseAuxLine i{display:block;flex:0 0 calc((100% - 8px)/5);aspect-ratio:1/1;border-radius:2px}
+.baseAuxGrid{display:none!important}
+.inlinePaletteEditor{grid-column:1/-1;margin:0 0 4px 0}
+.currentInlineEditor{margin-top:6px}
+</style>
 <link rel="apple-touch-icon" sizes="180x180" href="3tasks_icon_180.png">
 </head>
 <body>
@@ -328,7 +335,7 @@ html.base-black .paletteEditBtn{
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v5.7</div>
+<div class="appmeta">3TASKS MNDL · v5.8</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="todayEditSheet" id="todayEditSheet">
   <div class="editTitle">EDIT ACTION</div>
@@ -359,7 +366,7 @@ html.base-black .paletteEditBtn{
 </div>
 </div>
 
-<script>
+<div id="accentEditorParking" style="display:none"></div><div id="baseEditorParking" style="display:none"></div><script>
 
 (function(){
 var STORAGE="3tasks-mndl-data";
@@ -1110,19 +1117,38 @@ var accentMode="spectrum",baseMode="spectrum";
 
 function basePreset(mode){if(mode==="black")return blackBg;if(mode==="custom")return state.customBackground||whiteBg;return whiteBg}
 function activeBaseItem(){if(state.backgroundMode==="black")return{id:"black",name:"BLACK",c:blackBg,builtIn:true};if(state.backgroundMode==="custom"){var b=(state.customBases||[]).find(function(x){return x.id===state.activeBaseId});if(b)return{id:b.id,name:b.name,c:b.c,builtIn:false}}return{id:"white",name:"WHITE",c:whiteBg,builtIn:true}}
-function choiceMarkup(c,name,type,selected,chev){var sw;if(type==="accent"){sw="<span class='choiceSwatches accents'>"+["a1","a2","a3"].map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span>"}else{var aux=["text","sub","accentText","off","done"];sw="<span class='choiceSwatches base baseTriplet'><i class='baseMain' style='background:"+c.bg+"'></i><i class='baseMain' style='background:"+c.panel+"'></i><span class='baseAuxGrid'>"+aux.map(function(k,i){return"<i class='"+["p1","p3","p5","p7","p9"][i]+"' style='background:"+c[k]+"'></i>"}).join("")+"</span></span>"}return sw+"<span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
+function choiceMarkup(c,name,type,selected,chev){var sw;if(type==="accent"){sw="<span class='choiceSwatches accents'>"+["a1","a2","a3"].map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span>"}else{var aux=["text","sub","accentText","off","done"];sw="<span class='choiceSwatches base baseTriplet'><i class='baseMain' style='background:"+c.bg+"'></i><i class='baseMain' style='background:"+c.panel+"'></i><span class='baseAuxLine'>"+aux.map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span></span>"}return sw+"<span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
 function bindLongPress(el,onTap,onLong){var timer=null,longDone=false,sx=0,sy=0,moved=false;el.onpointerdown=function(e){if(e.pointerType==="mouse"&&e.button!==0)return;longDone=false;moved=false;sx=e.clientX;sy=e.clientY;clearTimeout(timer);timer=setTimeout(function(){if(!moved){longDone=true;onLong()}},520)};el.onpointermove=function(e){if(Math.hypot(e.clientX-sx,e.clientY-sy)>10){moved=true;clearTimeout(timer)}};el.onpointerup=function(){clearTimeout(timer);if(!longDone&&!moved)onTap()};el.onpointercancel=function(){clearTimeout(timer)};el.onclick=function(e){e.preventDefault()}}
 
+function parkPaletteEditor(type){
+ var box=document.getElementById(type==="accent"?"accentEditor":"baseEditor");
+ var park=document.getElementById(type==="accent"?"accentEditorParking":"baseEditorParking");
+ if(box&&park)park.appendChild(box);
+}
+function placePaletteEditor(type,row,isNew){
+ var box=document.getElementById(type==="accent"?"accentEditor":"baseEditor");if(!box)return;
+ box.classList.add("inlinePaletteEditor");
+ if(isNew){
+   var opts=document.getElementById(type==="accent"?"accentOptions":"baseOptions");
+   if(opts)opts.appendChild(box);
+ }else if(row&&row.parentNode){
+   row.parentNode.insertBefore(box,row.nextSibling);
+ }else{
+   var cur=document.getElementById(type==="accent"?"accentCurrent":"baseCurrent");
+   var section=cur&&cur.parentNode;
+   if(section){box.classList.add("currentInlineEditor");section.insertBefore(box,cur.nextSibling)}
+ }
+}
 function sameEditor(type,item){return paletteEditorContext&&paletteEditorContext.type===type&&!paletteEditorContext.isNew&&paletteEditorContext.item&&paletteEditorContext.item.id===item.id}
-function togglePaletteEditor(type,item){
+function togglePaletteEditor(type,item,row){
  if(sameEditor(type,item)){closePaletteEditor(type,false);return}
  if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);
- openPaletteEditor(type,item,false);
+ openPaletteEditor(type,item,false);placePaletteEditor(type,row,false);
 }
 function paletteOptionRow(type,item,selected,onApply){
  var row=document.createElement("div");row.className="paletteOptionRow";
  var b=document.createElement("button");b.type="button";b.className="choiceCard"+(selected?" selected":"");b.innerHTML=choiceMarkup(item.c,item.name,type,selected,false);b.onclick=onApply;
- var e=document.createElement("button");e.type="button";e.className="paletteOptionEdit";e.textContent="EDIT";e.onclick=function(ev){ev.stopPropagation();togglePaletteEditor(type,item)};
+ var e=document.createElement("button");e.type="button";e.className="paletteOptionEdit";e.textContent="EDIT";e.onclick=function(ev){ev.stopPropagation();togglePaletteEditor(type,item,row)};
  row.appendChild(b);row.appendChild(e);return row;
 }
 function renderAccentAccordion(){
@@ -1130,21 +1156,21 @@ function renderAccentAccordion(){
  cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,false);
  document.getElementById("accentChev").textContent=openColorGroup==="accent"?"⌃":"⌄";
  cur.onclick=function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()};
- document.getElementById("accentEditBtn").onclick=function(){togglePaletteEditor("accent",p)};
- opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;
+ document.getElementById("accentEditBtn").onclick=function(){togglePaletteEditor("accent",p,null)};
+ opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");if(opts.contains(document.getElementById("accentEditor")))parkPaletteEditor("accent");opts.innerHTML="";if(openColorGroup!=="accent")return;
  palettes().forEach(function(item){
    if(item.id===p.id)return;
    opts.appendChild(paletteOptionRow("accent",item,false,function(){applyPalette(item);save();renderColorChoices()}));
  });
- var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add);
+ var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("accent",activePalette(),true);placePaletteEditor("accent",null,true)};opts.appendChild(add);
 }
 function renderBaseAccordion(){
  var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();
  cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,false);
  document.getElementById("baseChev").textContent=openColorGroup==="base"?"⌃":"⌄";
  cur.onclick=function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()};
- document.getElementById("baseEditBtn").onclick=function(){togglePaletteEditor("base",p)};
- opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;
+ document.getElementById("baseEditBtn").onclick=function(){togglePaletteEditor("base",p,null)};
+ opts.className="colorOptions"+(openColorGroup==="base"?" open":"");if(opts.contains(document.getElementById("baseEditor")))parkPaletteEditor("base");opts.innerHTML="";if(openColorGroup!=="base")return;
  var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));
  items.forEach(function(item){
    if(item.id===p.id)return;
@@ -1153,7 +1179,7 @@ function renderBaseAccordion(){
      applyPalette(activePalette());save();renderColorChoices();
    }));
  });
- var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add);
+ var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("base",activeBaseItem(),true);placePaletteEditor("base",null,true)};opts.appendChild(add);
 }
 function renderColorChoices(){renderAccentAccordion();renderBaseAccordion()}function renderBackgroundControls(){renderColorChoices()}function renderPaletteList(){renderColorChoices()}
 
