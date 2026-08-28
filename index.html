@@ -258,6 +258,12 @@ html.base-black .paletteEditBtn{
 .baseAuxGrid{display:none!important}
 .inlinePaletteEditor{grid-column:1/-1;margin:0 0 4px 0}
 .currentInlineEditor{margin-top:6px}
+
+/* v5.9 */
+.actionSort{display:flex;gap:6px;margin:0 0 10px 0}
+.actionSort button{border:0;background:transparent;color:var(--sub);font-size:10px;font-weight:800;letter-spacing:.05em;padding:7px 9px;border-radius:999px}
+.actionSort button.active{background:var(--panel);color:var(--text)}
+
 </style>
 <link rel="apple-touch-icon" sizes="180x180" href="3tasks_icon_180.png">
 </head>
@@ -277,7 +283,13 @@ html.base-black .paletteEditBtn{
 <div class="hint">タップ：EDIT CELL ／ 長押し：9マス全体へ拡大して深掘り ／ 中央長押し：親セル位置へ縮小して戻る</div>
 </div></section>
 
-<section class="page"><div class="scroll"><div class="actions" id="actions"></div></div></section>
+<section class="page"><div class="scroll">
+<div class="actionSort" id="actionSort">
+  <button type="button" data-action-sort="default">DEFAULT</button>
+  <button type="button" data-action-sort="on">ON</button>
+  <button type="button" data-action-sort="off">OFF</button>
+</div>
+<div class="actions" id="actions"></div></div></section>
 
 <section class="page"><div class="scroll">
 <div class="section" id="colorSection"><h2>COLOR</h2>
@@ -335,7 +347,7 @@ html.base-black .paletteEditBtn{
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v5.8</div>
+<div class="appmeta">3TASKS MNDL · v5.9</div>
 
 <div class="editBackdrop" id="editBackdrop"></div><div class="todayEditSheet" id="todayEditSheet">
   <div class="editTitle">EDIT ACTION</div>
@@ -366,7 +378,7 @@ html.base-black .paletteEditBtn{
 </div>
 </div>
 
-<div id="accentEditorParking" style="display:none"></div><div id="baseEditorParking" style="display:none"></div><script>
+<script>
 
 (function(){
 var STORAGE="3tasks-mndl-data";
@@ -415,12 +427,12 @@ function renderJapanDate(){
 }
 renderJapanDate();
 
-var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,dataVersion:1,appVersion:"5.5"};
+var state={nodes:JSON.parse(JSON.stringify(defaultNodes)),enabled:{},today:[{id:"bike",tone:1,done:false},{id:"book10",tone:2,done:false},{id:"sketch1",tone:3,done:false}],customPalettes:[],customBases:[],activePaletteId:"current",backgroundMode:"white",customBackground:{bg:"#E7E8E8",panel:"#F4F4F3",text:"#202120",sub:"#747675",accentText:"#F4F4F1",off:"#D6D7D6",done:"#D0D1D0"},manualReselectUsed:false,todayDateKey:null,actionSortMode:"default",dataVersion:1,appVersion:"5.9"};
 
 function save(){
  try{
    state.dataVersion=1;
-   state.appVersion="5.5";
+   state.appVersion="5.9";
    localStorage.setItem(STORAGE,JSON.stringify(state));
  }catch(e){}
 }
@@ -435,10 +447,10 @@ function load(){
    }
    var s=raw?JSON.parse(raw):null;
    if(s&&s.nodes){
-     state=Object.assign(state,s);
+     state=Object.assign(state,s);if(!["default","on","off"].includes(state.actionSortMode))state.actionSortMode="default";
      if(state.activePaletteId==="form")state.activePaletteId="current";if(state.activePaletteId==="field")state.activePaletteId="atoll";if(state.activePaletteId==="mist")state.activePaletteId="cirrus";if(state.activePaletteId==="neon")state.activePaletteId="nebula";
      state.dataVersion=1;
-     state.appVersion="5.5";
+     state.appVersion="5.9";
      localStorage.setItem(STORAGE,JSON.stringify(state));
    }
  }catch(e){}
@@ -483,7 +495,7 @@ function setPage(n,animate){
  var dateEl=document.getElementById("todayDate");
  if(dateEl)dateEl.style.visibility=page===0?"visible":"hidden";
  var bs=document.querySelectorAll("[data-page]");for(var i=0;i<bs.length;i++)bs[i].classList.toggle("active",i===page);
- if(page===1)restoreEditIfMandala();
+ if(page===1)restoreEditIfMandala();if(page===2)renderActions();
 }
 var nav=document.querySelectorAll("[data-page]");for(var i=0;i<nav.length;i++){(function(idx){nav[idx].onclick=function(){if(idx!==1)hideEditForSwipe();setPage(idx,true)}})(i)}
 
@@ -614,8 +626,13 @@ document.getElementById("todayEditSave").onclick=function(){
 document.getElementById("todayEditCancel").onclick=closeTodayNameEditor;
 function renderActions(){
  var box=document.getElementById("actions");box.innerHTML="";
- leaves().forEach(function(n){
-   var on=state.enabled[n.id]!==false,d=document.createElement("div");d.className="action";
+ var mode=state.actionSortMode||"default";
+ document.querySelectorAll("[data-action-sort]").forEach(function(b){b.classList.toggle("active",b.dataset.actionSort===mode)});
+ var list=leaves().map(function(n,i){return{n:n,i:i,on:state.enabled[n.id]!==false}});
+ if(mode==="on")list.sort(function(a,b){return (b.on-a.on)||(a.i-b.i)});
+ if(mode==="off")list.sort(function(a,b){return (a.on-b.on)||(a.i-b.i)});
+ list.forEach(function(rec){
+   var n=rec.n,on=rec.on,d=document.createElement("div");d.className="action";
    var copy=document.createElement("div");copy.className="actionCopy";
    var name=document.createElement("div");name.className="actionName";name.textContent=n.name;
    var tr=document.createElement("div");tr.className="actionTrail";tr.textContent=trail(n.id);
@@ -627,10 +644,17 @@ function renderActions(){
      input.onblur=function(){finish(false)};input.onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();input.blur()}else if(e.key==="Escape"){e.preventDefault();finish(true)}};
    };
    var toggle=document.createElement("button");toggle.type="button";toggle.className="toggle "+(on?"":"off");toggle.textContent=on?"ON":"OFF";
-   toggle.onclick=function(){var next=!on;state.enabled[n.id]=next;if(!next)clearTodayItem(n.id);save();renderActions();renderToday()};
+   toggle.onclick=function(){
+     on=!on;state.enabled[n.id]=on;if(!on)clearTodayItem(n.id);save();
+     toggle.className="toggle "+(on?"":"off");toggle.textContent=on?"ON":"OFF";
+     renderToday();
+   };
    d.appendChild(copy);d.appendChild(toggle);box.appendChild(d);
  });
 }
+document.querySelectorAll("[data-action-sort]").forEach(function(b){
+ b.onclick=function(){state.actionSortMode=b.dataset.actionSort;save();renderActions()};
+});
 function renderBreadcrumb(){
  var box=document.getElementById("breadcrumb");box.innerHTML="";var ids=pathIds(currentNode);
  ids.forEach(function(id,i){
@@ -1120,30 +1144,29 @@ function activeBaseItem(){if(state.backgroundMode==="black")return{id:"black",na
 function choiceMarkup(c,name,type,selected,chev){var sw;if(type==="accent"){sw="<span class='choiceSwatches accents'>"+["a1","a2","a3"].map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span>"}else{var aux=["text","sub","accentText","off","done"];sw="<span class='choiceSwatches base baseTriplet'><i class='baseMain' style='background:"+c.bg+"'></i><i class='baseMain' style='background:"+c.panel+"'></i><span class='baseAuxLine'>"+aux.map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span></span>"}return sw+"<span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
 function bindLongPress(el,onTap,onLong){var timer=null,longDone=false,sx=0,sy=0,moved=false;el.onpointerdown=function(e){if(e.pointerType==="mouse"&&e.button!==0)return;longDone=false;moved=false;sx=e.clientX;sy=e.clientY;clearTimeout(timer);timer=setTimeout(function(){if(!moved){longDone=true;onLong()}},520)};el.onpointermove=function(e){if(Math.hypot(e.clientX-sx,e.clientY-sy)>10){moved=true;clearTimeout(timer)}};el.onpointerup=function(){clearTimeout(timer);if(!longDone&&!moved)onTap()};el.onpointercancel=function(){clearTimeout(timer)};el.onclick=function(e){e.preventDefault()}}
 
+function editorSheet(type){return document.getElementById(type==="accent"?"accentEditorSheet":"baseEditorSheet")}
+function editorCurrentRow(type){var cur=document.getElementById(type==="accent"?"accentCurrent":"baseCurrent");return cur?cur.parentNode:null}
 function parkPaletteEditor(type){
- var box=document.getElementById(type==="accent"?"accentEditor":"baseEditor");
- var park=document.getElementById(type==="accent"?"accentEditorParking":"baseEditorParking");
- if(box&&park)park.appendChild(box);
+ var sheet=editorSheet(type),block=document.getElementById(type==="accent"?"accentBlock":"baseBlock");
+ if(sheet&&block)block.appendChild(sheet);
 }
 function placePaletteEditor(type,row,isNew){
- var box=document.getElementById(type==="accent"?"accentEditor":"baseEditor");if(!box)return;
- box.classList.add("inlinePaletteEditor");
+ var sheet=editorSheet(type);if(!sheet)return;
  if(isNew){
    var opts=document.getElementById(type==="accent"?"accentOptions":"baseOptions");
-   if(opts)opts.appendChild(box);
+   if(opts)opts.appendChild(sheet);
  }else if(row&&row.parentNode){
-   row.parentNode.insertBefore(box,row.nextSibling);
+   row.parentNode.insertBefore(sheet,row.nextSibling);
  }else{
-   var cur=document.getElementById(type==="accent"?"accentCurrent":"baseCurrent");
-   var section=cur&&cur.parentNode;
-   if(section){box.classList.add("currentInlineEditor");section.insertBefore(box,cur.nextSibling)}
+   var curRow=editorCurrentRow(type);
+   if(curRow&&curRow.parentNode)curRow.parentNode.insertBefore(sheet,curRow.nextSibling);
  }
 }
 function sameEditor(type,item){return paletteEditorContext&&paletteEditorContext.type===type&&!paletteEditorContext.isNew&&paletteEditorContext.item&&paletteEditorContext.item.id===item.id}
 function togglePaletteEditor(type,item,row){
  if(sameEditor(type,item)){closePaletteEditor(type,false);return}
  if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);
- openPaletteEditor(type,item,false);placePaletteEditor(type,row,false);
+ openPaletteEditor(type,item,false);renderColorChoices();
 }
 function paletteOptionRow(type,item,selected,onApply){
  var row=document.createElement("div");row.className="paletteOptionRow";
@@ -1152,34 +1175,56 @@ function paletteOptionRow(type,item,selected,onApply){
  row.appendChild(b);row.appendChild(e);return row;
 }
 function renderAccentAccordion(){
- var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();
+ var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette(),sheet=editorSheet("accent");
+ parkPaletteEditor("accent");
  cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,false);
  document.getElementById("accentChev").textContent=openColorGroup==="accent"?"⌃":"⌄";
  cur.onclick=function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()};
  document.getElementById("accentEditBtn").onclick=function(){togglePaletteEditor("accent",p,null)};
- opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");if(opts.contains(document.getElementById("accentEditor")))parkPaletteEditor("accent");opts.innerHTML="";if(openColorGroup!=="accent")return;
+ opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";
+ if(paletteEditorContext&&paletteEditorContext.type==="accent"&&!paletteEditorContext.isNew&&paletteEditorContext.item.id===p.id)placePaletteEditor("accent",null,false);
+ if(openColorGroup!=="accent")return;
  palettes().forEach(function(item){
    if(item.id===p.id)return;
-   opts.appendChild(paletteOptionRow("accent",item,false,function(){applyPalette(item);save();renderColorChoices()}));
+   var row=paletteOptionRow("accent",item,false,function(){applyPalette(item);save();renderColorChoices()});
+   opts.appendChild(row);
+   if(paletteEditorContext&&paletteEditorContext.type==="accent"&&!paletteEditorContext.isNew&&paletteEditorContext.item.id===item.id)placePaletteEditor("accent",row,false);
  });
- var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("accent",activePalette(),true);placePaletteEditor("accent",null,true)};opts.appendChild(add);
+ var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";
+ add.onclick=function(){
+   if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);
+   openPaletteEditor("accent",activePalette(),true);renderColorChoices();
+ };
+ opts.appendChild(add);
+ if(paletteEditorContext&&paletteEditorContext.type==="accent"&&paletteEditorContext.isNew)placePaletteEditor("accent",null,true);
 }
 function renderBaseAccordion(){
- var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();
+ var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem(),sheet=editorSheet("base");
+ parkPaletteEditor("base");
  cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,false);
  document.getElementById("baseChev").textContent=openColorGroup==="base"?"⌃":"⌄";
  cur.onclick=function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()};
  document.getElementById("baseEditBtn").onclick=function(){togglePaletteEditor("base",p,null)};
- opts.className="colorOptions"+(openColorGroup==="base"?" open":"");if(opts.contains(document.getElementById("baseEditor")))parkPaletteEditor("base");opts.innerHTML="";if(openColorGroup!=="base")return;
+ opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";
+ if(paletteEditorContext&&paletteEditorContext.type==="base"&&!paletteEditorContext.isNew&&paletteEditorContext.item.id===p.id)placePaletteEditor("base",null,false);
+ if(openColorGroup!=="base")return;
  var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));
  items.forEach(function(item){
    if(item.id===p.id)return;
-   opts.appendChild(paletteOptionRow("base",item,false,function(){
+   var row=paletteOptionRow("base",item,false,function(){
      if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}
      applyPalette(activePalette());save();renderColorChoices();
-   }));
+   });
+   opts.appendChild(row);
+   if(paletteEditorContext&&paletteEditorContext.type==="base"&&!paletteEditorContext.isNew&&paletteEditorContext.item.id===item.id)placePaletteEditor("base",row,false);
  });
- var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("base",activeBaseItem(),true);placePaletteEditor("base",null,true)};opts.appendChild(add);
+ var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";
+ add.onclick=function(){
+   if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);
+   openPaletteEditor("base",activeBaseItem(),true);renderColorChoices();
+ };
+ opts.appendChild(add);
+ if(paletteEditorContext&&paletteEditorContext.type==="base"&&paletteEditorContext.isNew)placePaletteEditor("base",null,true);
 }
 function renderColorChoices(){renderAccentAccordion();renderBaseAccordion()}function renderBackgroundControls(){renderColorChoices()}function renderPaletteList(){renderColorChoices()}
 
