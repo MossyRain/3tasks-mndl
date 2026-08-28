@@ -235,6 +235,22 @@ html.base-black .paletteEditBtn{
   background:rgba(255,255,255,.018);
 }
 
+
+/* v5.6 */
+.paletteOptionRow{display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:7px;align-items:center}
+.paletteOptionRow .choiceCard{grid-template-columns:112px 1fr 22px}
+.paletteOptionEdit{border:0;background:transparent;color:var(--text);font-size:10px;font-weight:800;letter-spacing:.05em;min-height:42px}
+.choiceSwatches.base{display:flex;gap:2px}
+.choiceSwatches.base i{flex:1 1 0}
+.choiceSwatches.base i.baseBg{flex:3 1 0}
+.choiceSwatches.base i.basePanel{flex:2 1 0}
+.accentPreviewRow{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) 28px minmax(0,1fr);gap:4px;align-items:stretch;margin-bottom:8px}
+.accentPreviewRow .swatchBtn{width:100%;min-width:0}
+.swapAccent{border:0;background:transparent;color:var(--sub);font-size:15px;padding:0;min-width:0}
+.todayNameEdit{cursor:pointer}
+.todayEditSheet{position:absolute;left:18px;right:18px;bottom:calc(var(--safeBottom) + 104px);background:var(--panel);border-radius:14px;padding:14px;z-index:32;box-shadow:0 14px 34px rgba(0,0,0,.16);display:none}
+.todayEditSheet.show{display:block}
+
 </style>
 <link rel="apple-touch-icon" sizes="180x180" href="3tasks_icon_180.png">
 </head>
@@ -312,9 +328,17 @@ html.base-black .paletteEditBtn{
 </div></div>
 
 <nav class="footer"><button class="active" data-page="0">TODAY</button><button data-page="1">MANDALA</button><button data-page="2">ACTIONS</button><button data-page="3"><span class="gear">⚙︎</span></button></nav>
-<div class="appmeta">3TASKS MNDL · v5.5</div>
+<div class="appmeta">3TASKS MNDL · v5.6</div>
 
-<div class="editBackdrop" id="editBackdrop"></div><div class="editSheet" id="editSheet">
+<div class="editBackdrop" id="editBackdrop"></div><div class="todayEditSheet" id="todayEditSheet">
+  <div class="editTitle">EDIT ACTION</div>
+  <input class="editInput" id="todayEditInput" type="text" placeholder="項目名">
+  <div class="editActions">
+    <button class="btn primary" id="todayEditSave">保存</button>
+    <button class="btn" id="todayEditCancel">キャンセル</button>
+  </div>
+</div>
+<div class="editSheet" id="editSheet">
   <div class="editTitle">EDIT CELL</div>
   <div class="editTrail" id="editTrail"></div>
   <input class="editInput" id="editInput" type="text" placeholder="項目名">
@@ -546,13 +570,14 @@ function renderToday(){
    if(n){
      card.innerHTML=
        "<div class='num'>0"+(i+1)+"</div>"+
-       "<div><div class='taskName'>"+n.name+"</div><div class='trail'>"+trail(t.id)+"</div></div>"+
+       "<div><div class='taskName todayNameEdit'>"+n.name+"</div><div class='trail'>"+trail(t.id)+"</div></div>"+
        "<div class='cardRight'>"+
          "<button class='refreshPlain "+(state.manualReselectUsed?"used":"")+"' aria-label='選び直す'>↻</button>"+
          "<button class='doneAction' aria-label='完了'><span>DONE</span><span class='doneCircle'>"+(t.done?"✓":"")+"</span></button>"+
        "</div>";
      card.querySelector(".doneAction").onclick=function(){t.done=!t.done;save();renderToday()};
      card.querySelector(".refreshPlain").onclick=function(){reselectToday(i,false)};
+     card.querySelector(".taskName").onclick=function(e){e.stopPropagation();openTodayNameEditor(t.id)};
    }else{
      card.innerHTML=
        "<div class='num'>0"+(i+1)+"</div>"+
@@ -567,6 +592,19 @@ function renderToday(){
  document.getElementById("bar").style.width=(d/3*100)+"%";
  save();
 }
+var todayEditingId=null;
+function openTodayNameEditor(id){
+ var n=node(id);if(!n)return;todayEditingId=id;
+ var sheet=document.getElementById("todayEditSheet"),inp=document.getElementById("todayEditInput");
+ inp.value=n.name;sheet.classList.add("show");document.getElementById("editBackdrop").classList.add("show");
+ setTimeout(function(){inp.focus();inp.select()},0);
+}
+function closeTodayNameEditor(){todayEditingId=null;document.getElementById("todayEditSheet").classList.remove("show");document.getElementById("editBackdrop").classList.remove("show")}
+document.getElementById("todayEditSave").onclick=function(){
+ if(!todayEditingId)return;var v=document.getElementById("todayEditInput").value.trim();if(!v)return;
+ var n=node(todayEditingId);if(n)n.name=v;save();closeTodayNameEditor();renderToday();renderActions();renderMandala();
+};
+document.getElementById("todayEditCancel").onclick=closeTodayNameEditor;
 function renderActions(){
  var box=document.getElementById("actions");box.innerHTML="";
  leaves().forEach(function(n){
@@ -1072,11 +1110,49 @@ var accentMode="spectrum",baseMode="spectrum";
 
 function basePreset(mode){if(mode==="black")return blackBg;if(mode==="custom")return state.customBackground||whiteBg;return whiteBg}
 function activeBaseItem(){if(state.backgroundMode==="black")return{id:"black",name:"BLACK",c:blackBg,builtIn:true};if(state.backgroundMode==="custom"){var b=(state.customBases||[]).find(function(x){return x.id===state.activeBaseId});if(b)return{id:b.id,name:b.name,c:b.c,builtIn:false}}return{id:"white",name:"WHITE",c:whiteBg,builtIn:true}}
-function choiceMarkup(c,name,type,selected,chev){var keys=type==="accent"?["a1","a2","a3"]:["bg","panel","text","sub"];return"<span class='choiceSwatches "+(type==="accent"?"accents":"base")+"'>"+keys.map(function(k){return"<i style='background:"+c[k]+"'></i>"}).join("")+"</span><span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
+function choiceMarkup(c,name,type,selected,chev){var keys=type==="accent"?["a1","a2","a3"]:["bg","panel","text","sub","accentText","off","done"];return"<span class='choiceSwatches "+(type==="accent"?"accents":"base")+"'>"+keys.map(function(k){var cl=type==="base"?(k==="bg"?"baseBg":(k==="panel"?"basePanel":"baseOther")):"";return"<i class='"+cl+"' style='background:"+c[k]+"'></i>"}).join("")+"</span><span class='choiceMeta'><span class='choiceName'>"+name+"</span></span>"+(chev?"<span class='chev'>"+chev+"</span>":"<span class='choiceCheck'>"+(selected?"✓":"")+"</span>")}
 function bindLongPress(el,onTap,onLong){var timer=null,longDone=false,sx=0,sy=0,moved=false;el.onpointerdown=function(e){if(e.pointerType==="mouse"&&e.button!==0)return;longDone=false;moved=false;sx=e.clientX;sy=e.clientY;clearTimeout(timer);timer=setTimeout(function(){if(!moved){longDone=true;onLong()}},520)};el.onpointermove=function(e){if(Math.hypot(e.clientX-sx,e.clientY-sy)>10){moved=true;clearTimeout(timer)}};el.onpointerup=function(){clearTimeout(timer);if(!longDone&&!moved)onTap()};el.onpointercancel=function(){clearTimeout(timer)};el.onclick=function(e){e.preventDefault()}}
 
-function renderAccentAccordion(){var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,false);document.getElementById("accentChev").textContent=openColorGroup==="accent"?"⌃":"⌄";cur.onclick=function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()};document.getElementById("accentEditBtn").onclick=function(){openPaletteEditor("accent",p,false)};opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;palettes().forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"accent",false,false);b.onclick=function(){applyPalette(item);save();openColorGroup=null;renderColorChoices()};opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add)}
-function renderBaseAccordion(){var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,false);document.getElementById("baseChev").textContent=openColorGroup==="base"?"⌃":"⌄";cur.onclick=function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()};document.getElementById("baseEditBtn").onclick=function(){openPaletteEditor("base",p,false)};opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));items.forEach(function(item){if(item.id===p.id)return;var b=document.createElement("button");b.type="button";b.className="choiceCard";b.innerHTML=choiceMarkup(item.c,item.name,"base",false,false);b.onclick=function(){if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}applyPalette(activePalette());save();openColorGroup=null;renderColorChoices()};opts.appendChild(b)});var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";add.onclick=function(){openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add)}
+function sameEditor(type,item){return paletteEditorContext&&paletteEditorContext.type===type&&!paletteEditorContext.isNew&&paletteEditorContext.item&&paletteEditorContext.item.id===item.id}
+function togglePaletteEditor(type,item){
+ if(sameEditor(type,item)){closePaletteEditor(type,false);return}
+ if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);
+ openPaletteEditor(type,item,false);
+}
+function paletteOptionRow(type,item,selected,onApply){
+ var row=document.createElement("div");row.className="paletteOptionRow";
+ var b=document.createElement("button");b.type="button";b.className="choiceCard"+(selected?" selected":"");b.innerHTML=choiceMarkup(item.c,item.name,type,selected,false);b.onclick=onApply;
+ var e=document.createElement("button");e.type="button";e.className="paletteOptionEdit";e.textContent="EDIT";e.onclick=function(ev){ev.stopPropagation();togglePaletteEditor(type,item)};
+ row.appendChild(b);row.appendChild(e);return row;
+}
+function renderAccentAccordion(){
+ var cur=document.getElementById("accentCurrent"),opts=document.getElementById("accentOptions");if(!cur||!opts)return;var p=activePalette();
+ cur.innerHTML=choiceMarkup(p.c,p.name,"accent",true,false);
+ document.getElementById("accentChev").textContent=openColorGroup==="accent"?"⌃":"⌄";
+ cur.onclick=function(){openColorGroup=openColorGroup==="accent"?null:"accent";renderColorChoices()};
+ document.getElementById("accentEditBtn").onclick=function(){togglePaletteEditor("accent",p)};
+ opts.className="colorOptions"+(openColorGroup==="accent"?" open":"");opts.innerHTML="";if(openColorGroup!=="accent")return;
+ palettes().forEach(function(item){
+   opts.appendChild(paletteOptionRow("accent",item,item.id===p.id,function(){applyPalette(item);save();renderColorChoices()}));
+ });
+ var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW ACCENT";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("accent",activePalette(),true)};opts.appendChild(add);
+}
+function renderBaseAccordion(){
+ var cur=document.getElementById("baseCurrent"),opts=document.getElementById("baseOptions");if(!cur||!opts)return;var p=activeBaseItem();
+ cur.innerHTML=choiceMarkup(p.c,p.name,"base",true,false);
+ document.getElementById("baseChev").textContent=openColorGroup==="base"?"⌃":"⌄";
+ cur.onclick=function(){openColorGroup=openColorGroup==="base"?null:"base";renderColorChoices()};
+ document.getElementById("baseEditBtn").onclick=function(){togglePaletteEditor("base",p)};
+ opts.className="colorOptions"+(openColorGroup==="base"?" open":"");opts.innerHTML="";if(openColorGroup!=="base")return;
+ var items=[{id:"white",name:"WHITE",c:whiteBg,builtIn:true},{id:"black",name:"BLACK",c:blackBg,builtIn:true}].concat((state.customBases||[]).map(function(b){return{id:b.id,name:b.name,c:b.c,builtIn:false}}));
+ items.forEach(function(item){
+   opts.appendChild(paletteOptionRow("base",item,item.id===p.id,function(){
+     if(item.id==="white"||item.id==="black"){state.backgroundMode=item.id;state.activeBaseId=null}else{state.backgroundMode="custom";state.activeBaseId=item.id;state.customBackground=Object.assign({},item.c)}
+     applyPalette(activePalette());save();renderColorChoices();
+   }));
+ });
+ var add=document.createElement("button");add.type="button";add.className="colorAdd";add.textContent="+ NEW BASE";add.onclick=function(){if(paletteEditorContext)closePaletteEditor(paletteEditorContext.type,false);openPaletteEditor("base",activeBaseItem(),true)};opts.appendChild(add);
+}
 function renderColorChoices(){renderAccentAccordion();renderBaseAccordion()}function renderBackgroundControls(){renderColorChoices()}function renderPaletteList(){renderColorChoices()}
 
 function openPaletteEditor(type,item,isNew){paletteEditorContext={type:type,item:item,isNew:isNew,builtIn:!!item.builtIn,originalPaletteId:state.activePaletteId,originalBackgroundMode:state.backgroundMode,originalBaseId:state.activeBaseId,originalCustomBackground:Object.assign({},state.customBackground||whiteBg),initialColors:null};var c;if(type==="accent"){c=Object.assign({},backgroundValues(),{a1:item.c.a1,a2:item.c.a2,a3:item.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="a1";document.getElementById("accentEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+"ACCENT";buildPaletteEditorActions("accent");document.getElementById("accentEditorSheet").classList.add("show");document.getElementById("baseEditorSheet").classList.remove("show")}else{var ap=activePalette();c=Object.assign({},item.c,{a1:ap.c.a1,a2:ap.c.a2,a3:ap.c.a3});editingPalette={id:item.id,name:item.name,builtIn:item.builtIn,c:c};selectedColorKey="bg";document.getElementById("baseEditorTitle").textContent=(isNew?"NEW ":"EDIT ")+"BASE";buildPaletteEditorActions("base");document.getElementById("baseEditorSheet").classList.add("show");document.getElementById("accentEditorSheet").classList.remove("show")}paletteEditorContext.initialColors=Object.assign({},editingPalette.c);renderPaletteEditor();renderColorWorkbenchFor(type)}
@@ -1111,7 +1187,7 @@ function makeSwatch(k,label,container){
    selectedColorKey=k;
    spectrumHue=hexToHsv(editingPalette.c[selectedColorKey])[0];
    highlightSelectedSwatches();
-   renderColorWorkbench();
+   if(paletteEditorContext)renderColorWorkbenchFor(paletteEditorContext.type);
  };
  container.appendChild(b);
 }
@@ -1124,13 +1200,22 @@ function highlightSelectedSwatches(){
 function renderPaletteEditor(){
  var ctx=paletteEditorContext;if(!ctx)return;
  if(ctx.type==="accent"){
-   var aPrev=document.getElementById("accentPreview");aPrev.innerHTML="";
-   Object.keys(accentLabels).forEach(function(k){makeSwatch(k,accentLabels[k],aPrev)});
+   var aPrev=document.getElementById("accentPreview");aPrev.innerHTML="";aPrev.className="accentPreviewRow";
+   ["a1","a2","a3"].forEach(function(k,i){
+     makeSwatch(k,accentLabels[k],aPrev);
+     if(i<2){var sw=document.createElement("button");sw.type="button";sw.className="swapAccent";sw.textContent="◀︎▶︎";(function(a,b){sw.onclick=function(){swapAccentColors(a,b)}})(k,i===0?"a2":"a3");aPrev.appendChild(sw)}
+   });
  }else{
-   var bPrev=document.getElementById("basePreview");bPrev.innerHTML="";
+   var bPrev=document.getElementById("basePreview");bPrev.innerHTML="";bPrev.className="swatchPreview basePreview";
    Object.keys(baseLabels).forEach(function(k){makeSwatch(k,baseLabels[k],bPrev)});
  }
  highlightSelectedSwatches();previewPalette();
+}
+function swapAccentColors(a,b){
+ var t=editingPalette.c[a];editingPalette.c[a]=editingPalette.c[b];editingPalette.c[b]=t;
+ if(selectedColorKey===a)selectedColorKey=b;else if(selectedColorKey===b)selectedColorKey=a;
+ spectrumHue=hexToHsv(editingPalette.c[selectedColorKey])[0];
+ renderPaletteEditor();renderColorWorkbenchFor("accent");
 }
 function refreshSwatchesOnly(){
  document.querySelectorAll(".swatchBtn").forEach(function(b){
@@ -1248,11 +1333,11 @@ function renderSlidersModeInto(box){
      var v=hslToHex(+h.value,+s.value,+l.value);
      editingPalette.c[selectedColorKey]=v;
      previewPalette();
-     document.getElementById("slideHex").value=v;
+     box.querySelector("#slideHex").value=v;
    };
  });
 
- document.getElementById("slideHex").onchange=function(){
+ box.querySelector("#slideHex").onchange=function(){
    var v=this.value.trim();if(v.charAt(0)!=="#")v="#"+v;
    if(/^#[0-9A-Fa-f]{6}$/.test(v))setSelectedColor(v);
  };
@@ -1309,6 +1394,8 @@ save();
 scheduleJapanMidnightShuffle();
 })();
 
+
+document.getElementById("todayEditInput").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("todayEditSave").click();});
 </script>
 </body>
 </html>
